@@ -8,21 +8,21 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background: #EEF2F6; height: 100vh; display: flex; justify-content: center; align-items: center; }
-        .phone-container { width: 100%; max-width: 430px; height: 100vh; background: #ffffff; display: flex; flex-direction: column; position: relative; box-shadow: 0 25px 60px -15px rgba(15,23,42,0.3); overflow: hidden; }
-        .header { background: #ffffff; padding: 16px 20px; text-align: center; font-weight: 800; border-bottom: 1px solid #E2E8F0; }
+        .phone-container { width: 100%; max-width: 430px; height: 100vh; background: #ffffff; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header { padding: 20px; text-align: center; font-weight: 800; border-bottom: 1px solid #E2E8F0; background: white; }
         .main-content { flex: 1; overflow-y: auto; background: #F1F5F9; padding: 20px; }
         .nav-bar { height: 70px; background: #ffffff; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #A2B1C6; cursor: pointer; font-size: 11px; font-weight: 700; }
+        .nav-item { cursor: pointer; color: #A2B1C6; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .nav-item.active { color: #D97706; }
-        .summary-card { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; }
-        .alumni-item { background: white; padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; border: 1px solid #E2E8F0; }
-        .chat-view { display: none; height: 100%; flex-direction: column; background: #E8EBF0; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
-        .msg-bubble { padding: 10px 14px; border-radius: 12px; background: white; font-size: 14px; }
-        .msg-bubble.me { background: #D97706; color: white; align-self: flex-end; }
+        .summary-card { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; }
+        .alumni-item { background: white; padding: 16px; border-radius: 16px; margin-bottom: 12px; border: 1px solid #E2E8F0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 10px; height: 400px; }
+        .msg { padding: 10px 14px; border-radius: 12px; background: white; border: 1px solid #E2E8F0; width: fit-content; font-size: 14px; }
+        .msg.me { background: #D97706; color: white; align-self: flex-end; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
     </style>
 </head>
 <body>
@@ -35,15 +35,15 @@
         </div>
         <div id="panel-chat" class="tab-panel">
             <div id="chat-messages-box" class="chat-messages"></div>
-            <div class="chat-input-row" style="display:flex; padding:10px; background:white;">
+            <div style="display:flex; gap:5px; padding:10px; background:white;">
                 <input type="text" id="chat-input" style="flex:1; padding:10px;" placeholder="메시지 입력...">
                 <button onclick="executeSendMsg()">전송</button>
             </div>
         </div>
     </div>
     <div class="nav-bar">
-        <div class="nav-item active" onclick="navigate('alumni')"><i class="fa-solid fa-address-book"></i>동문</div>
-        <div class="nav-item" onclick="navigate('chat')"><i class="fa-solid fa-comments"></i>채팅</div>
+        <div class="nav-item active" id="btn-alumni" onclick="navigate('alumni')"><i class="fa-solid fa-address-book"></i>동문</div>
+        <div class="nav-item" id="btn-chat" onclick="navigate('chat')"><i class="fa-solid fa-comments"></i>채팅</div>
     </div>
 </div>
 
@@ -60,17 +60,14 @@
     const db = firebase.firestore();
 
     let alumniDb = [
-        { name: "정희훈", gisu: "20회", comp: "SCM 대표", field: "무역" },
-        { name: "이준호", gisu: "12회", comp: "대표", field: "제조" },
-        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 본부장", field: "제조" }
+        { name: "정희훈", gisu: "20회", comp: "SCM 대표" },
+        { name: "이준호", gisu: "12회", comp: "대표" },
+        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 본부장" }
     ];
 
     function renderAlumni() {
-        const container = document.getElementById('alumni-list');
-        container.innerHTML = alumniDb.map(p => `
-            <div class="alumni-item">
-                <div><strong>${p.name}</strong> (${p.gisu})<br>${p.comp}</div>
-            </div>
+        document.getElementById('alumni-list').innerHTML = alumniDb.map(p => `
+            <div class="alumni-item"><strong>${p.name}</strong> (${p.gisu})<br>${p.comp}</div>
         `).join('');
     }
 
@@ -80,13 +77,15 @@
             box.innerHTML = '';
             snapshot.forEach(doc => {
                 const data = doc.data();
-                box.innerHTML += `<div class="msg-bubble">${data.sender}: ${data.msg}</div>`;
+                box.innerHTML += `<div class="msg ${data.sender === '제갈훈' ? 'me' : ''}">${data.sender}: ${data.msg}</div>`;
             });
+            box.scrollTop = box.scrollHeight;
         });
     }
 
     function executeSendMsg() {
         const input = document.getElementById('chat-input');
+        if(!input.value.trim()) return;
         db.collection("ym_chat_stream").add({
             sender: "제갈훈",
             msg: input.value,
@@ -97,6 +96,9 @@
 
     function navigate(panelId) {
         document.querySelectorAll('.tab-panel').forEach(p => p.style.display = (p.id === 'panel-'+panelId) ? 'block' : 'none');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('btn-'+panelId).classList.add('active');
+        document.getElementById('header-text').innerText = (panelId === 'alumni') ? '영무회 동문' : '채팅';
     }
 
     window.onload = () => { renderAlumni(); initChat(); };
