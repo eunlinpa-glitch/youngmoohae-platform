@@ -48,6 +48,7 @@
         .nav-item i { font-size: 21px; margin-bottom: 5px; transition: transform 0.2s; }
         .nav-badge { position: absolute; top: 2px; right: 22px; background: #EF4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px; display: none; }
         
+        /* [1번 탭: 동문 주소록] */
         .summary-card { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; overflow: hidden; }
         .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; }
         .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -62,6 +63,7 @@
         .biz-text { font-size: 13px; color: var(--text-dark); margin-top: 4px; font-weight: 700; }
         .field-text { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
         
+        /* [2번 탭: 채팅] */
         .chat-item { background: white; border-bottom: 1px solid var(--border-soft); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
         .chat-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
         .chat-preview { font-size: 13px; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
@@ -78,6 +80,7 @@
         .msg-bubble.other { background: white; color: var(--text-dark); border: 1px solid var(--border-soft); border-top-left-radius: 4px; }
         .chat-input-row { padding: 14px; background: white; border-top: 1px solid var(--border-soft); display: flex; gap: 10px; align-items: center; }
         
+        /* [대형 50:50 분할 관제 레이아웃] */
         .premium-split-view-container { display: none; height: calc(100vh - 126px); height: calc(100dvh - 126px); background: #F1F5F9; width: 100%; }
         .split-pane { width: 50%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-soft); }
         .split-pane.right-ai-hub { width: 50%; background: #FFFFFF; border-right: none; padding: 14px; }
@@ -548,6 +551,7 @@
         }
     }
 
+    function triggerSecretDemoAlertFromTitle() { jumpToDirectChat("정희훈"); }
     function navigateTab(panelId, title, elem) {
         window.speechSynthesis.cancel();
         isTtsSpeechPaused = false;
