@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>영무회 비즈니스 네트워킹 플랫폼</title>
-    <link rel="icon" href="icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
@@ -48,7 +46,6 @@
         .nav-item i { font-size: 21px; margin-bottom: 5px; transition: transform 0.2s; }
         .nav-badge { position: absolute; top: 2px; right: 22px; background: #EF4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px; display: none; }
         
-        /* [1번 탭: 동문 주소록] */
         .summary-card { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; overflow: hidden; }
         .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; }
         .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -63,7 +60,6 @@
         .biz-text { font-size: 13px; color: var(--text-dark); margin-top: 4px; font-weight: 700; }
         .field-text { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
         
-        /* [2번 탭: 채팅] */
         .chat-item { background: white; border-bottom: 1px solid var(--border-soft); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
         .chat-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
         .chat-preview { font-size: 13px; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
@@ -80,8 +76,8 @@
         .msg-bubble.other { background: white; color: var(--text-dark); border: 1px solid var(--border-soft); border-top-left-radius: 4px; }
         .chat-input-row { padding: 14px; background: white; border-top: 1px solid var(--border-soft); display: flex; gap: 10px; align-items: center; }
         
-        /* [대형 50:50 분할 관제 레이아웃] */
-        .premium-split-view-container { display: none; height: calc(100vh - 126px); height: calc(100dvh - 126px); background: #F1F5F9; width: 100%; }
+        /* ★ [버그 완전 격파] 다른 메뉴를 가리지 않도록 display: none !important를 명시해 철저히 통제함 */
+        .premium-split-view-container { display: none !important; height: calc(100vh - 126px); height: calc(100dvh - 126px); background: #F1F5F9; width: 100%; }
         .split-pane { width: 50%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-soft); }
         .split-pane.right-ai-hub { width: 50%; background: #FFFFFF; border-right: none; padding: 14px; }
         
@@ -128,11 +124,16 @@
 <div class="phone-container">
     <div class="header" id="dynamic-header">
         <i class="fa-solid fa-arrow-left back-btn" id="global-back-btn" onclick="exitActiveChat()"></i>
-        <span id="header-text" class="demo-secret-title-trigger">영무회 동문</span>
+        <span id="header-text" class="demo-secret-title-trigger" onclick="triggerSecretDemoAlertFromTitle()">영무회 동문</span>
         
         <div class="header-buttons-group">
-            <div class="supervisor-trigger" id="master-crown-btn"><i class="fa-solid fa-crown"></i></div>
-            <div class="global-notice-trigger"><i class="fa-solid fa-bullhorn"></i><div class="notice-dot" id="global-notice-dot" style="display:none;"></div></div>
+            <div class="supervisor-trigger" id="master-crown-btn" onclick="openSupervisorConsole()">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <div class="global-notice-trigger" onclick="openGlobalNoticePopup()">
+                <i class="fa-solid fa-bullhorn"></i>
+                <div class="notice-dot" id="global-notice-dot"></div>
+            </div>
             <div class="global-settings-trigger" onclick="openGlobalSettingsPopup()"><i class="fa-solid fa-gear"></i></div>
         </div>
     </div>
@@ -140,16 +141,27 @@
     <div class="main-content" id="scroll-content-view">
         <div id="panel-alumni" class="tab-panel active">
             <div class="summary-card">
-                <p style="font-size: 12px; font-weight: 700; opacity: 0.85;">Registered Leaders</p>
-                <h1 style="font-size: 34px; font-weight: 900; margin-top: 2px;" id="total-count-badge">2명</h1>
+                <p style="font-size: 12px; font-weight: 700; opacity: 0.85; text-transform:uppercase; letter-spacing:0.5px;">Registered Alumni</p>
+                <h1 style="font-size: 34px; font-weight: 900; margin-top: 2px;" id="total-count-badge">3명</h1>
             </div>
-            <input type="text" class="search-box" placeholder="🔍 기수, 취급 품목, 반도체 및 수계아연 키워드 실시간 연동 스캔...">
-            <div class="list-title">영무회 핵심 시연 임원진 명부</div>
+            <input type="text" class="search-box" placeholder="🔍 찾아보고 싶은 동문의 이름, 회사, 키워드 검색...">
+            <div class="list-title">전체 동문 명부 (기수순 · 가나다순)</div>
             <div id="alumni-list-anchor"></div>
         </div>
 
         <div id="panel-chat" class="tab-panel" style="padding: 0;">
-            <div id="chat-list-view"><div id="chat-list-anchor"></div></div>
+            <div id="chat-list-view">
+                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 공식 마케팅룸', '공')">
+                    <div class="chat-avatar" style="background: #FEF3C7; color: #D97706; font-size:18px;"><i class="fa-solid fa-users"></i></div>
+                    <div class="chat-info">
+                        <div class="chat-top-row"><span class="chat-name">영무회 공식 마케팅룸</span><span class="chat-time">상시 가동</span></div>
+                        <p class="chat-preview">2026 연말 글로벌 무역 총회 공지방입니다.</p>
+                    </div>
+                    <span class="chat-badge" id="official-group-badge">2</span>
+                </div>
+                <div id="chat-list-anchor"></div>
+            </div>
+            
             <div id="chat-room-view" class="chat-view-container">
                 <div class="chat-messages" id="chat-messages-box"></div>
                 <div class="chat-input-row">
@@ -196,17 +208,25 @@
             <div id="ai-sub-feed" class="ai-sub-panel active">
                 <div class="ai-hub-control-card" style="padding:14px;">
                     <div class="ai-hub-header" style="margin-bottom:12px; padding-bottom:10px;">
-                        <div class="ai-assistant-visual"><div class="ai-vis-circle"><i class="fa-solid fa-user-tie"></i></div></div>
-                        <div class="ai-hub-title">영무회 전담 AI 비서실 정식 브리핑</div>
+                        <div class="ai-assistant-visual">
+                            <div class="ai-vis-circle ai-vis-비서"><i class="fa-solid fa-user-tie"></i></div>
+                        </div>
+                        <div class="ai-hub-title">영무회 전담 AI 비서실 오디오 브리핑</div>
                     </div>
+                    
                     <div class="ai-briefing-panel" id="ai-realtime-briefing-anchor" onclick="toggleOfficialVideoPlayState()">
                         <div class="ai-video-space">
-                            <video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/%EC%95%A0%EB%B9%84%EC%84%9C_%EB%B8%8C%EB%A6%AC%ED%95%91.mp4" preload="metadata" muted playsinline></video>
+                            <video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/%EC%95%A0%EB%B9%84%EC%84%9C_%EB%B8%8C%EB%A6%AC%0D%ED%95%81.mp4" preload="metadata" muted playsinline></video>
                         </div>
                         <div class="ai-text-space">
-                            <div class="ai-profile-tag-row"><span class="ai-name-tag">애비서</span><span class="ai-lang-tag">Official Media</span></div>
+                            <div class="ai-profile-tag-row">
+                                <span class="ai-name-tag">애비서</span>
+                                <span class="ai-lang-tag">Official Media</span>
+                            </div>
                             <p class="briefing-text" id="text-target-비서">영무회 비즈니스 네트워킹 플랫폼 라운지에 오신 것을 환영합니다. [나의 매칭 요청]을 상단 탭에서 기술하시면, 선배님의 사업 자산과 글로벌 무역 공급망 니즈를 해독하여 최적의 동문 매칭 리포트를 실시간 이곳에 인덱싱합니다.</p>
-                            <div class="click-speak-tip" id="official-video-status-label"><i class="fa-solid fa-circle-play"></i> ▶ 터치 시 오피셜 브리핑 영상 재생 / 일시정지</div>
+                            <div class="click-speak-tip" id="official-video-status-label">
+                                <i class="fa-solid fa-circle-play"></i> ▶ 터치 시 오피셜 브리핑 영상 재생 / 일시정지
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -216,10 +236,10 @@
             <div id="ai-sub-request" class="ai-sub-panel">
                 <div class="form-section">
                     <div class="form-section-title">🔮 AI 기반 맞춤형 파트너 정밀 탐색</div>
-                    <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">원하시는 타겟 바이어, 협업 니즈를 기록해 주세요. AI 비서가 최적의 동문을 라운지에 매칭시킵니다.</p>
+                    <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">원하시는 타겟 바이어, 협업 니즈, 혹은 사업 인프라를 상세히 기록해 주세요. AI 비서가 주소록을 해독하여 가장 싱크로율이 높은 동문을 라운지에 매칭시킵니다.</p>
                     <div class="form-group">
                         <label class="form-label">나의 비즈니스 니즈 / 요청 조건 기재</label>
-                        <textarea id="ai-request-input" class="form-textarea" style="height:120px;" placeholder="예: 일본 반도체 부품 유통망을 뚫고 싶습니다. 관련 제조사 바이어나 일본 지사 경험이 풍부한 동문 선배님을 매칭해 주세요." onkeydown="handleAiRequestKeyDown(event)"></textarea>
+                        <textarea id="ai-request-input" class="form-textarea" style="height:120px;" placeholder="예: 일본 반도체 부품 유통망을 뚫고 싶습니다. 관련 제조사 바이어나 일본 지사 경험이 풍부한 동문 선배님을 매칭 및 중개해 주세요." onkeydown="handleAiRequestKeyDown(event)"></textarea>
                     </div>
                     <button class="submit-btn" style="margin-top:14px; background:#0F172A;" onclick="analyzeAiRequest()">임원진 연계 인공지능 매칭 가동</button>
                 </div>
@@ -229,17 +249,41 @@
 
         <div id="panel-profile" class="tab-panel">
             <div class="profile-hero">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="profile-main-avatar">
-                <div><div class="profile-hero-name" id="hero-name-label">제갈훈</div><div class="profile-hero-meta">13회 · 제조</div></div>
+                <div class="avatar-wrapper" onclick="triggerAvatarUpload()">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="profile-main-avatar" id="display-avatar-img">
+                    <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <input type="file" id="hidden-file-input" style="display:none;" accept="image/*" onchange="processAvatarChange(this)">
+                <div>
+                    <div class="profile-hero-name" id="hero-name-label">제갈훈</div>
+                    <div class="profile-hero-meta" id="hero-meta-label">13회 · 제조</div>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">사진을 클릭해 프로필 이미지를 자유롭게 교체하세요.</p>
+                </div>
             </div>
+
+            <div id="supervisor-hub-wrapper" class="form-section" style="border: 1px dashed #D97706; background: #FFFDF7; display: none;">
+                <div class="form-section-title" style="color: #B45309;"><i class="fa-solid fa-shield-halved"></i> 👑 임원진(슈퍼바이저) 권한 동적 위임 허브</div>
+                <p style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">선배님이 현재 최고 마스터 계정이시므로, 아래 명단에서 추가할 동문을 선택해 임원 권한을 마음대로 부여하거나 즉시 회수하실 수 있습니다.</p>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label class="form-label">권한 조율 대상 동문 선택</label>
+                    <select id="supervisor-target-select" class="form-select"></select>
+                </div>
+                <div class="form-row-grid" style="margin-bottom:0;">
+                    <button class="submit-btn" style="background:#2563EB; box-shadow:0 4px 10px rgba(37,99,235,0.2);" onclick="grantSupervisorRole()">임원 권한 부여</button>
+                    <button class="submit-btn" style="background:#EF4444; box-shadow:0 4px 10px rgba(239,68,68,0.2);" onclick="revokeSupervisorRole()">권한 즉시 회수</button>
+                </div>
+            </div>
+            
             <div class="form-section">
                 <div class="form-group" style="margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border-soft);">
                     <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> ⚙️ 기기 세션 스위칭 로그인</label>
-                    <select class="form-select" id="form-session-select" onchange="switchDemoLoginAccount(this.value)">
-                        <option value="제갈훈">제갈훈 (13회 최고 임원 - 관리 제어 마스터 계정)</option>
-                        <option value="정희훈">정희훈 (20회 평회원 - 비즈니스 협의 송신 전용 계정)</option>
+                    <select class="form-select" id="form-session-select" style="background:#EBF2FF; border-color:#93C5FD; font-weight:700;" onchange="switchDemoLoginAccount(this.value)">
+                        <option value="제갈훈">제갈훈 (13회 최고 임원 - 마스터 계정)</option>
+                        <option value="정희훈">정희훈 (20회 평회원 - 비즈니스 협의 송신 전용)</option>
+                        <option value="이준호">이준호 (12회 평회원 - 일반 회원)</option>
                     </select>
                 </div>
+
                 <div class="form-section-title">기본 정보 수정</div>
                 <div class="form-row-grid">
                     <div class="form-group"><label class="form-label">이름 *</label><input type="text" class="form-input" id="form-name" value="제갈훈"></div>
@@ -249,15 +293,56 @@
                     <div class="form-group"><label class="form-label">회사명</label><input type="text" class="form-input" id="form-company" value="티엔피솔루션"></div>
                     <div class="form-group"><label class="form-label">직책</label><input type="text" class="form-input" id="form-job" value="본부장"></div>
                 </div>
-                <button class="submit-btn" onclick="saveMasterProfileToFirebase()">정보 마스터 DB 저장</button>
+                <div class="form-group" style="margin-bottom: 14px;"><label class="fa-solid fa-tag"> 전문 분야</label><input type="text" class="form-input" id="form-field" value="제조"></div>
+                
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">주요 취급 품목 / 핵심 기술 자산</label>
+                    <input type="text" class="form-input" id="form-assets" value="수계아연이온 배터리 제조, 친환경 2차전지 기술, 반도체 부품 유통">
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">🎯 목표 타겟 시장 / 거점 국가</label>
+                    <input type="text" class="form-input" id="form-target" value="일본 반도체 서플라이 체인, 국내 한전 인프라 모빌리티 시장">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">나의 상세 비즈니스 히스토리 및 자기소개</label>
+                    <textarea class="form-textarea" id="form-intro" style="height:90px;">수계아연 배터리 전략 기획 및 글로벌 영업 마케팅을 전담하고 있습니다. 화재 폭발위험이 원천 차단된 자연친환경 차세대 2차 전지 인프라 구축을 추진 중입니다.</textarea>
+                </div>
+            </div>
+            
+            <button class="submit-btn" onclick="saveMasterProfileToFirebase()"><i class="fa-solid fa-floppy-disk"></i> 정보 마스터 DB 저장</button>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="global-notice-modal" onclick="closeGlobalNoticePopup(event)">
+        <div class="notice-modal-card" onclick="event.stopPropagation()">
+            <div class="modal-notice-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-bullhorn" style="color: var(--accent-gold);"></i>
+                    <span id="modal-notice-main-title">공지사항</span>
+                </div>
+                <div class="notice-stepper-zone" id="notice-stepper-ui">
+                    <i class="fa-solid fa-chevron-left step-arrow-btn" onclick="navigateNoticePage(-1)"></i>
+                    <span id="notice-page-indicator">1 / 1</span>
+                    <i class="fa-solid fa-chevron-right step-arrow-btn" onclick="navigateNoticePage(1)"></i>
+                </div>
+            </div>
+            <div class="modal-notice-body" id="modal-notice-main-body"></div>
+            <div class="modal-notice-footer">
+                <button class="modal-close-btn" onclick="closeGlobalNoticePopup(null)">내용 확인 완료</button>
             </div>
         </div>
     </div>
 
     <div class="notice-modal-overlay" id="global-settings-modal" onclick="closeGlobalSettingsPopup()">
-        <div class="notice-modal-card" onclick="event.stopPropagation()">
-            <div class="modal-notice-header"><span>영무회 시스템 환경 설정</span></div>
-            <div class="modal-notice-body">
+        <div class="notice-modal-card" onclick="event.stopPropagation()" style="max-width:360px;">
+            <div class="modal-notice-header" style="background:var(--primary-gradient);">
+                <div style="display:flex; align-items:center; gap:8px; color:white;">
+                    <i class="fa-solid fa-gear" style="color:var(--accent-gold);"></i>
+                    <span>영무회 시스템 환경 설정</span>
+                </div>
+            </div>
+            <div class="modal-notice-body" style="background:#F8FAFC;">
+                <div class="form-section-title" style="margin-bottom:8px;">🔔 알림 통제 마스터 허브</div>
                 <div class="toggle-switch-container">
                     <span class="switch-label-text" id="toggle-status-txt">실시간 영상 알림 활성화 (ON)</span>
                     <div>
@@ -266,26 +351,53 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-notice-footer"><button class="modal-close-btn" onclick="closeGlobalSettingsPopup()">닫기</button></div>
+            <div class="modal-notice-footer"><button class="modal-close-btn" onclick="closeGlobalSettingsPopup()">설정 닫기</button></div>
         </div>
     </div>
 
     <div class="notice-modal-overlay" id="chat-video-alert-modal" onclick="closeVideoAlertPopup()">
-        <div class="notice-modal-card" style="border:2px solid var(--accent-gold);">
-            <div class="modal-notice-header"><span>비서실 긴급 비즈니스 알림</span></div>
+        <div class="notice-modal-card" onclick="event.stopPropagation()" style="max-width:380px; border:2px solid var(--accent-gold);">
+            <div class="modal-notice-header" style="background:var(--primary-gradient);">
+                <div style="display:flex; align-items:center; gap:8px; color:white;">
+                    <i class="fa-solid fa-bell-ring fa-bounce" style="color:var(--accent-gold);"></i>
+                    <span>비서실 긴급 메시지 알림</span>
+                </div>
+            </div>
             <div class="ai-briefing-panel">
                 <div class="ai-video-space" style="height:210px;">
                     <video id="alert-video-obj" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/%EC%95%A0%ED%9B%84%EB%B0%B0_%EC%95%8C%EB%A6%BC.mp4" preload="metadata" muted playsinline></video>
                 </div>
                 <div class="ai-text-space" style="background:#FFFDF9;">
-                    <div style="font-size:12px; font-weight:800; color:#B45309; background:#FEF3C7; padding:3px 8px; border-radius:4px;" id="alert-sender-title">신규 협의 안건 실시간 감지</div>
-                    <p class="briefing-text" id="alert-speech-text" style="font-weight:700;">중대한 비즈니스 메시지가 인덱싱되었습니다. 관제방으로 진입하시겠습니까?</p>
+                    <div style="font-size:12px; font-weight:800; color:#B45309; background:#FEF3C7; padding:3px 8px; border-radius:4px;" id="alert-sender-title">신규 안건 실시간 감지</div>
+                    <p class="briefing-text" id="alert-speech-text" style="font-weight:700; color:var(--text-dark);">비즈니스 협의 메시지가 수신되었습니다. 확인하시겠습니까?</p>
                 </div>
             </div>
             <div class="modal-notice-footer">
                 <button class="modal-close-btn" style="background:#64748B;" onclick="closeVideoAlertPopup()">닫기</button>
                 <button class="modal-close-btn" style="background:var(--gold-gradient);" onclick="jumpToSplitScreenConsole()">관제방 진입</button>
             </div>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="supervisor-console-modal" onclick="closeSupervisorConsole(event)">
+        <div class="supervisor-modal-card" onclick="event.stopPropagation()">
+            <div class="supervisor-header">
+                <i class="fa-solid fa-crown" style="color: var(--accent-gold);"></i>
+                <span>영무회 최고 임원진 전용 제어 콘솔</span>
+            </div>
+            <div class="modal-notice-body" style="background:#F8FAFC; max-height:420px;">
+                <div class="form-section" style="margin-bottom:14px; border-color:var(--accent-gold); background:#FFFDF7;">
+                    <div class="form-section-title" style="color:#B45309;"><i class="fa-solid fa-play"></i> 🎥 관제실 제어: 가상 푸시 발송</div>
+                    <div class="form-row-grid" style="margin-bottom:8px;">
+                        <select id="demo-alert-sender" class="form-select">
+                            <option value="정희훈">정희훈 선배님 (20회)</option>
+                            <option value="이준호">이준호 대표님 (12회)</option>
+                        </select>
+                    </div>
+                    <button class="submit-btn" style="background:var(--primary-gradient);" onclick="triggerDemoVideoChatAlert()">⚡ 가상 영상 알림 팝업 가동</button>
+                </div>
+            </div>
+            <div class="modal-notice-footer"><button class="modal-close-btn" style="background:#64748B;" onclick="closeSupervisorConsole(null)">콘솔 닫기</button></div>
         </div>
     </div>
 
@@ -298,6 +410,7 @@
 </div>
 
 <script>
+    // ★ [파이어베이스 실시간 연동 인프라 코어 설정]
     const firebaseConfig = {
         apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzXZXTJ5UUZ9SDo",
         authDomain: "youngmoohae-db.firebaseapp.com",
@@ -315,63 +428,47 @@
     localStorage.setItem('youngmoo_device_session_id', myDeviceUuid);
 
     let alumniDb = [
-        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 · 본부장 (010-8854-2499)", field: "제조 · 반도체", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" },
-        { name: "정희훈", gisu: "20회", comp: "SCM · 대표 (010-5067-0016)", field: "무역 · 물류", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" }
+        { name: "정희훈", gisu: "20회", comp: "SCM · 대표 (010-5067-0016)", field: "무역", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" },
+        { name: "이준호", gisu: "12회", comp: "대표 (010-3525-2717)", field: "제조", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" },
+        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 · 본부장 (010-8854-2499)", field: "제조", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&0=80" }
     ];
 
+    let aiFeeds = [
+        { title: "비즈니스 지능 매칭 스캐너 가동 가능", time: "상시", body: "[나의 매칭 요청] 메뉴에 원하시는 키워드나 협업 제안을 적고 분석을 실행해 주십시오. 선배님의 상세 프로필 및 채팅 기록을 해독하여 동역자를 실시간 발굴합니다.", pct: "100%" }
+    ];
+
+    let supervisorIncomingRequests = [];
+    let supervisorWhiteList = ["제갈훈"];
     let currentLoggedInUser = localStorage.getItem('ym_user_identity') || "제갈훈";
+
+    let chatHistoryLog = []; 
     let activeChatRooms = ["정희훈"];
-    let isVideoAlertEnabled = true;
     let activeChatPartner = "";
-    let aiFeeds = [];
 
     let isTtsSpeechPaused = false;
     let currentSpeechUtterance = null;
     let activeSpeechScriptText = "";
+    let isVideoAlertEnabled = true;
 
-    function renderCoreLayout() {
-        const alumniContainer = document.getElementById('alumni-list-anchor');
-        if(!alumniContainer) return;
-        alumniContainer.innerHTML = '';
-        document.getElementById('total-count-badge').innerText = `${alumniDb.length}명`;
-        
-        alumniDb.forEach(p => {
-            let crownHtml = p.name === "제갈훈" ? `<i class="fa-solid fa-crown crown-icon-inline"></i>` : '';
-            alumniContainer.innerHTML += `
-                <div class="alumni-item" onclick="jumpToDirectChat('${p.name}')">
-                    <img src="${p.img}" class="avatar-img">
-                    <div class="alumni-details">
-                        <div class="name-row"><strong>${p.name}</strong> ${crownHtml} <span class="tag-gisu">${p.gisu}</span></div>
-                        <div class="biz-text">${p.comp}</div>
-                        <div class="field-text">${p.field}</div>
-                    </div>
-                </div>`;
-        });
-        renderAiFeedLayout();
-    }
-
-    function renderAiFeedLayout() {
-        const aiContainer = document.getElementById('ai-feed-anchor');
-        if(!aiContainer) return;
-        aiContainer.innerHTML = '';
-        if(aiFeeds.length === 0) {
-            aiContainer.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:20px;">[나의 매칭 요청] 탭을 눌러 무역 결속 제안서를 입력해 주세요.</p>`;
-            return;
+    let globalNoticeArray = [
+        {
+            title: "📣 2026 연말 글로벌 무역 정기 총회 안내",
+            badge: "영무회 의장단 긴급 비즈니스 공지",
+            body: `• <strong>일시:</strong> 2026년 12월 11일(금) 18:00<br>• <strong>장소:</strong> 그랜드 인터컨티넨탈 서울 파르나스 오키드룸<br><br>이번 총회에는 <strong>현대자동차, 한국전력(KEPCO), SH공사</strong> 등 주요 인프라 파크 관계자들이 참석합니다.`
         }
-        aiFeeds.forEach(f => {
-            aiContainer.innerHTML += `
-                <div class="feed-card">
-                    <div class="feed-header">
-                        <div class="feed-icon-box"><i class="fa-solid fa-brain"></i></div>
-                        <div class="feed-title">${f.title}</div>
-                        <span class="feed-time">${f.time}</span>
-                    </div>
-                    <p class="feed-body">${f.body}</p>
-                    <div class="match-bar-container"><span style="font-size:12px; font-weight:700;">시너지 분석</span><span class="match-percent">${f.pct} 적합</span></div>
-                </div>`;
-        });
+    ];
+    let currentNoticePageIndex = 0; 
+    const GCS_BASE_URL = "https://storage.googleapis.com/youngmoo-hae-assets";
+
+    function openGlobalSettingsPopup() { document.getElementById('global-settings-modal').style.display = 'flex'; }
+    function closeGlobalSettingsPopup() { document.getElementById('global-settings-modal').style.display = 'none'; }
+
+    function handleAlertToggleChange(checkboxObj) {
+        isVideoAlertEnabled = checkboxObj.checked;
+        document.getElementById('toggle-status-txt').innerText = isVideoAlertEnabled ? "실시간 영상 알림 활성화 (ON)" : "실시간 영상 알림 비활성화 (OFF)";
     }
 
+    // ★ [파이어베이스 실시간 소켓 통신 개통 리س너]
     function initFirebaseLiveChatListener() {
         db.collection("ym_chat_stream").orderBy("timestamp", "asc")
           .onSnapshot((snapshot) => {
@@ -381,16 +478,14 @@
               const msgBox = document.getElementById('chat-messages-box');
               const splitMsgBox = document.getElementById('split-chat-messages-box');
               
-              if(msgBox) msgBox.innerHTML = `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 제갈훈 본부장님! 정희훈입니다. 이번 수계아연 배터리 인프라 부품 공급망 및 일본 유통망 연계 건으로 선배님 방에 긴급 협의 제안서 초안 전송 올립니다.</div></div></div>`;
-              if(splitMsgBox) splitMsgBox.innerHTML = `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 제갈훈 본부장님! 정희훈입니다. 이번 수계아연 배터리 인프라 부품 공급망 및 일본 유통망 연계 건으로 선배님 방에 긴급 협의 제안서 초안 전송 올립니다.</div></div></div>`;
+              if(msgBox) msgBox.innerHTML = `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 제갈훈 본부장님! 정희훈입니다. 이번 수계아연 배터리 공급망 건으로 긴급 협의 제안서 초안 전송 올립니다.</div></div></div>`;
+              if(splitMsgBox) splitMsgBox.innerHTML = `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 제갈훈 본부장님! 정희훈입니다. 이번 수계아연 배터리 공급망 건으로 긴급 협의 제안서 초안 전송 올립니다.</div></div></div>`;
 
               snapshot.docChanges().forEach((change) => {
                   if (change.type === "added") {
                       let data = change.doc.data();
                       lastSender = data.sender;
-                      if(data.sender !== currentLoggedInUser) {
-                          isNewIncomingMessage = true;
-                      }
+                      if(data.sender !== currentLoggedInUser) { isNewIncomingMessage = true; }
                   }
               });
 
@@ -406,7 +501,6 @@
               if(splitMsgBox) splitMsgBox.scrollTo(0, splitMsgBox.scrollHeight);
 
               if(isNewIncomingMessage && isVideoAlertEnabled) {
-                  document.getElementById('alert-sender-title').innerText = `${lastSender} 선배님 신규 협의 안건 감지`;
                   document.getElementById('chat-video-alert-modal').style.display = "flex";
                   executeTtsSpeechEngine("비즈니스 협의 메시지가 수신되었습니다. 관제방으로 진입하시겠습니까?", 'ko-KR', 'female', document.getElementById('alert-video-obj'));
               }
@@ -444,6 +538,34 @@
         location.reload();
     }
 
+    function jumpToSplitScreenConsole() {
+        closeVideoAlertPopup();
+        document.getElementById('panel-chat').style.display = 'block';
+        document.getElementById('chat-list-view').style.display = 'none';
+        document.getElementById('chat-room-view').style.display = 'none';
+        
+        // 분할 화면 안전 가동
+        const splitPanel = document.getElementById('premium-split-view-panel');
+        splitPanel.style.display = 'flex';
+        splitPanel.style.setProperty("display", "flex", "important"); // CSS 버그 차단 격파
+        
+        document.getElementById('global-back-btn').style.display = 'block';
+        document.getElementById('header-text').innerText = "AI 비서실 실시간 관제방";
+        
+        const briefingTargetTxt = document.getElementById('split-text-target-briefing');
+        briefingTargetTxt.innerHTML = `
+            1. [협의 타겟 확보]: 파이어베이스 실시간 소켓망 동기화 안착 완료.<br><br>
+            2. [AI 분석 요약]: 글로벌 무역 및 수계아연 배터리 스펙 조율 안건 해독 마감.<br><br>
+            3. [비서실 가이드]: 용량 방어를 위해 1개월 경과 메시지는 압축 리포트로 자동 정제 배치 대기중.
+        `;
+        
+        const splitVideo = document.getElementById('split-video-avatar');
+        activeSpeechScriptText = "제갈훈 본부장님, 파이어베이스 중앙망을 통해 송신된 무역 안건을 완벽히 해독했습니다. 용량 방어를 위해 한 달 경과 대화는 자동으로 요약 압축하고 있으며 사후 매칭 관리 인프라를 가동했습니다.";
+        isTtsSpeechPaused = false;
+        document.getElementById('split-play-tip-label').innerHTML = `<i class="fa-solid fa-pause"></i> AI 비서실 실시간 브리핑 중 (터치 시 정지)`;
+        executeTtsSpeechEngine(activeSpeechScriptText, 'ko-KR', 'female', splitVideo);
+    }
+
     function toggleOfficialVideoPlayState() {
         const video = document.getElementById('video-avatar-비서');
         const label = document.getElementById('official-video-status-label');
@@ -462,44 +584,110 @@
         }
     }
 
-    function jumpToDirectChat(partnerName) {
-        if(partnerName === currentLoggedInUser) return;
-        navigateTab('chat', '채팅', document.getElementById('nav-chat'));
-        openChatRoom(partnerName);
+    function navigateTab(panelId, title, elem) {
+        activeChatPartner = "";
+        document.getElementById('chat-list-view').style.display = 'block';
+        document.getElementById('chat-room-view').style.display = 'none';
+        document.getElementById('premium-split-view-panel').style.display = 'none';
+        document.getElementById('premium-split-view-panel').style.setProperty("display", "none", "important"); // 가림막 차단 락
+        document.getElementById('global-back-btn').style.display = 'none';
+
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        
+        document.getElementById(`panel-${panelId}`).classList.add('active');
+        if(elem) elem.classList.add('active');
+        document.getElementById('header-text').innerText = (panelId === 'alumni') ? "영무회 동문" : title;
+        syncHeaderCrownVisibility();
+        if(panelId === 'chat') { renderChatList(); }
     }
 
-    function openChatRoom(partnerName) {
+    function triggerSecretDemoAlertFromTitle() { jumpToDirectChat("정희훈", "정"); }
+
+    function syncHeaderCrownVisibility() {
+        const crownBtn = document.getElementById('master-crown-btn');
+        if(crownBtn) crownBtn.className = supervisorWhiteList.includes(currentLoggedInUser) ? "supervisor-trigger active-crown" : "supervisor-trigger";
+    }
+
+    function openGlobalNoticePopup() {
+        currentNoticePageIndex = 0; 
+        renderNoticePageContent();
+        document.getElementById('global-notice-modal').style.display = 'flex';
+    }
+
+    function renderNoticePageContent() {
+        const currentData = globalNoticeArray[currentNoticePageIndex];
+        document.getElementById('modal-notice-main-title').innerText = currentData.badge;
+        document.getElementById('notice-page-indicator').innerText = `${currentNoticePageIndex + 1} / ${globalNoticeArray.length}`;
+        document.getElementById('modal-notice-main-body').innerHTML = `<p style="font-weight:700; font-size:15px; color:#1E3A8A; margin-bottom:10px;">${currentData.title}</p><p style="font-size:13px; line-height:1.65;">${currentData.body}</p>`;
+    }
+
+    function navigateNoticePage(direction) {
+        let targetIndex = currentNoticePageIndex + direction;
+        if (targetIndex >= 0 && targetIndex < globalNoticeArray.length) { currentNoticePageIndex = targetIndex; renderNoticePageContent(); }
+    }
+
+    function closeGlobalNoticePopup() { document.getElementById('global-notice-modal').style.display = 'none'; }
+    function openSupervisorConsole() { document.getElementById('supervisor-console-modal').style.display = 'flex'; }
+    function closeSupervisorConsole() { document.getElementById('supervisor-console-modal').style.display = 'none'; }
+    function triggerDemoVideoChatAlert() { closeSupervisorConsole(); jumpToDirectChat("정희훈", "정"); }
+
+    function closeVideoAlertPopup() {
+        window.speechSynthesis.cancel();
+        const v = document.getElementById('alert-video-obj');
+        if(v) { v.pause(); v.currentTime = 0; }
+        document.getElementById('chat-video-alert-modal').style.display = "none";
+    }
+
+    function renderCoreLayout() {
+        const alumniContainer = document.getElementById('alumni-list-anchor');
+        if(!alumniContainer) return;
+        alumniContainer.innerHTML = '';
+        document.getElementById('total-count-badge').innerText = `${alumniDb.length}명`;
+        alumniDb.forEach(p => {
+            let crownHtml = supervisorWhiteList.includes(p.name) ? `<i class="fa-solid fa-crown crown-icon-inline"></i>` : '';
+            alumniContainer.innerHTML += `
+                <div class="alumni-item" onclick="jumpToDirectChat('${p.name}', '${p.name[0]}')">
+                    <img src="${p.img}" class="avatar-img">
+                    <div class="alumni-details">
+                        <div class="name-row"><strong>${p.name}</strong> ${crownHtml} <span class="tag-gisu">${p.gisu}</span><span class="tag-status">매칭 가능</span></div>
+                        <div class="biz-text">${p.comp}</div>
+                        <div class="field-text">${p.field}</div>
+                    </div>
+                </div>`;
+        });
+        renderAiFeedLayout();
+    }
+
+    function jumpToDirectChat(partnerName, letter) {
+        navigateTab('chat', '채팅', document.getElementById('nav-chat'));
+        openChatRoom(partnerName, letter);
+    }
+
+    function renderChatList() {
+        const chatContainer = document.getElementById('chat-list-anchor');
+        chatContainer.innerHTML = '';
+        activeChatRooms.forEach(name => {
+            chatContainer.innerHTML += `
+                <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
+                    <div class="chat-avatar">${name[0]}</div>
+                    <div class="chat-info">
+                        <div class="chat-top-row"><span class="chat-name">${name}</span><span class="chat-time">실시간 연결됨</span></div>
+                        <p class="chat-preview">${name} 동문님과 안전한 비즈니스 협의방이 개설되었습니다.</p>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function openChatRoom(partnerName, letter) {
         activeChatPartner = partnerName;
         document.getElementById('chat-list-view').style.display = 'none';
         document.getElementById('chat-room-view').style.display = 'flex';
-        document.getElementById('premium-split-view-panel').style.display = 'none';
         document.getElementById('global-back-btn').style.display = 'block';
         document.getElementById('header-text').innerText = partnerName;
     }
 
-    function jumpToSplitScreenConsole() {
-        closeVideoAlertPopup();
-        document.getElementById('panel-chat').style.display = 'block';
-        document.getElementById('chat-list-view').style.display = 'none';
-        document.getElementById('chat-room-view').style.display = 'none';
-        document.getElementById('premium-split-view-panel').style.display = 'flex';
-        document.getElementById('global-back-btn').style.display = 'block';
-        document.getElementById('header-text').innerText = "AI 비서실 실시간 관제방";
-        
-        const briefingTargetTxt = document.getElementById('split-text-target-briefing');
-        briefingTargetTxt.innerHTML = `
-            1. [협의 타겟 확보]: 파이어베이스 실시간 스트리밍 채널 동기화 안착 완료.<br><br>
-            2. [AI 분석 요약]: 글로벌 무역 및 수계아연 배터리 스펙 조율 자산 맥락 해독 완료.<br><br>
-            3. [비서실 가이드]: 데이터 다이어트 용량 확보를 위해 1개월 경과 메시지는 자동으로 3줄 요약 압축 요약본 파일로 정제 대기중.
-        `;
-        
-        const splitVideo = document.getElementById('split-video-avatar');
-        activeSpeechScriptText = "제갈훈 본부장님, 파이어베이스 중앙망을 통해 송신된 무역 안건을 제미니 프롬프트 지침에 맞춰 완벽히 해독했습니다. 1기가 용량 방어를 위해 묵은 대화는 핵심 요약본으로 정제 정제하고 있으며, 일주일 단위로 진행 사항을 확인하여 비즈니스를 재점화시키는 사후 제어 관리 인프라를 대기시켰습니다.";
-        isTtsSpeechPaused = false;
-        document.getElementById('split-play-tip-label').innerHTML = `<i class="fa-solid fa-pause"></i> AI 비서실 실시간 브리핑 중 (터치 시 정지)`;
-        executeTtsSpeechEngine(activeSpeechScriptText, 'ko-KR', 'female', splitVideo);
-    }
-
+    function exitActiveChat() { navigateTab('chat', '채팅', document.getElementById('nav-chat')); }
     function handleChatKeyDown(event) { if (event.key === 'Enter') { executeSendMsg(); event.preventDefault(); } }
     function handleSplitChatKeyDown(event) { if (event.key === 'Enter') { executeSplitSendMsg(); event.preventDefault(); } }
     function handleAiRequestKeyDown(event) { if (event.key === 'Enter' && !event.shiftKey) { analyzeAiRequest(); event.preventDefault(); } }
@@ -514,19 +702,19 @@
         
         setTimeout(() => {
             aiFeeds.unshift({
-                title: `🎯 [지능 중개] 정희훈 대표(20회) 와의 공급망 연계 매칭 피드`,
+                title: `🎯 [임원 조율 매칭] 정희훈 동문과의 공급망 시너지`,
                 time: "방금 전",
-                body: `선배님이 요청하신 "${text}" 안건을 분석했습니다. 무역 유통망 인프라 자산을 보유한 20회 정희훈 동문과의 비즈니스 싱크로율이 98%로 도출되었습니다.`,
+                body: `선배님이 요청하신 "${text}" 안건을 분석했습니다. SCM 인프라 자산을 보유한 20회 정희훈 동문과의 비즈니스 싱크로율이 98%로 도출되었습니다.`,
                 pct: "98%"
             });
             renderCoreLayout();
             
             const briefingAnchor = document.getElementById('ai-realtime-briefing-anchor');
-            activeSpeechScriptText = "제갈훈 본부장님, 제출하신 매칭 요청서 자산을 기반으로 크로스 데이터 정밀 분석을 마감했습니다. 핵심기술 자산인 수계아연 배터리 인프라 진입에 최적화된 20회 정희훈 대표를 중개 피드에 전격 인덱싱했습니다.";
+            activeSpeechScriptText = "제갈훈 본부장님, 제출하신 매칭 요청서 자산을 기반으로 크로스 데이터 정밀 분석을 마감했습니다. 수계아연 배터리 인프라 진입에 최적화된 20회 정희훈 대표를 중개 피드에 전격 인덱싱했습니다.";
             isTtsSpeechPaused = false;
 
             briefingAnchor.innerHTML = `
-                <div class="ai-video-space"><video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/애비서1.mp4" preload="metadata" muted playsinline></video></div>
+                <div class="ai-video-space"><video id="video-avatar-비서" class="large-briefing-video" src="${GCS_BASE_URL}/애비서1.mp4" preload="metadata" muted playsinline></video></div>
                 <div class="ai-text-space">
                     <div class="ai-profile-tag-row"><span class="ai-name-tag">애비서</span><span class="ai-lang-tag">Dynamic TTS</span></div>
                     <p class="briefing-text" id="text-target-비서">${activeSpeechScriptText}</p>
@@ -550,33 +738,6 @@
             else { window.speechSynthesis.resume(); isTtsSpeechPaused = false; video.loop = true; video.play().catch(e => {}); label.innerHTML = `<i class="fa-solid fa-pause"></i> AI 브리핑 가동중 (터치 시 영상/소리 일시정지)`; }
         }
     }
-
-    function triggerSecretDemoAlertFromTitle() { jumpToDirectChat("정희훈"); }
-    function navigateTab(panelId, title, elem) {
-        window.speechSynthesis.cancel();
-        isTtsSpeechPaused = false;
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('premium-split-view-panel').style.display = 'none';
-        const targetPanel = document.getElementById(`panel-${panelId}`);
-        if(targetPanel) targetPanel.classList.add('active');
-        if(elem) elem.classList.add('active');
-        document.getElementById('header-text').innerText = (panelId === 'alumni') ? "영무회 동문" : title;
-        document.getElementById('global-back-btn').style.display = 'none';
-    }
-
-    function switchAiSubTab(subMode) {
-        document.querySelectorAll('.sub-tab').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.ai-sub-panel').forEach(pn => pn.classList.remove('active'));
-        if(subMode === 'feed') { document.getElementById('sub-btn-feed').classList.add('active'); document.getElementById('ai-sub-feed').classList.add('active'); } 
-        else { document.getElementById('sub-btn-request').classList.add('active'); document.getElementById('ai-sub-request').classList.add('active'); }
-    }
-
-    function exitActiveChat() { navigateTab('chat', '채팅', document.getElementById('nav-chat')); }
-    function openGlobalSettingsPopup() { document.getElementById('global-settings-modal').style.display = 'flex'; }
-    function closeGlobalSettingsPopup() { document.getElementById('global-settings-modal').style.display = 'none'; }
-    function handleAlertToggleChange(cb) { isVideoAlertEnabled = cb.checked; }
-    function closeVideoAlertPopup() { window.speechSynthesis.cancel(); isTtsSpeechPaused = false; const v = document.getElementById('alert-video-obj'); if(v) { v.pause(); v.currentTime = 0; } document.getElementById('chat-video-alert-modal').style.display = "none"; }
 
     function executeTtsSpeechEngine(text, langCode, genderType, videoElement) {
         window.speechSynthesis.cancel();
