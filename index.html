@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>영무회 비즈니스 네트워킹 플랫폼</title>
     <link rel="icon" href="icon.png" type="image/png">
     <link rel="apple-touch-icon" href="icon.png">
@@ -21,14 +21,13 @@
             --shadow-gold: 0 10px 20px -3px rgba(212, 175, 55, 0.2);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; letter-spacing: -0.3px; }
-        body { background: #EEF2F6; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        body { background: #EEF2F6; height: 100vh; height: 100dvh; display: flex; justify-content: center; align-items: center; }
         
-        .phone-container { width: 100%; max-width: 430px; height: 100vh; background: #ffffff; display: flex; flex-direction: column; position: relative; box-shadow: 0 25px 60px -15px rgba(15,23,42,0.3); overflow: hidden; }
+        .phone-container { width: 100%; max-width: 430px; height: 100vh; height: 100dvh; background: #ffffff; display: flex; flex-direction: column; position: relative; box-shadow: 0 25px 60px -15px rgba(15,23,42,0.3); overflow: hidden; }
         .header { background: #ffffff; color: var(--text-dark); padding: 16px 20px; text-align: center; font-size: 17px; font-weight: 800; border-bottom: 1px solid var(--border-soft); position: relative; display: flex; align-items: center; justify-content: center; min-height: 56px; }
         .back-btn { position: absolute; left: 20px; font-size: 16px; color: var(--text-dark); cursor: pointer; display: none; }
         
         .demo-secret-title-trigger { cursor: pointer; user-select: none; }
-
         .header-buttons-group { position: absolute; right: 18px; display: flex; align-items: center; gap: 14px; }
         .global-settings-trigger { font-size: 17px; color: #64748B; cursor: pointer; transition: all 0.2s; }
         .global-settings-trigger:hover { transform: rotate(45deg); color: #0F172A; }
@@ -36,7 +35,6 @@
         .global-notice-trigger:hover { transform: scale(1.1); }
         .supervisor-trigger { font-size: 17px; color: #CBD5E1; cursor: pointer; display: none; transition: all 0.2s; }
         .supervisor-trigger.active-crown { color: #2563EB; display: block; }
-        .supervisor-trigger.active-crown:hover { transform: scale(1.1); }
         .notice-dot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 8px #EF4444; }
 
         .main-content { flex: 1; overflow-y: auto; background: #F1F5F9; padding-bottom: 75px; }
@@ -48,132 +46,76 @@
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #A2B1C6; cursor: pointer; text-decoration: none; font-size: 11px; width: 25%; font-weight: 700; transition: all 0.25s ease; position: relative; }
         .nav-item.active { color: #D97706; }
         .nav-item i { font-size: 21px; margin-bottom: 5px; transition: transform 0.2s; }
-        .nav-item:hover i { transform: translateY(-2px); }
-        .nav-badge { position: absolute; top: 2px; right: 22px; background: #EF4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(239,68,68,0.4); display: none; }
+        .nav-badge { position: absolute; top: 2px; right: 22px; background: #EF4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px; display: none; }
         
-        /* [1번 탭: 동문 주소록 사양] */
         .summary-card { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; overflow: hidden; }
-        .summary-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 180px; height: 180px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; filter: blur(30px); }
-        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s; }
-        .search-box:focus { border-color: #F59E0B; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; }
         .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .alumni-item { background: white; border: 1px solid var(--border-soft); padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); cursor: pointer; transition: all 0.2s ease; }
-        .alumni-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-premium); border-color: #CBD5E1; }
+        .alumni-item { background: white; border: 1px solid var(--border-soft); padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; cursor: pointer; }
         .avatar-img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 0 0 2px var(--border-soft); }
         .alumni-details { flex: 1; }
         .name-row { display: flex; align-items: center; gap: 6px; }
         .tag-gisu { font-size: 11px; color: var(--text-muted); font-weight: 700; background: #F1F5F9; padding: 2px 6px; border-radius: 6px; }
         .tag-status { font-size: 11px; background: #FFF9E6; color: #D97706; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: auto; border: 1px solid #FDE68A; }
-        
-        .crown-icon-inline { color: #F59E0B; font-size: 12px; animation: crownShine 2s infinite ease-in-out; }
-        @keyframes crownShine { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.15); opacity: 1; color: #D4AF37; } }
-
+        .crown-icon-inline { color: #F59E0B; font-size: 12px; }
         .biz-text { font-size: 13px; color: var(--text-dark); margin-top: 4px; font-weight: 700; }
         .field-text { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
         
-        /* [2번 탭: 채팅 사양] */
-        .chat-item { background: white; border-bottom: 1px solid var(--border-soft); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: background 0.2s; }
-        .chat-item:hover { background: #F8FAFC; }
+        .chat-item { background: white; border-bottom: 1px solid var(--border-soft); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
         .chat-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
-        .chat-time { font-size: 11px; color: var(--text-muted); }
         .chat-preview { font-size: 13px; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
-        .chat-badge { background: #EF4444; color: white; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 5px rgba(239,68,68,0.3); }
         
         .chat-view-container { display: none; flex-direction: column; height: 100%; background: #E8EBF0; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
-        
         .msg-wrapper { display: flex; flex-direction: column; margin-bottom: 2px; width: 100%; }
         .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
         .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
         .msg-container-row { display: flex; align-items: flex-end; gap: 6px; width: 100%; justify-content: flex-end; }
         .msg-wrapper.other .msg-container-row { justify-content: flex-start; }
-        .unread-counter-num { font-size: 11px; color: #D97706; font-weight: 800; margin-bottom: 4px; display: inline-block; }
-        
-        .msg-bubble { max-width: 78%; padding: 11px 15px; border-radius: 16px; font-size: 14px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: inline-block; text-align: left; word-break: break-all; }
+        .msg-bubble { max-width: 78%; padding: 11px 15px; border-radius: 16px; font-size: 14px; line-height: 1.45; display: inline-block; text-align: left; word-break: break-all; }
         .msg-bubble.me { background: var(--gold-gradient); color: white; font-weight: 600; border-top-right-radius: 4px; box-shadow: var(--shadow-gold); }
         .msg-bubble.other { background: white; color: var(--text-dark); border: 1px solid var(--border-soft); border-top-left-radius: 4px; }
         .chat-input-row { padding: 14px; background: white; border-top: 1px solid var(--border-soft); display: flex; gap: 10px; align-items: center; }
         
-        /* [대형 50:50 분할 관제 레이아웃] */
-        .premium-split-view-container { display: none; height: calc(100vh - 126px); background: #F1F5F9; }
+        .premium-split-view-container { display: none; height: calc(100vh - 126px); height: calc(100dvh - 126px); background: #F1F5F9; width: 100%; }
         .split-pane { width: 50%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-soft); }
         .split-pane.right-ai-hub { width: 50%; background: #FFFFFF; border-right: none; padding: 14px; }
-
-        /* [3번 탭: AI 라운지] */
-        .sub-tab-container { display: flex; gap: 8px; margin-bottom: 18px; background: #E2E8F0; padding: 4px; border-radius: 12px; }
-        .sub-tab { flex: 1; text-align: center; padding: 9px; color: var(--text-muted); border-radius: 9px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
-        .sub-tab.active { background: white; color: var(--text-dark); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .ai-sub-panel { display: none; }
-        .ai-sub-panel.active { display: block; }
         
-        .ai-hub-control-card { background: white; border: 1px solid var(--border-soft); border-radius: 24px; padding: 20px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; }
+        .ai-hub-control-card { background: white; border: 1px solid var(--border-soft); border-radius: 24px; padding: 20px; margin-bottom: 18px; position: relative; }
         .ai-hub-control-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--gold-gradient); border-top-left-radius: 24px; border-top-right-radius: 24px; }
         .ai-hub-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 14px; margin-bottom: 16px; }
+        .ai-vis-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%); border: 2px solid white; }
         
-        .ai-assistant-visual { display: flex; align-items: center; }
-        .ai-vis-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid white; }
-        .ai-vis-비서 { background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%); }
-        .ai-hub-title { font-size: 15px; font-weight: 800; color: var(--text-dark); }
-        
-        .ai-briefing-panel { display: flex; flex-direction: column; gap: 0; overflow: hidden; border-radius: 18px; border: 1px solid var(--border-soft); background: white; }
-        .ai-video-space { width: 100%; height: 230px; background: #000000; position: relative; overflow: hidden; }
-        .large-briefing-video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; display: block; }
-        .ai-text-space { padding: 18px; background: #F8FAFC; border-top: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 10px; }
-        .ai-profile-tag-row { display: flex; align-items: center; gap: 8px; }
-        .ai-name-tag { font-size: 14px; font-weight: 900; color: white; background: linear-gradient(135deg, #4F46E5, #2563EB); padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(79,70,229,0.2); }
-        .ai-lang-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); background: #E2E8F0; padding: 2px 6px; border-radius: 4px; }
+        .ai-briefing-panel { display: flex; flex-direction: column; gap: 0; overflow: hidden; border-radius: 18px; border: 1px solid var(--border-soft); background: white; cursor: pointer; }
+        .ai-video-space { width: 100%; height: 210px; background: #000000; position: relative; overflow: hidden; }
+        .large-briefing-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ai-text-space { padding: 16px; background: #F8FAFC; border-top: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 8px; }
+        .ai-name-tag { font-size: 13px; font-weight: 900; color: white; background: linear-gradient(135deg, #4F46E5, #2563EB); padding: 4px 10px; border-radius: 6px; width: fit-content; }
+        .briefing-text { font-size: 13px; color: var(--text-dark); line-height: 1.55; text-align: justify; font-weight: 600; }
+        .click-speak-tip { font-size: 11px; color: #D97706; font-weight: 700; display: flex; align-items: center; gap: 4px; }
 
-        .briefing-text { font-size: 13.5px; color: var(--text-dark); line-height: 1.6; text-align: justify; font-weight: 500; }
-        .click-speak-tip { font-size: 11.5px; color: #D97706; font-weight: 700; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: opacity 0.2s; }
-
-        .feed-card { background: white; border: 1px solid var(--border-soft); border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
-        .feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .feed-icon-box { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-light); display: flex; align-items: center; justify-content: center; color: #D97706; }
-        .feed-title { font-size: 14px; font-weight: 800; color: var(--text-dark); }
-        .feed-time { font-size: 11px; color: var(--text-muted); margin-left: auto; }
-        .feed-body { font-size: 13px; color: #475569; line-height: 1.55; margin-bottom: 14px; }
-        .match-bar-container { display: flex; align-items: center; justify-content: space-between; background: #FFFDF5; padding: 10px 14px; border-radius: 10px; border: 1px solid #FEF3C7; }
-        .match-percent { font-size: 13px; font-weight: 800; color: #B45309; }
+        .feed-card { background: white; border: 1px solid var(--border-soft); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
+        .feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .feed-icon-box { width: 30px; height: 30px; border-radius: 50%; background: var(--gold-light); display: flex; align-items: center; justify-content: center; color: #D97706; }
+        .feed-title { font-size: 13.5px; font-weight: 800; color: var(--text-dark); }
+        .feed-body { font-size: 12.5px; color: #475569; line-height: 1.55; margin-bottom: 12px; }
+        .match-bar-container { display: flex; align-items: center; justify-content: space-between; background: #FFFDF5; padding: 8px 12px; border-radius: 8px; border: 1px solid #FEF3C7; }
+        .match-percent { font-size: 12.5px; font-weight: 800; color: #B45309; }
         
-        /* [4번 탭: 내 정보 설정 사양] */
-        .profile-hero { display: flex; align-items: center; gap: 16px; background: white; border: 1px solid var(--border-soft); padding: 18px; border-radius: 20px; margin-bottom: 18px; box-shadow: var(--shadow-premium); }
-        .profile-main-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-gold); box-shadow: var(--shadow-gold); }
-        .profile-hero-name { font-size: 18px; font-weight: 800; color: var(--text-dark); }
-        .profile-hero-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
+        .profile-hero { display: flex; align-items: center; gap: 16px; background: white; border: 1px solid var(--border-soft); padding: 18px; border-radius: 20px; margin-bottom: 18px; }
+        .profile-main-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-gold); }
         
-        .form-section { background: white; border: 1px solid var(--border-soft); padding: 20px; border-radius: 20px; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .form-section { background: white; border: 1px solid var(--border-soft); padding: 20px; border-radius: 20px; margin-bottom: 18px; }
         .form-section-title { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-bottom: 16px; border-left: 3px solid #F59E0B; padding-left: 8px; }
         .form-row-grid { display: flex; gap: 12px; margin-bottom: 14px; }
         .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
         .form-label { font-size: 12px; font-weight: 700; color: var(--text-dark); }
-        .form-input { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); width: 100%; transition: all 0.2s; }
-        .form-input:focus { background: white; border-color: #F59E0B; outline: none; }
-        .form-textarea { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); resize: none; height: 75px; line-height: 1.45; width: 100%; transition: all 0.2s; }
-        .form-textarea:focus { background: white; border-color: #F59E0B; outline: none; }
-        .form-select { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: white; color: var(--text-dark); width: 100%; outline: none; }
+        .form-input { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); width: 100%; }
+        .form-textarea { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); resize: none; height: 75px; width: 100%; }
+        .form-select { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: white; color: var(--text-dark); width: 100%; }
         
-        .submit-btn { width: 100%; background: var(--gold-gradient); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-gold); transition: all 0.2s; }
-        .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        
-        .notice-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .notice-modal-card { width: 88%; max-width: 360px; background: white; border-radius: 24px; box-shadow: 0 30px 60px -5px rgba(0, 0, 0, 0.25); overflow: hidden; border: 1px solid rgba(255,255,255,0.7); animation: modalPopup 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes modalPopup { from { transform: scale(0.9) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-        
-        .modal-notice-header { background: var(--primary-gradient); color: white; padding: 18px 20px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--accent-gold); }
-        
-        .modal-notice-body { padding: 22px 20px; font-size: 14px; color: var(--text-dark); line-height: 1.6; max-height: 380px; overflow-y: auto; }
-        .modal-notice-footer { padding: 14px 20px; background: #F8FAFC; border-top: 1px solid var(--border-soft); display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-close-btn { background: #0F172A; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; transition: background 0.2s; }
-        .modal-close-btn:hover { background: var(--accent-gold); }
-        
-        .toggle-switch-container { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border-soft); margin-top: 10px; }
-        .switch-label-text { font-size: 13.5px; font-weight: 700; color: var(--text-dark); }
-        .switch-input-obj { display: none; }
-        .switch-slider-btn { display: inline-block; width: 46px; height: 24px; background: #CBD5E1; border-radius: 20px; position: relative; cursor: pointer; transition: background 0.25s; }
-        .switch-slider-btn::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 4px; transition: all 0.25s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .switch-input-obj:checked + .switch-slider-btn { background: #D97706; }
-        .switch-input-obj:checked + .switch-slider-btn::after { left: 24px; }
+        .submit-btn { width: 100%; background: var(--gold-gradient); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-gold); }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -183,26 +125,19 @@
 <div class="phone-container">
     <div class="header" id="dynamic-header">
         <i class="fa-solid fa-arrow-left back-btn" id="global-back-btn" onclick="exitActiveChat()"></i>
-        <span id="header-text" class="demo-secret-title-trigger" onclick="triggerSecretDemoAlertFromTitle()">영무회 동문</span>
+        <span id="header-text" class="demo-secret-title-trigger">영무회 동문</span>
         
         <div class="header-buttons-group">
-            <div class="supervisor-trigger" id="master-crown-btn" onclick="openSupervisorConsole()">
-                <i class="fa-solid fa-crown"></i>
-            </div>
-            <div class="global-notice-trigger" onclick="openGlobalNoticePopup()">
-                <i class="fa-solid fa-bullhorn"></i>
-                <div class="notice-dot" id="global-notice-dot"></div>
-            </div>
-            <div class="global-settings-trigger" onclick="openGlobalSettingsPopup()">
-                <i class="fa-solid fa-gear"></i>
-            </div>
+            <div class="supervisor-trigger" id="master-crown-btn"><i class="fa-solid fa-crown"></i></div>
+            <div class="global-notice-trigger"><i class="fa-solid fa-bullhorn"></i><div class="notice-dot" id="global-notice-dot" style="display:none;"></div></div>
+            <div class="global-settings-trigger" onclick="openGlobalSettingsPopup()"><i class="fa-solid fa-gear"></i></div>
         </div>
     </div>
     
     <div class="main-content" id="scroll-content-view">
         <div id="panel-alumni" class="tab-panel active">
             <div class="summary-card">
-                <p style="font-size: 12px; font-weight: 700; opacity: 0.85; text-transform:uppercase; letter-spacing:0.5px;">Registered Leaders</p>
+                <p style="font-size: 12px; font-weight: 700; opacity: 0.85;">Registered Leaders</p>
                 <h1 style="font-size: 34px; font-weight: 900; margin-top: 2px;" id="total-count-badge">2명</h1>
             </div>
             <input type="text" class="search-box" placeholder="🔍 기수, 취급 품목, 반도체 및 수계아연 키워드 실시간 연동 스캔...">
@@ -211,9 +146,7 @@
         </div>
 
         <div id="panel-chat" class="tab-panel" style="padding: 0;">
-            <div id="chat-list-view">
-                <div id="chat-list-anchor"></div>
-            </div>
+            <div id="chat-list-view"><div id="chat-list-anchor"></div></div>
             <div id="chat-room-view" class="chat-view-container">
                 <div class="chat-messages" id="chat-messages-box"></div>
                 <div class="chat-input-row">
@@ -223,7 +156,7 @@
             </div>
         </div>
 
-        <div id="premium-split-view-panel" class="premium-split-view-container" style="display:none; height: calc(100vh - 126px); background: #F1F5F9;">
+        <div id="premium-split-view-panel" class="premium-split-view-container">
             <div class="split-pane">
                 <div class="chat-messages" id="split-chat-messages-box" style="background:#E8EBF0; flex:1; padding: 14px;"></div>
                 <div class="chat-input-row" style="padding:8px;">
@@ -234,9 +167,7 @@
             <div class="split-pane right-ai-hub">
                 <div class="ai-hub-control-card" style="padding:10px; border-radius:16px; margin-bottom:8px;">
                     <div class="ai-hub-header" style="margin-bottom:8px; padding-bottom:6px;">
-                        <div class="ai-assistant-visual">
-                            <div class="ai-vis-circle ai-vis-비서" style="width:32px; height:32px; font-size:14px;"><i class="fa-solid fa-user-tie"></i></div>
-                        </div>
+                        <div class="ai-assistant-visual"><div class="ai-vis-circle" style="width:32px; height:32px; font-size:14px;"><i class="fa-solid fa-user-tie"></i></div></div>
                         <div class="ai-hub-title" style="font-size:12px;">AI 비서실 실시간 협의 해독 엔진</div>
                     </div>
                     <div class="ai-briefing-panel" onclick="toggleSplitAiBriefingPlayState()">
@@ -262,25 +193,17 @@
             <div id="ai-sub-feed" class="ai-sub-panel active">
                 <div class="ai-hub-control-card" style="padding:14px;">
                     <div class="ai-hub-header" style="margin-bottom:12px; padding-bottom:10px;">
-                        <div class="ai-assistant-visual">
-                            <div class="ai-vis-circle ai-vis-비서"><i class="fa-solid fa-user-tie"></i></div>
-                        </div>
+                        <div class="ai-assistant-visual"><div class="ai-vis-circle"><i class="fa-solid fa-user-tie"></i></div></div>
                         <div class="ai-hub-title">영무회 전담 AI 비서실 정식 브리핑</div>
                     </div>
-                    
-                    <div class="ai-briefing-panel" id="ai-realtime-briefing-anchor" onclick="toggleOﬃcialVideoPlayState()">
+                    <div class="ai-briefing-panel" id="ai-realtime-briefing-anchor" onclick="toggleOfficialVideoPlayState()">
                         <div class="ai-video-space">
                             <video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/%EC%95%A0%EB%B9%84%EC%84%9C_%EB%B8%8C%EB%A6%AC%ED%95%91.mp4" preload="metadata" muted playsinline></video>
                         </div>
                         <div class="ai-text-space">
-                            <div class="ai-profile-tag-row">
-                                <span class="ai-name-tag">애비서</span>
-                                <span class="ai-lang-tag">Official Media</span>
-                            </div>
+                            <div class="ai-profile-tag-row"><span class="ai-name-tag">애비서</span><span class="ai-lang-tag">Official Media</span></div>
                             <p class="briefing-text" id="text-target-비서">영무회 비즈니스 네트워킹 플랫폼 라운지에 오신 것을 환영합니다. [나의 매칭 요청]을 상단 탭에서 기술하시면, 선배님의 사업 자산과 글로벌 무역 공급망 니즈를 해독하여 최적의 동문 매칭 리포트를 실시간 이곳에 인덱싱합니다.</p>
-                            <div class="click-speak-tip" id="oﬃcial-video-status-label">
-                                <i class="fa-solid fa-circle-play"></i> 터치 시 오피셜 브리핑 영상 재생 / 일시정지
-                            </div>
+                            <div class="click-speak-tip" id="official-video-status-label"><i class="fa-solid fa-circle-play"></i> ▶ 터치 시 오피셜 브리핑 영상 재생 / 일시정지</div>
                         </div>
                     </div>
                 </div>
@@ -303,15 +226,12 @@
 
         <div id="panel-profile" class="tab-panel">
             <div class="profile-hero">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="profile-main-avatar" id="display-avatar-img">
-                <div>
-                    <div class="profile-hero-name" id="hero-name-label">제갈훈</div>
-                    <div class="profile-hero-meta" id="hero-meta-label">13회 · 제조</div>
-                </div>
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="profile-main-avatar">
+                <div><div class="profile-hero-name" id="hero-name-label">제갈훈</div><div class="profile-hero-meta">13회 · 제조</div></div>
             </div>
             <div class="form-section">
                 <div class="form-group" style="margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border-soft);">
-                    <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> 기기 세션 스위칭 로그인</label>
+                    <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> ⚙️ 기기 세션 스위칭 로그인</label>
                     <select class="form-select" id="form-session-select" onchange="switchDemoLoginAccount(this.value)">
                         <option value="제갈훈">제갈훈 (13회 최고 임원 - 관리 제어 마스터 계정)</option>
                         <option value="정희훈">정희훈 (20회 평회원 - 비즈니스 협의 송신 전용 계정)</option>
@@ -375,7 +295,6 @@
 </div>
 
 <script>
-    // ★ [파이어베이스 실시간 백엔드 규격 결속 마감] 선배님이 방금 추출하신 고유 마스터 키값 완전 이식
     const firebaseConfig = {
         apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzXZXTJ5UUZ9SDo",
         authDomain: "youngmoohae-db.firebaseapp.com",
@@ -386,11 +305,9 @@
         measurementId: "G-DM109XGYQ2"
     };
 
-    // 파이어베이스 데이터 플로우 결속 가동
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 개별 기기 식별 고유 분리 핑거프린트
     let myDeviceUuid = localStorage.getItem('youngmoo_device_session_id') || 'uid-' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('youngmoo_device_session_id', myDeviceUuid);
 
@@ -452,13 +369,11 @@
         });
     }
 
-    // ★ 파이어베이스 무역 협의 채널 실시간 소켓 스트리밍 리스너 개통 마감
     function initFirebaseLiveChatListener() {
         db.collection("ym_chat_stream").orderBy("timestamp", "asc")
           .onSnapshot((snapshot) => {
               let isNewIncomingMessage = false;
               let lastSender = "";
-              let lastText = "";
               
               const msgBox = document.getElementById('chat-messages-box');
               const splitMsgBox = document.getElementById('split-chat-messages-box');
@@ -470,7 +385,6 @@
                   if (change.type === "added") {
                       let data = change.doc.data();
                       lastSender = data.sender;
-                      lastText = data.msg;
                       if(data.sender !== currentLoggedInUser) {
                           isNewIncomingMessage = true;
                       }
@@ -488,7 +402,6 @@
               if(msgBox) msgBox.scrollTo(0, msgBox.scrollHeight);
               if(splitMsgBox) splitMsgBox.scrollTo(0, splitMsgBox.scrollHeight);
 
-              // 상대방 기기에서 전송 시 내 폰에 푸시 영상 즉각 가동 트리거 라우팅
               if(isNewIncomingMessage && isVideoAlertEnabled) {
                   document.getElementById('alert-sender-title').innerText = `${lastSender} 선배님 신규 협의 안건 감지`;
                   document.getElementById('chat-video-alert-modal').style.display = "flex";
@@ -500,7 +413,6 @@
     function executeSendMsg() {
         const input = document.getElementById('live-chat-input');
         if(!input.value.trim()) return;
-        
         db.collection("ym_chat_stream").add({
             sender: currentLoggedInUser,
             msg: input.value.trim(),
@@ -512,7 +424,6 @@
     function executeSplitSendMsg() {
         const input = document.getElementById('split-live-chat-input');
         if(!input.value.trim()) return;
-        
         db.collection("ym_chat_stream").add({
             sender: currentLoggedInUser,
             msg: input.value.trim(),
@@ -530,9 +441,9 @@
         location.reload();
     }
 
-    function toggleOﬃcialVideoPlayState() {
+    function toggleOfficialVideoPlayState() {
         const video = document.getElementById('video-avatar-비서');
-        const label = document.getElementById('oﬃcial-video-status-label');
+        const label = document.getElementById('official-video-status-label');
         if(!video) return;
         if (video.paused) { video.play().catch(e => {}); label.innerHTML = `<i class="fa-solid fa-pause"></i> 성우 브리핑 영상 상시 가동중 (터치 시 정지)`; } 
         else { video.pause(); label.innerHTML = `<i class="fa-solid fa-play"></i> 브리핑 영상 일시정지됨 (터치 시 재개)`; }
@@ -568,7 +479,6 @@
         document.getElementById('panel-chat').style.display = 'block';
         document.getElementById('chat-list-view').style.display = 'none';
         document.getElementById('chat-room-view').style.display = 'none';
-        
         document.getElementById('premium-split-view-panel').style.display = 'flex';
         document.getElementById('global-back-btn').style.display = 'block';
         document.getElementById('header-text').innerText = "AI 비서실 실시간 관제방";
@@ -583,13 +493,12 @@
         const splitVideo = document.getElementById('split-video-avatar');
         activeSpeechScriptText = "제갈훈 본부장님, 파이어베이스 중앙망을 통해 송신된 무역 안건을 제미니 프롬프트 지침에 맞춰 완벽히 해독했습니다. 1기가 용량 방어를 위해 묵은 대화는 핵심 요약본으로 정제 정제하고 있으며, 일주일 단위로 진행 사항을 확인하여 비즈니스를 재점화시키는 사후 제어 관리 인프라를 대기시켰습니다.";
         isTtsSpeechPaused = false;
-        
         document.getElementById('split-play-tip-label').innerHTML = `<i class="fa-solid fa-pause"></i> AI 비서실 실시간 브리핑 중 (터치 시 정지)`;
         executeTtsSpeechEngine(activeSpeechScriptText, 'ko-KR', 'female', splitVideo);
     }
 
     function handleChatKeyDown(event) { if (event.key === 'Enter') { executeSendMsg(); event.preventDefault(); } }
-    function handleSplitChatKeyDown(event) { if (event.key === 'Enter' { executeSplitSendMsg(); event.preventDefault(); } }
+    function handleSplitChatKeyDown(event) { if (event.key === 'Enter') { executeSplitSendMsg(); event.preventDefault(); } }
     function handleAiRequestKeyDown(event) { if (event.key === 'Enter' && !event.shiftKey) { analyzeAiRequest(); event.preventDefault(); } }
 
     function analyzeAiRequest() {
@@ -607,7 +516,6 @@
                 body: `선배님이 요청하신 "${text}" 안건을 분석했습니다. 무역 유통망 인프라 자산을 보유한 20회 정희훈 동문과의 비즈니스 싱크로율이 98%로 도출되었습니다.`,
                 pct: "98%"
             });
-            
             renderCoreLayout();
             
             const briefingAnchor = document.getElementById('ai-realtime-briefing-anchor');
@@ -615,20 +523,14 @@
             isTtsSpeechPaused = false;
 
             briefingAnchor.innerHTML = `
-                <div class="ai-video-space">
-                    <video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/애비서1.mp4" preload="metadata" muted playsinline></video>
-                </div>
+                <div class="ai-video-space"><video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/애비서1.mp4" preload="metadata" muted playsinline></video></div>
                 <div class="ai-text-space">
                     <div class="ai-profile-tag-row"><span class="ai-name-tag">애비서</span><span class="ai-lang-tag">Dynamic TTS</span></div>
                     <p class="briefing-text" id="text-target-비서">${activeSpeechScriptText}</p>
-                    <div class="click-speak-tip" id="oﬃcial-video-status-label">
-                        <i class="fa-solid fa-pause"></i> AI 비서 브리핑 가동중 (터치 시 영상/소리 일시정지)
-                    </div>
+                    <div class="click-speak-tip" id="official-video-status-label"><i class="fa-solid fa-pause"></i> AI 비서 브리핑 가동중 (터치 시 영상/소리 일시정지)</div>
                 </div>
             `;
-            
             document.getElementById('ai-realtime-briefing-anchor').setAttribute("onclick", "toggleDynamicAiBriefingPlayState()");
-
             switchAiSubTab('feed');
             executeTtsSpeechEngine(activeSpeechScriptText, 'ko-KR', 'female', document.getElementById('video-avatar-비서'));
             document.getElementById('ai-request-input').value = '';
@@ -638,7 +540,7 @@
 
     function toggleDynamicAiBriefingPlayState() {
         const video = document.getElementById('video-avatar-비서');
-        const label = document.getElementById('oﬃcial-video-status-label');
+        const label = document.getElementById('official-video-status-label');
         if(!video) return;
         if (window.speechSynthesis.speaking) {
             if (!isTtsSpeechPaused) { window.speechSynthesis.pause(); isTtsSpeechPaused = true; video.pause(); label.innerHTML = `<i class="fa-solid fa-play"></i> AI 브리핑 일시정지됨 (터치 시 재개)`; } 
@@ -646,7 +548,6 @@
         }
     }
 
-    function triggerSecretDemoAlertFromTitle() { jumpToDirectChat("정희훈"); }
     function navigateTab(panelId, title, elem) {
         window.speechSynthesis.cancel();
         isTtsSpeechPaused = false;
