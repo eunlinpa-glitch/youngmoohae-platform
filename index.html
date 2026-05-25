@@ -1138,18 +1138,30 @@ function executeTtsSpeechEngine(text, langCode, genderType, videoElement) {
 <!-- Firebase Integration START -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
 
 /* ===== Firebase 설정만 채워 넣으세요 ===== */
 const firebaseConfig={
  apiKey:"PUT_API_KEY_HERE",
- authDomain:"youngmoohae-db.firebaseapp.com",
+ authDomain:"PUT_AUTH_DOMAIN_HERE",
  projectId:"PUT_PROJECT_ID_HERE",
- storageBucket:"youngmoohae-db.firebasestorage.app",
- messagingSenderId:"915987856288",
- appId:"1:915987856288:web:90c8b50b61588c0550c2c5"
+ storageBucket:"PUT_STORAGE_BUCKET_HERE",
+ messagingSenderId:"PUT_SENDER_ID_HERE",
+ appId:"PUT_APP_ID_HERE"
 };
 
 const vapidKey="PUT_VAPID_KEY_HERE";
@@ -1160,52 +1172,7 @@ window.db=getFirestore(app);
 window.storage=getStorage(app);
 window.messaging=getMessaging(app);
 
-window.saveChatRealtime=async(roomId,sender,message)=>{
- return await addDoc(
-  collection(db,"chat_rooms",roomId,"messages"),
-  {
-   sender,
-   message,
-   createdAt:serverTimestamp()
-  }
- );
-};
-
-window.subscribeRealtimeChat=(roomId)=>{
-
- const q=query(
-  collection(db,"chat_rooms",roomId,"messages"),
-  orderBy("createdAt"),
-  limit(300)
- );
-
- return onSnapshot(q,(snap)=>{
-
-   const box=document.getElementById("chat-messages-box");
-   if(!box) return;
-
-   box.innerHTML="";
-
-   snap.forEach((d)=>{
-
-      const v=d.data();
-
-      box.innerHTML += `
-<div class="msg-wrapper ${v.sender===window.currentLoggedInUser?'me':'other'}">
-<div class="msg-container-row">
-<div class="msg-bubble ${v.sender===window.currentLoggedInUser?'me':'other'}">
-${v.message}
-</div>
-</div>
-</div>`;
-
-   });
-
-   box.scrollTop=box.scrollHeight;
-
- });
-
-};
+let unsubscribeActiveRoom = null;
 
 function getCurrentUserName(){
  try{
@@ -1215,38 +1182,230 @@ function getCurrentUserName(){
  }
 }
 
-function getActiveRoomName(){
+function getAlumniNames(){
  try{
-   return activeChatPartner || "";
- }catch(e){
-   return window.activeChatPartner || "";
+   if(Array.isArray(alumniDb)) return alumniDb.map(p=>p.name);
+ }catch(e){}
+ return ["제갈훈","정희훈","이준호"];
+}
+
+function getRoomMembers(roomName){
+ const me=getCurrentUserName();
+
+ if(window.chatRoomMembersMap && Array.isArray(window.chatRoomMembersMap[roomName])){
+   return [...new Set(window.chatRoomMembersMap[roomName])];
  }
+
+ if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+   return [...new Set(getAlumniNames())];
+ }
+
+ if(!roomName){
+   return [me];
+ }
+
+ return [...new Set([me, roomName])];
+}
+
+function makeRoomId(roomName){
+ const me=getCurrentUserName();
+
+ if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+   return "official_marketing_room";
+ }
+
+ return [me, roomName].sort().join("__");
+}
+
+function getLocalStorageKey(roomName){
+ return "ymh_chat_local_" + makeRoomId(roomName);
+}
+
+function loadLocalMessages(roomName){
+ try{
+   const raw = localStorage.getItem(getLocalStorageKey(roomName));
+   return raw ? JSON.parse(raw) : [];
+ }catch(e){
+   return [];
+ }
+}
+
+function saveLocalMessage(roomName, messageData){
+ const list = loadLocalMessages(roomName);
+ list.push({
+   ...messageData,
+   localCreatedAt: Date.now()
+ });
+ localStorage.setItem(getLocalStorageKey(roomName), JSON.stringify(list));
+}
+
+function getUnreadCount(messageData, roomName){
+ const members=getRoomMembers(roomName);
+ const sender=messageData.sender;
+ const readBy=Array.isArray(messageData.readBy) ? messageData.readBy : [];
+
+ return members.filter(name => name !== sender && !readBy.includes(name)).length;
 }
 
 function isFirebaseConfigured(){
  return firebaseConfig.apiKey &&
-        firebaseConfig.apiKey !== "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo" &&
+        firebaseConfig.apiKey !== "PUT_API_KEY_HERE" &&
         firebaseConfig.projectId &&
-        firebaseConfig.projectId !== "youngmoohae-db";
+        firebaseConfig.projectId !== "PUT_PROJECT_ID_HERE";
 }
 
-function appendLocalMessage(sender,message){
+function escapeHtml(text){
+ return String(text || "")
+   .replaceAll("&","&amp;")
+   .replaceAll("<","&lt;")
+   .replaceAll(">","&gt;")
+   .replaceAll('"',"&quot;")
+   .replaceAll("'","&#039;");
+}
+
+function renderMessageBubble(messageData, roomName){
+ const sender=messageData.sender || "익명";
+ const isMe = sender === getCurrentUserName();
+ const unreadCount = getUnreadCount(messageData, roomName);
+
+ const unreadHtml =
+   isMe && unreadCount > 0
+   ? `<span class="unread-counter-num">${unreadCount}</span>`
+   : "";
+
+ const senderLabel =
+   !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+   ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${escapeHtml(sender)}</div>`
+   : "";
+
+ return `
+<div class="msg-wrapper ${isMe?'me':'other'}">
+  <div class="msg-container-row">
+    ${isMe ? unreadHtml : ""}
+    <div class="msg-bubble ${isMe?'me':'other'}">
+      ${senderLabel}
+      ${escapeHtml(messageData.message)}
+    </div>
+  </div>
+</div>`;
+}
+
+function renderLocalRoomMessages(roomName){
  const box=document.getElementById("chat-messages-box");
  if(!box) return;
 
- const isMe = sender === getCurrentUserName();
+ const localMessages = loadLocalMessages(roomName);
 
- box.innerHTML += `
-<div class="msg-wrapper ${isMe?'me':'other'}">
-<div class="msg-container-row">
-<div class="msg-bubble ${isMe?'me':'other'}">
-${message}
-</div>
-</div>
-</div>`;
+ if(localMessages.length === 0) return;
+
+ box.innerHTML = "";
+
+ localMessages.forEach((m)=>{
+   box.innerHTML += renderMessageBubble(m, roomName);
+ });
 
  box.scrollTop=box.scrollHeight;
 }
+
+function appendLocalMessage(sender,message,roomName, shouldSave=true){
+ const box=document.getElementById("chat-messages-box");
+ if(!box) return;
+
+ const data = {
+   roomName,
+   roomId: makeRoomId(roomName),
+   members: getRoomMembers(roomName),
+   sender,
+   message,
+   readBy:[sender],
+   localCreatedAt: Date.now()
+ };
+
+ if(shouldSave){
+   saveLocalMessage(roomName, data);
+ }
+
+ box.innerHTML += renderMessageBubble(data, roomName);
+ box.scrollTop=box.scrollHeight;
+}
+
+window.saveChatRealtime=async(roomName,sender,message)=>{
+ const roomId=makeRoomId(roomName);
+
+ return await addDoc(
+  collection(db,"chat_rooms",roomId,"messages"),
+  {
+   roomName,
+   roomId,
+   members:getRoomMembers(roomName),
+   sender,
+   message,
+   readBy:[sender],
+   createdAt:serverTimestamp()
+  }
+ );
+};
+
+async function markRoomAsRead(roomName, docs){
+ const me=getCurrentUserName();
+ const roomId=makeRoomId(roomName);
+
+ docs.forEach(async(d)=>{
+   const v=d.data();
+   if(v.sender !== me){
+     const readBy=Array.isArray(v.readBy) ? v.readBy : [];
+     if(!readBy.includes(me)){
+       try{
+         await updateDoc(
+           doc(db,"chat_rooms",roomId,"messages",d.id),
+           { readBy: arrayUnion(me) }
+         );
+       }catch(e){
+         console.error("readBy update failed", e);
+       }
+     }
+   }
+ });
+}
+
+window.subscribeRealtimeChat=(roomName)=>{
+
+ if(unsubscribeActiveRoom){
+   try{ unsubscribeActiveRoom(); }catch(e){}
+   unsubscribeActiveRoom=null;
+ }
+
+ const roomId=makeRoomId(roomName);
+
+ const q=query(
+  collection(db,"chat_rooms",roomId,"messages"),
+  orderBy("createdAt"),
+  limit(300)
+ );
+
+ unsubscribeActiveRoom = onSnapshot(q,(snap)=>{
+
+   const box=document.getElementById("chat-messages-box");
+   if(!box) return;
+
+   box.innerHTML="";
+
+   snap.forEach((d)=>{
+      const v=d.data();
+      box.innerHTML += renderMessageBubble(v, roomName);
+   });
+
+   box.scrollTop=box.scrollHeight;
+
+   markRoomAsRead(roomName, snap.docs);
+
+ }, (error)=>{
+   console.error("Realtime chat subscription failed", error);
+   renderLocalRoomMessages(roomName);
+ });
+
+ return unsubscribeActiveRoom;
+};
 
 if(window.executeSendMsg){
 
@@ -1262,15 +1421,18 @@ if(window.executeSendMsg){
 
    if(!text) return;
 
-   const roomName=getActiveRoomName();
+   let roomName="";
+   try{ roomName = activeChatPartner || ""; }catch(e){ roomName = window.activeChatPartner || ""; }
+
+   if(!roomName){
+     alert("채팅방을 먼저 선택해 주세요.");
+     return;
+   }
+
    const senderName=getCurrentUserName();
 
-   /*
-     Firebase key를 아직 넣지 않은 데모 상태에서는
-     기존처럼 화면에 바로 메시지를 남깁니다.
-   */
    if(!isFirebaseConfigured()){
-      appendLocalMessage(senderName,text);
+      appendLocalMessage(senderName,text,roomName,true);
       input.value="";
       return;
    }
@@ -1280,9 +1442,9 @@ if(window.executeSendMsg){
       input.value="";
    }catch(e){
       console.error(e);
-      appendLocalMessage(senderName,text);
+      appendLocalMessage(senderName,text,roomName,true);
       input.value="";
-      alert("Firebase 저장 실패: 화면에는 임시 표시했습니다. Firebase 설정값과 Rules를 확인해 주세요.");
+      alert("Firebase 저장 실패: 브라우저 로컬 저장소에는 저장했습니다. Firebase 설정값과 Rules를 확인해 주세요.");
    }
  };
 
@@ -1296,12 +1458,10 @@ if(window.openChatRoom){
 
    oldOpen(name,letter);
 
-   /*
-     Firebase key를 넣은 뒤에만 실시간 구독합니다.
-     key가 없는 상태에서 구독을 걸면 기존 데모 채팅 화면을 비워버릴 수 있습니다.
-   */
    if(isFirebaseConfigured()){
       subscribeRealtimeChat(name);
+   }else{
+      renderLocalRoomMessages(name);
    }
 
  };
@@ -1340,7 +1500,9 @@ onMessage(
 
 });
 
-window.archiveChat=async(roomId,blob)=>{
+window.archiveChat=async(roomName,blob)=>{
+
+ const roomId=makeRoomId(roomName);
 
  const path=
  `archive/${roomId}/${Date.now()}.json`;
@@ -1354,7 +1516,7 @@ window.archiveChat=async(roomId,blob)=>{
 
 };
 
-console.log("Firebase Integrated");
+console.log("Firebase Integrated - local persistence + unread count");
 
 </script>
 <!-- Firebase Integration END -->
