@@ -1143,6 +1143,9 @@ import {
   collection,
   addDoc,
   doc,
+  setDoc,
+  getDoc,
+  getDocs,
   updateDoc,
   query,
   orderBy,
@@ -1406,6 +1409,180 @@ window.subscribeRealtimeChat=(roomName)=>{
 
  return unsubscribeActiveRoom;
 };
+
+
+/* ===== 신규 회원 등록 / 동문 명단 Firebase 연동 ===== */
+
+function normalizeGisu(value){
+ const raw = String(value || "").trim();
+ if(!raw) return "";
+ return raw.includes("회") ? raw : `${raw}회`;
+}
+
+function buildProfileFromForm(){
+ const name = document.getElementById("form-name")?.value?.trim() || "";
+ const gisu = normalizeGisu(document.getElementById("form-gisu")?.value);
+ const company = document.getElementById("form-company")?.value?.trim() || "";
+ const job = document.getElementById("form-job")?.value?.trim() || "";
+ const field = document.getElementById("form-field")?.value?.trim() || "";
+ const assets = document.getElementById("form-assets")?.value?.trim() || "";
+ const target = document.getElementById("form-target")?.value?.trim() || "";
+ const intro = document.getElementById("form-intro")?.value?.trim() || "";
+ const avatar = document.getElementById("display-avatar-img")?.src || "";
+
+ return {
+   name,
+   gisu,
+   comp: job ? `${company} · ${job}` : company,
+   company,
+   job,
+   field,
+   assets,
+   target,
+   intro,
+   img: avatar,
+   approved: true,
+   updatedAt: serverTimestamp(),
+   createdAt: serverTimestamp()
+ };
+}
+
+function mergeAlumniIntoLocal(profile){
+ if(!profile || !profile.name) return;
+
+ try{
+   const idx = alumniDb.findIndex(p => p.name === profile.name);
+
+   const localProfile = {
+     name: profile.name,
+     gisu: profile.gisu || "",
+     comp: profile.comp || profile.company || "",
+     field: profile.field || "",
+     img: profile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+   };
+
+   if(idx >= 0){
+     alumniDb[idx] = { ...alumniDb[idx], ...localProfile };
+   }else{
+     alumniDb.push(localProfile);
+   }
+
+   renderCoreLayout();
+   populateSupervisorSelectOptions();
+
+ }catch(e){
+   console.error("mergeAlumniIntoLocal failed", e);
+ }
+}
+
+window.registerOrUpdateMember=async()=>{
+
+ const profile = buildProfileFromForm();
+
+ if(!profile.name){
+   alert("이름은 반드시 입력해야 합니다.");
+   return;
+ }
+
+ /*
+   Firebase 설정 전에는 로컬 명단에만 반영합니다.
+   Firebase 설정 후에는 Firestore users에도 저장합니다.
+ */
+ if(!isFirebaseConfigured()){
+   mergeAlumniIntoLocal(profile);
+   alert("Firebase 설정 전이라 현재 브라우저 명단에만 임시 등록했습니다.");
+   return;
+ }
+
+ try{
+   await setDoc(
+     doc(db,"users",profile.name),
+     profile,
+     { merge:true }
+   );
+
+   mergeAlumniIntoLocal(profile);
+
+   alert(`${profile.name} 동문 정보가 Firebase users에 저장되었습니다.`);
+
+ }catch(e){
+   console.error(e);
+   mergeAlumniIntoLocal(profile);
+   alert("Firebase 저장 실패: 현재 화면에는 임시 반영했습니다. Firestore Rules를 확인해 주세요.");
+ }
+};
+
+window.subscribeMembers=()=>{
+
+ if(!isFirebaseConfigured()){
+   renderCoreLayout();
+   return;
+ }
+
+ const q=query(
+   collection(db,"users"),
+   orderBy("gisu")
+ );
+
+ onSnapshot(q,(snap)=>{
+
+   const firebaseMembers=[];
+
+   snap.forEach((d)=>{
+     const v=d.data();
+     if(v && v.name && v.approved !== false){
+       firebaseMembers.push({
+         name:v.name,
+         gisu:v.gisu || "",
+         comp:v.comp || (v.job ? `${v.company || ""} · ${v.job}` : v.company || ""),
+         field:v.field || "",
+         img:v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+       });
+     }
+   });
+
+   /*
+     기존 데모 동문은 보존하고,
+     Firebase 신규/수정 회원을 병합합니다.
+   */
+   firebaseMembers.forEach(m=>mergeAlumniIntoLocal(m));
+
+ },(error)=>{
+   console.error("members subscription failed", error);
+   renderCoreLayout();
+ });
+};
+
+/*
+  기존 프로필 저장 버튼 함수가 있으면 보존하되,
+  저장 후 회원 등록/수정도 함께 실행합니다.
+*/
+if(window.saveProfileData){
+ const oldSaveProfileData = window.saveProfileData;
+
+ window.saveProfileData = async function(){
+   try{
+     oldSaveProfileData();
+   }catch(e){
+     console.error("old saveProfileData failed", e);
+   }
+   await registerOrUpdateMember();
+ };
+}else{
+ window.saveProfileData = registerOrUpdateMember;
+}
+
+/*
+  페이지 로딩 후 Firebase users 동문 명단 구독 시작
+*/
+setTimeout(()=>{
+ try{
+   subscribeMembers();
+ }catch(e){
+   console.error("subscribeMembers init failed", e);
+ }
+},500);
+
 
 if(window.executeSendMsg){
 
