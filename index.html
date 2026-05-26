@@ -294,6 +294,7 @@
                 <div>
                     <div class="profile-hero-name" id="hero-name-label">제갈훈</div>
                     <div class="profile-hero-meta" id="hero-meta-label">13회 · 제조</div>
+                    <div class="profile-hero-meta" id="hero-phone-label" style="font-size:12px; color:#334155; font-weight:700;">010-8854-2499</div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">사진을 클릭해 프로필 이미지를 자유롭게 교체하세요.</p>
                 </div>
             </div>
@@ -325,6 +326,10 @@
                 <div class="form-row-grid">
                     <div class="form-group"><label class="form-label">이름 *</label><input type="text" class="form-input" id="form-name" value="제갈훈"></div>
                     <div class="form-group"><label class="form-label">기수 *</label><input type="text" class="form-input" id="form-gisu" value="13"></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">전화번호 *</label>
+                    <input type="text" class="form-input" id="form-phone" value="010-8854-2499" placeholder="예: 010-0000-0000">
                 </div>
                 <div class="form-row-grid">
                     <div class="form-group"><label class="form-label">회사명</label><input type="text" class="form-input" id="form-company" value="티엔피솔루션"></div>
@@ -645,6 +650,12 @@
             document.getElementById('form-company').value = compClean;
             document.getElementById('hero-name-label').innerText = matchedAlumnus.name;
             document.getElementById('hero-meta-label').innerText = `${matchedAlumnus.gisu} · ${matchedAlumnus.field}`;
+            const phoneMatch = matchedAlumnus.comp.match(/\(([^)]+)\)/);
+            const phoneValue = phoneMatch ? phoneMatch[1] : "";
+            const phoneInput = document.getElementById('form-phone');
+            const phoneLabel = document.getElementById('hero-phone-label');
+            if(phoneInput) phoneInput.value = phoneValue;
+            if(phoneLabel) phoneLabel.innerText = phoneValue || "전화번호 미등록";
             document.getElementById('display-avatar-img').src = matchedAlumnus.img;
         }
     }
@@ -1135,6 +1146,31 @@ function executeTtsSpeechEngine(text, langCode, genderType, videoElement) {
     };
 </script>
 
+
+<script>
+/* Profile Phone Display Patch START */
+(function(){
+  function syncProfilePhoneDisplay(){
+    const phoneInput = document.getElementById('form-phone');
+    const phoneLabel = document.getElementById('hero-phone-label');
+    if(phoneInput && phoneLabel){
+      phoneLabel.innerText = phoneInput.value.trim() || "전화번호 미등록";
+    }
+  }
+
+  const oldSaveProfileDataPhonePatch = window.saveProfileData;
+  window.saveProfileData = function(){
+    if(typeof oldSaveProfileDataPhonePatch === "function"){
+      oldSaveProfileDataPhonePatch();
+    }
+    syncProfilePhoneDisplay();
+  };
+
+  document.addEventListener("DOMContentLoaded", syncProfilePhoneDisplay);
+})();
+/* Profile Phone Display Patch END */
+</script>
+
 <!-- Firebase Integration START -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
@@ -1167,7 +1203,6 @@ const firebaseConfig = {
   appId: "1:915987856288:web:90c8b50b61588c0550c2c5",
   measurementId: "G-DM109XGYQ2"
 };
-
 
 
 const vapidKey="PUT_VAPID_KEY_HERE";
@@ -1298,7 +1333,10 @@ function getUnreadCount(messageData, roomName){
 }
 
 function isFirebaseConfigured(){
- return !!window.db;
+ return firebaseConfig.apiKey &&
+        firebaseConfig.apiKey !== "PUT_API_KEY_HERE" &&
+        firebaseConfig.projectId &&
+        firebaseConfig.projectId !== "PUT_PROJECT_ID_HERE";
 }
 
 function escapeHtml(text){
@@ -1469,6 +1507,7 @@ function buildProfileFromForm(){
  const company = document.getElementById("form-company")?.value?.trim() || "";
  const job = document.getElementById("form-job")?.value?.trim() || "";
  const field = document.getElementById("form-field")?.value?.trim() || "";
+ const phone = document.getElementById("form-phone")?.value?.trim() || "";
  const assets = document.getElementById("form-assets")?.value?.trim() || "";
  const target = document.getElementById("form-target")?.value?.trim() || "";
  const intro = document.getElementById("form-intro")?.value?.trim() || "";
@@ -1480,6 +1519,7 @@ function buildProfileFromForm(){
    comp: job ? `${company} · ${job}` : company,
    company,
    job,
+   phone,
    field,
    assets,
    target,
