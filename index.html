@@ -1158,14 +1158,17 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstati
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
 
 /* ===== Firebase 설정만 채워 넣으세요 ===== */
-const firebaseConfig={
- apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo",
+const firebaseConfig = {
+  apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo",
   authDomain: "youngmoohae-db.firebaseapp.com",
   projectId: "youngmoohae-db",
   storageBucket: "youngmoohae-db.firebasestorage.app",
   messagingSenderId: "915987856288",
   appId: "1:915987856288:web:90c8b50b61588c0550c2c5",
+  measurementId: "G-DM109XGYQ2"
 };
+
+
 
 const vapidKey="PUT_VAPID_KEY_HERE";
 
@@ -1184,6 +1187,50 @@ function getCurrentUserName(){
    return window.currentLoggedInUser || "익명";
  }
 }
+
+
+function getActiveRoomName(){
+ try{
+   if(typeof activeChatPartner !== "undefined" && activeChatPartner){
+     return activeChatPartner;
+   }
+ }catch(e){}
+
+ if(window.activeChatPartner){
+   return window.activeChatPartner;
+ }
+
+ const header = document.getElementById("header-text")?.innerText?.trim() || "";
+
+ const nonRoomTitles = [
+   "영무회 동문",
+   "채팅",
+   "AI 라운지",
+   "내 정보"
+ ];
+
+ if(header && !nonRoomTitles.includes(header)){
+   return header;
+ }
+
+ return "";
+}
+
+function debugFirebaseChatState(label){
+ const roomName = getActiveRoomName();
+ const state = {
+   label,
+   firebaseConfigured: isFirebaseConfigured(),
+   currentUser: getCurrentUserName(),
+   activeRoom: roomName,
+   roomId: roomName ? makeRoomId(roomName) : "",
+   members: roomName ? getRoomMembers(roomName) : []
+ };
+ console.log("[YM CHAT DEBUG]", state);
+ return state;
+}
+
+window.debugFirebaseChatState = debugFirebaseChatState;
 
 function getAlumniNames(){
  try{
@@ -1251,10 +1298,7 @@ function getUnreadCount(messageData, roomName){
 }
 
 function isFirebaseConfigured(){
- return firebaseConfig.apiKey &&
-        firebaseConfig.apiKey !== "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo" &&
-        firebaseConfig.projectId &&
-        firebaseConfig.projectId !== "youngmoohae-db";
+ return !!window.db;
 }
 
 function escapeHtml(text){
@@ -1598,11 +1642,12 @@ if(window.executeSendMsg){
 
    if(!text) return;
 
-   let roomName="";
-   try{ roomName = activeChatPartner || ""; }catch(e){ roomName = window.activeChatPartner || ""; }
+   const roomName = getActiveRoomName();
+
+   debugFirebaseChatState("before-send");
 
    if(!roomName){
-     alert("채팅방을 먼저 선택해 주세요.");
+     alert("채팅방 이름을 찾지 못했습니다. 동문을 다시 눌러 채팅방에 들어가 주세요.");
      return;
    }
 
@@ -1611,17 +1656,19 @@ if(window.executeSendMsg){
    if(!isFirebaseConfigured()){
       appendLocalMessage(senderName,text,roomName,true);
       input.value="";
+      console.warn("[YM CHAT] Firebase 설정값이 부족하여 localStorage에만 저장했습니다.");
       return;
    }
 
    try{
       await saveChatRealtime(roomName,senderName,text);
       input.value="";
+      console.log("[YM CHAT] Firestore 저장 성공", { roomName, senderName, text });
    }catch(e){
-      console.error(e);
+      console.error("[YM CHAT] Firestore 저장 실패", e);
       appendLocalMessage(senderName,text,roomName,true);
       input.value="";
-      alert("Firebase 저장 실패: 브라우저 로컬 저장소에는 저장했습니다. Firebase 설정값과 Rules를 확인해 주세요.");
+      alert("Firebase 저장 실패: 브라우저 로컬 저장소에는 저장했습니다. 콘솔 오류를 확인해 주세요.");
    }
  };
 
@@ -1633,7 +1680,11 @@ if(window.openChatRoom){
 
  window.openChatRoom=function(name,letter){
 
+   window.activeChatPartner = name;
+
    oldOpen(name,letter);
+
+   debugFirebaseChatState("open-room");
 
    if(isFirebaseConfigured()){
       subscribeRealtimeChat(name);
@@ -1693,7 +1744,9 @@ window.archiveChat=async(roomName,blob)=>{
 
 };
 
-console.log("Firebase Integrated - local persistence + unread count");
+window.isFirebaseConfiguredForTest = isFirebaseConfigured;
+window.getActiveRoomNameForTest = getActiveRoomName;
+console.log("Firebase Integrated - v7 button send fixed");
 
 </script>
 <!-- Firebase Integration END -->
