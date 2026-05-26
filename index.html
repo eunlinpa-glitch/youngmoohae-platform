@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>영무회 비즈니스 네트워킹 플랫폼</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -177,6 +177,28 @@
         .switch-slider-btn::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 4px; transition: all 0.25s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .switch-input-obj:checked + .switch-slider-btn { background: #D97706; }
         .switch-input-obj:checked + .switch-slider-btn::after { left: 24px; }
+    
+        /* Mobile zoom prevention patch */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
+        input, textarea, select, button {
+            font-size: 16px !important;
+        }
+        .phone-container {
+            max-width: 430px;
+            width: 100%;
+            min-height: 100dvh;
+            height: 100dvh;
+        }
+        .main-content {
+            overscroll-behavior: contain;
+        }
+
     </style>
 </head>
 <body>
@@ -1171,6 +1193,27 @@ function executeTtsSpeechEngine(text, langCode, genderType, videoElement) {
 /* Profile Phone Display Patch END */
 </script>
 
+
+<script>
+/* Mobile Double-Tap Zoom Prevention START */
+(function(){
+  let lastTouchEnd = 0;
+
+  document.addEventListener("touchend", function(event){
+    const now = Date.now();
+    if(now - lastTouchEnd <= 300){
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, { passive:false });
+
+  document.addEventListener("gesturestart", function(event){
+    event.preventDefault();
+  });
+})();
+/* Mobile Double-Tap Zoom Prevention END */
+</script>
+
 <!-- Firebase Integration START -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
@@ -1222,6 +1265,69 @@ function getCurrentUserName(){
    return window.currentLoggedInUser || "익명";
  }
 }
+
+/* ===== 전화번호 기반 회원 ID 함수 ===== */
+function normalizePhoneNumber(phone){
+ return String(phone || "").replace(/\D/g,"");
+}
+
+function extractPhoneFromText(text){
+ const match = String(text || "").match(/\(([^)]+)\)/);
+ return match ? normalizePhoneNumber(match[1]) : "";
+}
+
+function formatPhoneDisplay(phone){
+ const p = normalizePhoneNumber(phone);
+ if(p.length === 11){
+   return `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}`;
+ }
+ return phone || "";
+}
+
+function getCurrentMemberId(){
+ const phoneInput = document.getElementById("form-phone");
+ const phoneFromInput = phoneInput ? normalizePhoneNumber(phoneInput.value) : "";
+
+ if(phoneFromInput){
+   return phoneFromInput;
+ }
+
+ const currentName = getCurrentUserName();
+
+ try{
+   const matched = alumniDb.find(p => p.name === currentName);
+   if(matched){
+     const phoneFromComp = extractPhoneFromText(matched.comp);
+     if(phoneFromComp) return phoneFromComp;
+   }
+ }catch(e){}
+
+ return currentName;
+}
+
+function getMemberIdByName(name){
+ if(!name) return "";
+
+ if(name === getCurrentUserName()){
+   return getCurrentMemberId();
+ }
+
+ try{
+   const matched = alumniDb.find(p => p.name === name);
+   if(matched){
+     const phoneFromComp = extractPhoneFromText(matched.comp);
+     if(phoneFromComp) return phoneFromComp;
+   }
+ }catch(e){}
+
+ return name;
+}
+
+function getCurrentPhoneDisplay(){
+ const id = getCurrentMemberId();
+ return formatPhoneDisplay(id);
+}
+
 
 
 function getActiveRoomName(){
@@ -1292,14 +1398,22 @@ function getRoomMembers(roomName){
  return [...new Set([me, roomName])];
 }
 
+function getRoomMemberIds(roomName){
+ const members = getRoomMembers(roomName);
+ return members.map(name => getMemberIdByName(name));
+}
+
+
 function makeRoomId(roomName){
- const me=getCurrentUserName();
+ const meId = getCurrentMemberId();
 
  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
    return "official_marketing_room";
  }
 
- return [me, roomName].sort().join("__");
+ const partnerId = getMemberIdByName(roomName);
+
+ return [meId, partnerId].sort().join("__");
 }
 
 function getLocalStorageKey(roomName){
@@ -1325,11 +1439,13 @@ function saveLocalMessage(roomName, messageData){
 }
 
 function getUnreadCount(messageData, roomName){
- const members=getRoomMembers(roomName);
- const sender=messageData.sender;
- const readBy=Array.isArray(messageData.readBy) ? messageData.readBy : [];
+ const memberIds = Array.isArray(messageData.memberIds) ? messageData.memberIds : getRoomMemberIds(roomName);
+ const senderId = messageData.senderId || getMemberIdByName(messageData.sender);
+ const readByIds = Array.isArray(messageData.readByIds)
+   ? messageData.readByIds
+   : (Array.isArray(messageData.readBy) ? messageData.readBy.map(name => getMemberIdByName(name)) : []);
 
- return members.filter(name => name !== sender && !readBy.includes(name)).length;
+ return memberIds.filter(id => id !== senderId && !readByIds.includes(id)).length;
 }
 
 function isFirebaseConfigured(){
@@ -1400,9 +1516,12 @@ function appendLocalMessage(sender,message,roomName, shouldSave=true){
    roomName,
    roomId: makeRoomId(roomName),
    members: getRoomMembers(roomName),
+   memberIds: getRoomMemberIds(roomName),
    sender,
+   senderId: getMemberIdByName(sender),
    message,
    readBy:[sender],
+   readByIds:[getMemberIdByName(sender)],
    localCreatedAt: Date.now()
  };
 
@@ -1423,9 +1542,12 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
    roomName,
    roomId,
    members:getRoomMembers(roomName),
+   memberIds:getRoomMemberIds(roomName),
    sender,
+   senderId:getMemberIdByName(sender),
    message,
    readBy:[sender],
+   readByIds:[getMemberIdByName(sender)],
    createdAt:serverTimestamp()
   }
  );
@@ -1443,7 +1565,10 @@ async function markRoomAsRead(roomName, docs){
        try{
          await updateDoc(
            doc(db,"chat_rooms",roomId,"messages",d.id),
-           { readBy: arrayUnion(me) }
+           { 
+             readBy: arrayUnion(me),
+             readByIds: arrayUnion(getCurrentMemberId())
+           }
          );
        }catch(e){
          console.error("readBy update failed", e);
@@ -1580,7 +1705,7 @@ window.registerOrUpdateMember=async()=>{
 
  try{
    await setDoc(
-     doc(db,"users",profile.name),
+     doc(db,"users",profile.memberId || normalizePhoneNumber(profile.phone) || profile.name),
      profile,
      { merge:true }
    );
@@ -1786,7 +1911,10 @@ window.archiveChat=async(roomName,blob)=>{
 
 window.isFirebaseConfiguredForTest = isFirebaseConfigured;
 window.getActiveRoomNameForTest = getActiveRoomName;
-console.log("Firebase Integrated - v7 button send fixed");
+window.normalizePhoneNumberForTest = normalizePhoneNumber;
+window.getCurrentMemberIdForTest = getCurrentMemberId;
+window.getMemberIdByNameForTest = getMemberIdByName;
+console.log("Firebase Integrated - v9 phone memberId functions");
 
 </script>
 <!-- Firebase Integration END -->
