@@ -1981,5 +1981,517 @@ console.log("Firebase Integrated - v9 phone memberId functions");
 </script>
 <!-- Firebase Integration END -->
 
+<!-- YM Member + Chat Stability Patch START -->
+<script type="module">
+import {
+  collection, doc, setDoc, addDoc, query, orderBy, limit,
+  onSnapshot, updateDoc, arrayUnion, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+let ymhUnsubscribeRoom = null;
+let ymhUnsubscribeMembers = null;
+
+function ymhNormalizePhone(phone){
+  return String(phone || "").replace(/\D/g, "");
+}
+
+function ymhNormalizeGisu(gisu){
+  return String(gisu || "").replace(/\D/g, "");
+}
+
+function ymhFormatPhone(phone){
+  const p = ymhNormalizePhone(phone);
+  if(p.length === 11) return `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}`;
+  return String(phone || "");
+}
+
+function ymhMakeMemberId(name, gisu, phone){
+  const n = String(name || "").trim();
+  const g = ymhNormalizeGisu(gisu);
+  const p = ymhNormalizePhone(phone);
+  if(!n || !g || !p) return "";
+  return `${g}_${n}_${p}`;
+}
+
+function ymhExtractPhoneFromComp(comp){
+  const m = String(comp || "").match(/\(([^)]+)\)/);
+  return m ? ymhNormalizePhone(m[1]) : "";
+}
+
+function ymhGetFormProfile(){
+  const name = document.getElementById("form-name")?.value?.trim() || "";
+  const gisuRaw = document.getElementById("form-gisu")?.value?.trim() || "";
+  const gisuNumber = ymhNormalizeGisu(gisuRaw);
+  const gisu = gisuNumber ? `${gisuNumber}회` : "";
+  const phone = document.getElementById("form-phone")?.value?.trim() || "";
+  const phoneId = ymhNormalizePhone(phone);
+  const company = document.getElementById("form-company")?.value?.trim() || "";
+  const job = document.getElementById("form-job")?.value?.trim() || "";
+  const field = document.getElementById("form-field")?.value?.trim() || "";
+  const assets = document.getElementById("form-assets")?.value?.trim() || "";
+  const target = document.getElementById("form-target")?.value?.trim() || "";
+  const intro = document.getElementById("form-intro")?.value?.trim() || "";
+  const img = document.getElementById("display-avatar-img")?.src || "";
+  const memberId = ymhMakeMemberId(name, gisu, phone);
+
+  return {
+    memberId, name, gisu, gisuNumber,
+    phone: ymhFormatPhone(phone),
+    phoneId, company, job, field, assets, target, intro, img,
+    comp: job ? `${company} · ${job} (${ymhFormatPhone(phone)})` : `${company} (${ymhFormatPhone(phone)})`,
+    approved: true
+  };
+}
+
+function ymhSaveCurrentProfileLocal(profile){
+  if(!profile?.memberId) return;
+  localStorage.setItem("ymh_current_member_id", profile.memberId);
+  localStorage.setItem("ymh_current_profile", JSON.stringify(profile));
+  window.ymhCurrentProfile = profile;
+}
+
+function ymhLoadCurrentProfileLocal(){
+  try{
+    const raw = localStorage.getItem("ymh_current_profile");
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function ymhGetCurrentProfile(){
+  const saved = ymhLoadCurrentProfileLocal();
+  if(saved?.memberId) return saved;
+
+  const form = ymhGetFormProfile();
+  if(form.memberId) return form;
+
+  return { memberId:"", name:"익명", gisu:"", phone:"", phoneId:"" };
+}
+
+function ymhApplyProfileToScreen(profile){
+  if(!profile) return;
+
+  const setValue = (id, value)=>{
+    const el = document.getElementById(id);
+    if(el) el.value = value || "";
+  };
+
+  setValue("form-name", profile.name);
+  setValue("form-gisu", ymhNormalizeGisu(profile.gisu || profile.gisuNumber));
+  setValue("form-phone", profile.phone);
+  setValue("form-company", profile.company);
+  setValue("form-job", profile.job);
+  setValue("form-field", profile.field);
+  setValue("form-assets", profile.assets);
+  setValue("form-target", profile.target);
+  setValue("form-intro", profile.intro);
+
+  const nameLabel = document.getElementById("hero-name-label");
+  const metaLabel = document.getElementById("hero-meta-label");
+  const phoneLabel = document.getElementById("hero-phone-label");
+  const avatar = document.getElementById("display-avatar-img");
+
+  if(nameLabel) nameLabel.innerText = profile.name || "";
+  if(metaLabel) metaLabel.innerText = `${profile.gisu || ""} · ${profile.field || ""}`;
+  if(phoneLabel) phoneLabel.innerText = profile.phone || "전화번호 미등록";
+  if(avatar && profile.img) avatar.src = profile.img;
+}
+
+function ymhSeedLocalMembers(){
+  window.ymhMembersById = window.ymhMembersById || {};
+  window.ymhMembersByName = window.ymhMembersByName || {};
+
+  try{
+    if(Array.isArray(alumniDb)){
+      alumniDb.forEach(p=>{
+        const phoneId = p.phone ? ymhNormalizePhone(p.phone) : ymhExtractPhoneFromComp(p.comp);
+        const memberId = p.memberId || ymhMakeMemberId(p.name, p.gisu, phoneId);
+        if(!memberId) return;
+
+        const profile = {
+          memberId, name:p.name, gisu:p.gisu,
+          phone:ymhFormatPhone(phoneId), phoneId,
+          comp:p.comp, field:p.field, img:p.img, approved:true
+        };
+
+        p.memberId = memberId;
+        p.phone = profile.phone;
+        window.ymhMembersById[memberId] = profile;
+        window.ymhMembersByName[p.name] = profile;
+      });
+    }
+  }catch(e){
+    console.warn("[YMH] seed members skipped", e);
+  }
+}
+
+function ymhUpsertAlumni(profile){
+  if(!profile?.memberId) return;
+
+  window.ymhMembersById = window.ymhMembersById || {};
+  window.ymhMembersByName = window.ymhMembersByName || {};
+  window.ymhMembersById[profile.memberId] = profile;
+  window.ymhMembersByName[profile.name] = profile;
+
+  try{
+    if(Array.isArray(alumniDb)){
+      const idx = alumniDb.findIndex(p =>
+        p.memberId === profile.memberId ||
+        ymhExtractPhoneFromComp(p.comp) === profile.phoneId
+      );
+
+      const item = {
+        memberId:profile.memberId,
+        name:profile.name,
+        gisu:profile.gisu,
+        comp:profile.comp || `${profile.company || ""} (${profile.phone || ""})`,
+        field:profile.field || "",
+        img:profile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+        phone:profile.phone
+      };
+
+      if(idx >= 0) alumniDb[idx] = { ...alumniDb[idx], ...item };
+      else alumniDb.push(item);
+
+      if(typeof renderCoreLayout === "function") renderCoreLayout();
+      if(typeof populateSupervisorSelectOptions === "function") populateSupervisorSelectOptions();
+    }
+  }catch(e){
+    console.warn("[YMH] alumni merge skipped", e);
+  }
+}
+
+function ymhGetMemberByName(name){
+  ymhSeedLocalMembers();
+
+  if(window.ymhMembersByName?.[name]) return window.ymhMembersByName[name];
+
+  try{
+    const p = alumniDb.find(x => x.name === name);
+    if(p){
+      const phoneId = p.phone ? ymhNormalizePhone(p.phone) : ymhExtractPhoneFromComp(p.comp);
+      const memberId = p.memberId || ymhMakeMemberId(p.name, p.gisu, phoneId);
+      return { memberId, name:p.name, gisu:p.gisu, phone:ymhFormatPhone(phoneId), phoneId, comp:p.comp, field:p.field, img:p.img };
+    }
+  }catch(e){}
+
+  return { memberId:name, name, gisu:"", phone:"", phoneId:"" };
+}
+
+function ymhGetActiveRoomName(){
+  try{
+    if(typeof activeChatPartner !== "undefined" && activeChatPartner) return activeChatPartner;
+  }catch(e){}
+
+  if(window.activeChatPartner) return window.activeChatPartner;
+
+  const header = document.getElementById("header-text")?.innerText?.trim() || "";
+  const nonRooms = ["영무회 동문", "채팅", "AI 라운지", "내 정보"];
+  if(header && !nonRooms.includes(header)) return header;
+
+  return "";
+}
+
+function ymhGetRoomMembers(roomName){
+  ymhSeedLocalMembers();
+
+  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+    try{
+      return alumniDb.map(p => ymhGetMemberByName(p.name)).filter(p => p.memberId);
+    }catch(e){
+      return Object.values(window.ymhMembersById || {});
+    }
+  }
+
+  const me = ymhGetCurrentProfile();
+  const partner = ymhGetMemberByName(roomName);
+
+  const map = {};
+  [me, partner].forEach(p=>{
+    if(p?.memberId) map[p.memberId] = p;
+  });
+
+  return Object.values(map);
+}
+
+function ymhMakeRoomId(roomName){
+  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+    return "official_marketing_room";
+  }
+
+  return ymhGetRoomMembers(roomName)
+    .map(p => p.memberId)
+    .filter(Boolean)
+    .sort()
+    .join("__");
+}
+
+function ymhEscapeHtml(text){
+  return String(text || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function ymhUnreadCount(data, roomName){
+  const memberIds = Array.isArray(data.memberIds)
+    ? data.memberIds
+    : ymhGetRoomMembers(roomName).map(p => p.memberId);
+
+  const readByIds = Array.isArray(data.readByIds) ? data.readByIds : [];
+  const senderId = data.senderId || "";
+
+  return memberIds.filter(id => id !== senderId && !readByIds.includes(id)).length;
+}
+
+function ymhRenderMessage(data, roomName){
+  const me = ymhGetCurrentProfile();
+  const isMe = data.senderId === me.memberId || data.sender === me.name;
+  const unread = ymhUnreadCount(data, roomName);
+
+  const unreadHtml = isMe && unread > 0
+    ? `<span class="unread-counter-num">${unread}</span>`
+    : "";
+
+  const senderLabel = !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+    ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${ymhEscapeHtml(data.sender)}</div>`
+    : "";
+
+  return `
+<div class="msg-wrapper ${isMe ? "me" : "other"}">
+  <div class="msg-container-row">
+    ${isMe ? unreadHtml : ""}
+    <div class="msg-bubble ${isMe ? "me" : "other"}">
+      ${senderLabel}
+      ${ymhEscapeHtml(data.message)}
+    </div>
+  </div>
+</div>`;
+}
+
+function ymhIsFirebaseReady(){
+  return !!window.db;
+}
+
+async function ymhSaveChatRealtime(roomName, message){
+  if(!ymhIsFirebaseReady()) throw new Error("Firestore db is not ready");
+
+  const me = ymhGetCurrentProfile();
+  if(!me.memberId) throw new Error("현재 회원 ID가 없습니다. 내 정보에서 이름/기수/전화번호를 저장해 주세요.");
+
+  const members = ymhGetRoomMembers(roomName);
+  const roomId = ymhMakeRoomId(roomName);
+
+  return await addDoc(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    {
+      roomName,
+      roomId,
+      members:members.map(p => p.name),
+      memberIds:members.map(p => p.memberId),
+      sender:me.name,
+      senderId:me.memberId,
+      message,
+      readBy:[me.name],
+      readByIds:[me.memberId],
+      createdAt:serverTimestamp()
+    }
+  );
+}
+
+function ymhSubscribeChat(roomName){
+  if(!ymhIsFirebaseReady()) return;
+
+  if(ymhUnsubscribeRoom){
+    try{ ymhUnsubscribeRoom(); }catch(e){}
+    ymhUnsubscribeRoom = null;
+  }
+
+  const roomId = ymhMakeRoomId(roomName);
+  if(!roomId) return;
+
+  const q = query(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    orderBy("createdAt"),
+    limit(300)
+  );
+
+  ymhUnsubscribeRoom = onSnapshot(q, (snap)=>{
+    const box = document.getElementById("chat-messages-box");
+    if(!box) return;
+
+    box.innerHTML = "";
+
+    snap.forEach(d=>{
+      box.innerHTML += ymhRenderMessage(d.data(), roomName);
+    });
+
+    box.scrollTop = box.scrollHeight;
+
+    const me = ymhGetCurrentProfile();
+
+    snap.forEach(async d=>{
+      const data = d.data();
+      if(data.senderId !== me.memberId && !(data.readByIds || []).includes(me.memberId)){
+        try{
+          await updateDoc(
+            doc(window.db, "chat_rooms", roomId, "messages", d.id),
+            {
+              readBy:arrayUnion(me.name),
+              readByIds:arrayUnion(me.memberId)
+            }
+          );
+        }catch(e){
+          console.error("[YMH] read update failed", e);
+        }
+      }
+    });
+  }, (error)=>{
+    console.error("[YMH] subscribe chat failed", error);
+  });
+}
+
+async function ymhRegisterOrUpdateMember(){
+  const profile = ymhGetFormProfile();
+
+  if(!profile.name || !profile.gisuNumber || !profile.phoneId){
+    alert("이름, 기수, 전화번호를 모두 입력해야 회원 저장이 됩니다.");
+    return;
+  }
+
+  ymhSaveCurrentProfileLocal(profile);
+  ymhApplyProfileToScreen(profile);
+  ymhUpsertAlumni(profile);
+
+  if(!ymhIsFirebaseReady()){
+    alert("현재 브라우저에는 저장했습니다. Firebase 연결 후 다시 저장하면 서버에도 저장됩니다.");
+    return;
+  }
+
+  try{
+    await setDoc(
+      doc(window.db, "users", profile.memberId),
+      { ...profile, updatedAt:serverTimestamp() },
+      { merge:true }
+    );
+
+    console.log("[YMH] member saved", profile);
+    alert(`${profile.name} 동문 정보가 저장되었습니다.`);
+  }catch(e){
+    console.error("[YMH] member save failed", e);
+    alert("회원 저장 실패: Firestore Rules 또는 네트워크를 확인해 주세요.");
+  }
+}
+
+function ymhSubscribeMembers(){
+  if(!ymhIsFirebaseReady()) return;
+
+  if(ymhUnsubscribeMembers){
+    try{ ymhUnsubscribeMembers(); }catch(e){}
+  }
+
+  ymhUnsubscribeMembers = onSnapshot(
+    collection(window.db, "users"),
+    (snap)=>{
+      snap.forEach(d=>{
+        const data = d.data();
+        if(data?.memberId && data.approved !== false){
+          ymhUpsertAlumni(data);
+        }
+      });
+
+      const saved = ymhLoadCurrentProfileLocal();
+      if(saved?.memberId) ymhApplyProfileToScreen(saved);
+    },
+    (error)=>console.error("[YMH] subscribe members failed", error)
+  );
+}
+
+const ymhOldSaveProfileData = window.saveProfileData;
+window.saveProfileData = async function(){
+  try{
+    if(typeof ymhOldSaveProfileData === "function") ymhOldSaveProfileData();
+  }catch(e){
+    console.warn("[YMH] old saveProfileData skipped", e);
+  }
+
+  await ymhRegisterOrUpdateMember();
+};
+
+const ymhOldOpenChatRoom = window.openChatRoom;
+window.openChatRoom = function(name, letter){
+  window.activeChatPartner = name;
+
+  if(typeof ymhOldOpenChatRoom === "function"){
+    ymhOldOpenChatRoom(name, letter);
+  }
+
+  ymhSubscribeChat(name);
+
+  console.log("[YMH] open room", {
+    roomName:name,
+    roomId:ymhMakeRoomId(name),
+    current:ymhGetCurrentProfile(),
+    members:ymhGetRoomMembers(name)
+  });
+};
+
+window.executeSendMsg = async function(){
+  const input = document.getElementById("live-chat-input");
+  if(!input) return;
+
+  const text = input.value.trim();
+  if(!text) return;
+
+  const roomName = ymhGetActiveRoomName();
+
+  if(!roomName){
+    alert("채팅방을 먼저 선택해 주세요.");
+    return;
+  }
+
+  try{
+    await ymhSaveChatRealtime(roomName, text);
+    input.value = "";
+    console.log("[YMH] message saved", { roomName, text });
+  }catch(e){
+    console.error("[YMH] message save failed", e);
+    alert(e.message || "메시지 저장 실패");
+  }
+};
+
+window.ymhDebugState = function(){
+  const roomName = ymhGetActiveRoomName();
+  const state = {
+    firebaseReady:ymhIsFirebaseReady(),
+    currentProfile:ymhGetCurrentProfile(),
+    activeRoom:roomName,
+    roomId:roomName ? ymhMakeRoomId(roomName) : "",
+    members:roomName ? ymhGetRoomMembers(roomName) : [],
+    localStorageCurrent:localStorage.getItem("ymh_current_member_id")
+  };
+  console.log("[YMH DEBUG]", state);
+  return state;
+};
+
+window.ymhMakeMemberIdForTest = ymhMakeMemberId;
+window.ymhNormalizePhoneForTest = ymhNormalizePhone;
+
+setTimeout(()=>{
+  ymhSeedLocalMembers();
+
+  const saved = ymhLoadCurrentProfileLocal();
+  if(saved?.memberId) ymhApplyProfileToScreen(saved);
+
+  ymhSubscribeMembers();
+
+  console.log("[YMH] member/chat stability patch ready");
+}, 700);
+</script>
+<!-- YM Member + Chat Stability Patch END -->
+
 </body>
 </html>
