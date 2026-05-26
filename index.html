@@ -2493,5 +2493,451 @@ setTimeout(()=>{
 </script>
 <!-- YM Member + Chat Stability Patch END -->
 
+<!-- YM Lounge Name + Video Alert Patch START -->
+<script type="module">
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+/*
+  목적:
+  1) "영무회 공식 마케팅룸" 표시명을 "영무회 라운지"로 변경
+  2) 새 메시지 도착 시 애후배_알림.mp4 팝업 표시
+  3) "새 메시지 보기" 클릭 시 해당 채팅방으로 이동
+
+  주의:
+  - 내부 Firestore roomId는 official_marketing_room 그대로 유지
+  - Firebase / 회원 저장 / 기존 채팅 구조는 변경하지 않음
+*/
+
+let ymhVideoAlertTargetRoom = "";
+let ymhVideoAlertLastKey = {};
+let ymhVideoAlertStarted = false;
+let ymhVideoAlertUnsubs = [];
+
+function ymhAlertNormalizePhone(phone){
+  return String(phone || "").replace(/\D/g, "");
+}
+
+function ymhAlertNormalizeGisu(gisu){
+  return String(gisu || "").replace(/\D/g, "");
+}
+
+function ymhAlertExtractPhone(comp){
+  const m = String(comp || "").match(/\(([^)]+)\)/);
+  return m ? ymhAlertNormalizePhone(m[1]) : "";
+}
+
+function ymhAlertMakeMemberId(name,gisu,phone){
+  const n = String(name || "").trim();
+  const g = ymhAlertNormalizeGisu(gisu);
+  const p = ymhAlertNormalizePhone(phone);
+  if(!n || !g || !p) return "";
+  return `${g}_${n}_${p}`;
+}
+
+function ymhAlertCurrentProfile(){
+  try{
+    const raw = localStorage.getItem("ymh_current_profile");
+    if(raw){
+      const p = JSON.parse(raw);
+      if(p && p.memberId) return p;
+    }
+  }catch(e){}
+
+  try{
+    const name = typeof currentLoggedInUser !== "undefined" ? currentLoggedInUser : "제갈훈";
+    const matched = Array.isArray(alumniDb) ? alumniDb.find(p => p.name === name) : null;
+    if(matched){
+      const phone = matched.phone || ymhAlertExtractPhone(matched.comp);
+      const memberId = matched.memberId || ymhAlertMakeMemberId(matched.name, matched.gisu, phone);
+      return {
+        memberId,
+        name: matched.name
+      };
+    }
+  }catch(e){}
+
+  return { memberId:"", name:"" };
+}
+
+function ymhAlertAllMembers(){
+  const list = [];
+
+  try{
+    if(Array.isArray(alumniDb)){
+      alumniDb.forEach(p=>{
+        const phone = p.phone || ymhAlertExtractPhone(p.comp);
+        const memberId = p.memberId || ymhAlertMakeMemberId(p.name, p.gisu, phone);
+        if(memberId){
+          list.push({
+            memberId,
+            name:p.name,
+            gisu:p.gisu,
+            phone
+          });
+        }
+      });
+    }
+  }catch(e){}
+
+  return list;
+}
+
+function ymhAlertPrivateRoomId(a,b){
+  return [a,b].filter(Boolean).sort().join("__");
+}
+
+function ymhGetCurrentRoomNameForAlert(){
+  try{
+    if(typeof activeChatPartner !== "undefined" && activeChatPartner) return activeChatPartner;
+  }catch(e){}
+
+  if(window.activeChatPartner) return window.activeChatPartner;
+
+  const header = document.getElementById("header-text")?.innerText?.trim() || "";
+  if(header && !["영무회 동문","채팅","AI 라운지","내 정보"].includes(header)){
+    return header;
+  }
+
+  return "";
+}
+
+/* 1. 표시명 변경 */
+function ymhRenameOfficialRoomToLounge(){
+  document.querySelectorAll("*").forEach(el=>{
+    if(el.childNodes && el.childNodes.length){
+      el.childNodes.forEach(node=>{
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 마케팅룸")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 공식 마케팅룸","영무회 라운지");
+        }
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 채팅방")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 공식 채팅방","영무회 라운지");
+        }
+      });
+    }
+  });
+
+  const header = document.getElementById("header-text");
+  if(header && (header.innerText === "영무회 공식 마케팅룸" || header.innerText === "영무회 공식 채팅방")){
+    header.innerText = "영무회 라운지";
+  }
+}
+
+/* 기존 openChatRoom이 옛 이름을 기준으로 움직이므로 표시만 라운지로 바꿈 */
+const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
+window.openChatRoom = function(name, letter){
+  const internalName = name === "영무회 라운지" ? "영무회 공식 마케팅룸" : name;
+
+  if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
+    ymhOldOpenChatRoomForLoungeAlert(internalName, letter);
+  }
+
+  if(name === "영무회 라운지" || internalName === "영무회 공식 마케팅룸" || internalName === "영무회 공식 채팅방"){
+    window.activeChatPartner = "영무회 공식 마케팅룸";
+    const header = document.getElementById("header-text");
+    if(header) header.innerText = "영무회 라운지";
+  }
+
+  setTimeout(ymhRenameOfficialRoomToLounge, 50);
+};
+
+/* 2. 영상 알림 팝업 UI 생성 */
+function ymhEnsureVideoAlertModal(){
+  if(document.getElementById("ymh-video-alert-modal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "ymh-video-alert-modal";
+  modal.style.cssText = `
+    position:absolute;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(15,23,42,0.45);
+    backdrop-filter:blur(5px);
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      width:88%;
+      max-width:360px;
+      background:#ffffff;
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 30px 60px rgba(0,0,0,0.28);
+      border:2px solid #D4AF37;
+    ">
+      <div style="
+        background:linear-gradient(135deg,#0F172A,#1E293B);
+        color:white;
+        padding:16px 18px;
+        font-weight:900;
+        font-size:15px;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        border-bottom:3px solid #D4AF37;
+      ">
+        <span>🔔</span>
+        <span>영무회 신규 메시지 알림</span>
+      </div>
+
+      <div style="background:#000; height:210px; overflow:hidden;">
+        <video
+          id="ymh-video-alert-player"
+          src="/애후배_알림.mp4"
+          style="width:100%; height:100%; object-fit:cover;"
+          playsinline
+          muted
+          preload="metadata">
+        </video>
+      </div>
+
+      <div style="padding:16px 18px; background:#FFFDF7;">
+        <div id="ymh-video-alert-title" style="
+          display:inline-block;
+          font-size:12px;
+          font-weight:900;
+          color:#B45309;
+          background:#FEF3C7;
+          padding:4px 8px;
+          border-radius:6px;
+          margin-bottom:8px;
+        ">신규 메시지</div>
+
+        <p id="ymh-video-alert-text" style="
+          font-size:14px;
+          font-weight:800;
+          line-height:1.5;
+          color:#0F172A;
+          margin:0;
+        ">영무회에 신규 메시지가 있습니다.</p>
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:13px 16px;
+        background:#F8FAFC;
+        border-top:1px solid #E2E8F0;
+      ">
+        <button id="ymh-video-alert-close" style="
+          border:none;
+          background:#64748B;
+          color:white;
+          font-weight:800;
+          padding:9px 16px;
+          border-radius:9px;
+          cursor:pointer;
+        ">닫기</button>
+
+        <button id="ymh-video-alert-open" style="
+          border:none;
+          background:linear-gradient(135deg,#F59E0B,#D97706);
+          color:white;
+          font-weight:900;
+          padding:9px 18px;
+          border-radius:9px;
+          cursor:pointer;
+          box-shadow:0 6px 14px rgba(217,119,6,0.28);
+        ">새 메시지 보기</button>
+      </div>
+    </div>
+  `;
+
+  const phone = document.querySelector(".phone-container") || document.body;
+  phone.appendChild(modal);
+
+  document.getElementById("ymh-video-alert-close").onclick = ymhCloseVideoAlert;
+  document.getElementById("ymh-video-alert-open").onclick = ymhOpenVideoAlertTargetRoom;
+}
+
+function ymhShowVideoAlert(roomName, senderName, message){
+  ymhEnsureVideoAlertModal();
+
+  ymhVideoAlertTargetRoom = roomName;
+
+  const modal = document.getElementById("ymh-video-alert-modal");
+  const player = document.getElementById("ymh-video-alert-player");
+  const title = document.getElementById("ymh-video-alert-title");
+  const text = document.getElementById("ymh-video-alert-text");
+
+  const displayRoom = roomName === "영무회 공식 마케팅룸" ? "영무회 라운지" : roomName;
+
+  if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
+  if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
+
+  if(modal) modal.style.display = "flex";
+
+  if(player){
+    try{
+      player.currentTime = 0;
+      player.muted = true;
+      player.play().catch(()=>{});
+    }catch(e){}
+  }
+}
+
+function ymhCloseVideoAlert(){
+  const modal = document.getElementById("ymh-video-alert-modal");
+  const player = document.getElementById("ymh-video-alert-player");
+
+  if(player){
+    try{
+      player.pause();
+      player.currentTime = 0;
+    }catch(e){}
+  }
+
+  if(modal) modal.style.display = "none";
+}
+
+function ymhOpenVideoAlertTargetRoom(){
+  const room = ymhVideoAlertTargetRoom || "영무회 공식 마케팅룸";
+  ymhCloseVideoAlert();
+
+  try{
+    const navChat = document.getElementById("nav-chat");
+    if(typeof navigateTab === "function"){
+      navigateTab("chat", "채팅", navChat);
+    }
+
+    setTimeout(()=>{
+      if(room === "영무회 공식 마케팅룸" || room === "영무회 공식 채팅방"){
+        window.openChatRoom("영무회 라운지", "공");
+      }else{
+        window.openChatRoom(room, room[0]);
+      }
+    }, 80);
+  }catch(e){
+    console.error("[YMH ALERT] open target failed", e);
+  }
+}
+
+function ymhShowBadgesForAlert(roomName){
+  const bottomBadge = document.getElementById("bottom-nav-chat-badge");
+  if(bottomBadge){
+    bottomBadge.style.display = "block";
+    bottomBadge.innerText = "1";
+  }
+
+  if(roomName === "영무회 공식 마케팅룸"){
+    const officialBadge = document.getElementById("official-group-badge");
+    if(officialBadge){
+      officialBadge.style.display = "inline-block";
+      officialBadge.innerText = "1";
+    }
+  }
+}
+
+function ymhHandleIncomingForVideoAlert(roomName, data, docId){
+  const me = ymhAlertCurrentProfile();
+  if(!me.memberId) return;
+
+  const key = `${roomName}_${docId}`;
+  if(ymhVideoAlertLastKey[key]) return;
+  ymhVideoAlertLastKey[key] = true;
+
+  const senderId = data.senderId || "";
+  const senderName = data.sender || "동문";
+
+  if(senderId === me.memberId || senderName === me.name) return;
+
+  if(Array.isArray(data.readByIds) && data.readByIds.includes(me.memberId)) return;
+
+  const currentRoom = ymhGetCurrentRoomNameForAlert();
+
+  /* 현재 보고 있는 방이면 팝업 생략 */
+  if(currentRoom === roomName || (roomName === "영무회 공식 마케팅룸" && currentRoom === "영무회 라운지")){
+    return;
+  }
+
+  ymhShowBadgesForAlert(roomName);
+  ymhShowVideoAlert(roomName, senderName, data.message || "");
+
+  console.log("[YMH ALERT] video alert", {
+    roomName,
+    sender:senderName,
+    message:data.message
+  });
+}
+
+function ymhSubscribeAlertRoom(roomName, roomId){
+  if(!window.db || !roomId) return;
+
+  const q = query(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    orderBy("createdAt"),
+    limit(1)
+  );
+
+  const unsub = onSnapshot(q, (snap)=>{
+    snap.forEach(d=>{
+      ymhHandleIncomingForVideoAlert(roomName, d.data(), d.id);
+    });
+  }, (error)=>{
+    console.warn("[YMH ALERT] listen failed", roomName, roomId, error);
+  });
+
+  ymhVideoAlertUnsubs.push(unsub);
+}
+
+function ymhStartVideoAlertListener(){
+  if(ymhVideoAlertStarted) return;
+  if(!window.db) return;
+
+  const me = ymhAlertCurrentProfile();
+  if(!me.memberId){
+    console.warn("[YMH ALERT] current memberId 없음. 내 정보 저장 후 새로고침 필요.");
+    return;
+  }
+
+  ymhVideoAlertStarted = true;
+
+  ymhVideoAlertUnsubs.forEach(fn=>{
+    try{ fn(); }catch(e){}
+  });
+  ymhVideoAlertUnsubs = [];
+
+  ymhSubscribeAlertRoom("영무회 공식 마케팅룸", "official_marketing_room");
+
+  ymhAlertAllMembers().forEach(member=>{
+    if(member.memberId && member.memberId !== me.memberId){
+      const roomId = ymhAlertPrivateRoomId(me.memberId, member.memberId);
+      ymhSubscribeAlertRoom(member.name, roomId);
+    }
+  });
+
+  console.log("[YMH ALERT] video alert listener started", {
+    current:me,
+    rooms:ymhVideoAlertUnsubs.length
+  });
+}
+
+window.ymhStartVideoAlertListener = ymhStartVideoAlertListener;
+window.ymhShowVideoAlertForTest = ymhShowVideoAlert;
+
+setTimeout(()=>{
+  ymhRenameOfficialRoomToLounge();
+  ymhEnsureVideoAlertModal();
+  ymhStartVideoAlertListener();
+}, 1400);
+
+window.addEventListener("focus", ()=>{
+  setTimeout(()=>{
+    ymhRenameOfficialRoomToLounge();
+    ymhStartVideoAlertListener();
+  }, 300);
+});
+</script>
+<!-- YM Lounge Name + Video Alert Patch END -->
+
 </body>
 </html>
