@@ -1641,6 +1641,21 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
 
  const roomId=makeRoomId(roomName);
 
+ await setDoc(
+  doc(db, "chat_rooms", roomId),
+  {
+    roomName,
+    roomId,
+    members,
+    memberIds,
+    lastMessage: message,
+    lastSender: sender,
+    lastSenderId: getMemberIdByName(sender),
+    updatedAt: serverTimestamp()
+  },
+  { merge:true }
+);
+
  return await addDoc(
   collection(db,"chat_rooms",roomId,"messages"),
   {
