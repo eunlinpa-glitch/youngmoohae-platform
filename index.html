@@ -663,9 +663,13 @@
             headerTextObj.innerText = title;
         }
         
-        if(panelId === 'chat') {
+       if(panelId === 'chat') {
             const bottomBadge = document.getElementById('bottom-nav-chat-badge');
             if(bottomBadge) bottomBadge.style.display = "none";
+
+            setTimeout(() => {
+                loadMyChatRoomsFromFirebase();
+            }, 300);
         }
 
         syncHeaderCrownVisibility();
@@ -1282,7 +1286,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "1.1.3";
+const APP_VERSION = "1.1.4";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
