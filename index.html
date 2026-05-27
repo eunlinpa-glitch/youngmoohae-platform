@@ -920,9 +920,12 @@
   try {
     alert("채팅방 불러오기 실행됨");
 
-    const me = ymhGetCurrentProfile();
-    alert("현재 사용자: " + JSON.stringify(me));
+    const me = window.ymhGetCurrentProfile
+      ? window.ymhGetCurrentProfile()
+      : null;
 
+   alert("현재 사용자: " + JSON.stringify(me));
+    
     if (!me || !me.memberId) {
       alert("memberId 없음");
       return;
@@ -1301,7 +1304,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "1.1.5";
+const APP_VERSION = "1.1.7";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
