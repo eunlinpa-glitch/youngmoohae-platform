@@ -918,9 +918,10 @@
     
   async function loadMyChatRoomsFromFirebase() {
     alert("채팅방 불러오기 실행됨");
+
     const me = ymhGetCurrentProfile();
 
-    alert("현재 memberId: " + (me && me.memberId));
+    alert("현재 사용자: " + JSON.stringify(me));
 
     if (!me || !me.memberId) return;
 
