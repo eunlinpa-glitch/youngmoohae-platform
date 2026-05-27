@@ -1613,6 +1613,11 @@ function appendLocalMessage(sender,message,roomName, shouldSave=true){
 }
 
 window.saveChatRealtime=async(roomName,sender,message)=>{
+
+   if (!String(message || "").trim()) {
+    return;
+  }
+
  const roomId=makeRoomId(roomName);
 
  return await addDoc(
@@ -1627,7 +1632,8 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
    message,
    readBy:[sender],
    readByIds:[getMemberIdByName(sender)],
-   createdAt:serverTimestamp()
+   createdAt:serverTimestamp(),
+   clientCreatedAt: Date.now()
   }
  );
 };
@@ -1788,7 +1794,7 @@ window.registerOrUpdateMember=async()=>{
        alert("기수, 이름, 전화번호는 반드시 입력해야 합니다.");
        return;
     }
-    
+
   const memberId = makeMemberId(profile);
   profile.memberId = memberId;
 
