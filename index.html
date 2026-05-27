@@ -217,7 +217,16 @@
             overscroll-behavior: contain;
         }
 
+         body.general-user .fa-crown{
+              display:none !important;
+        } 
+        body.general-user #supervisor-hub-wrapper{
+              display:none !important;
+        }
+
+
     </style>
+
 </head>
 <body>
 
@@ -1333,6 +1342,14 @@ function normalizePhoneNumber(phone){
  return String(phone || "").replace(/\D/g,"");
 }
 
+function makeMemberId(profile) {
+  const gisu = String(profile.gisu || "").replace(/[^0-9]/g, "");
+  const name = (profile.name || "").trim();
+  const phone = normalizePhoneNumber(profile.phone || "");
+
+  return `${gisu}_${name}_${phone}`;
+}
+
 function extractPhoneFromText(text){
  const match = String(text || "").match(/\(([^)]+)\)/);
  return match ? normalizePhoneNumber(match[1]) : "";
@@ -1766,11 +1783,20 @@ window.registerOrUpdateMember=async()=>{
  }
 
  try{
-   await setDoc(
-     doc(db,"users",profile.memberId || normalizePhoneNumber(profile.phone) || profile.name),
-     profile,
-     { merge:true }
-   );
+
+    if (!profile.gisu || !profile.name || !profile.phone) {
+       alert("기수, 이름, 전화번호는 반드시 입력해야 합니다.");
+       return;
+    }
+    
+  const memberId = makeMemberId(profile);
+  profile.memberId = memberId;
+
+  await setDoc(
+    doc(db,"users", memberId),
+    profile,
+    { merge:true }
+  );
 
    mergeAlumniIntoLocal(profile);
 
@@ -2938,6 +2964,7 @@ window.addEventListener("focus", ()=>{
 });
 </script>
 <!-- YM Lounge Name + Video Alert Patch END -->
+
 
 </body>
 </html>
