@@ -217,7 +217,16 @@
             overscroll-behavior: contain;
         }
 
+         body.general-user .fa-crown{
+              display:none !important;
+        } 
+        body.general-user #supervisor-hub-wrapper{
+              display:none !important;
+        }
+
+
     </style>
+
 </head>
 <body>
 
@@ -420,7 +429,18 @@
             <div class="modal-notice-header" style="background:var(--primary-gradient);">
                 <div style="display:flex; align-items:center; gap:8px; color:white;">
                     <i class="fa-solid fa-gear" style="color:var(--accent-gold);"></i>
-                    <span>영무회 시스템 환경 설정</span>
+                    <span>
+                      영무회 시스템 환경 설정
+                      <span id="app-version"
+                        style="
+                          font-size:11px;
+                          color:rgba(255,255,255,0.7);
+                          margin-left:8px;
+                          font-weight:500;
+                         ">
+                       </span>
+                      </span>
+
                 </div>
             </div>
             <div class="modal-notice-body" style="background:#F8FAFC;">
@@ -624,6 +644,10 @@
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         
         document.getElementById(`panel-${panelId}`).classList.add('active');
+
+        if (panelId === 'chat') {
+           loadMyChatRoomsFromFirebase();
+        }
         
         if(elem) {
             elem.classList.add('active');
@@ -886,6 +910,31 @@
         }
         navigateTab('chat', '채팅', document.getElementById('nav-chat'));
         openChatRoom(partnerName, letter);
+    }
+    
+  async function loadMyChatRoomsFromFirebase() {
+    const me = ymhGetCurrentProfile();
+    if (!me || !me.memberId) return;
+
+    const snap = await getDocs(
+       collection(window.db, "chat_rooms")
+    );
+
+    activeChatRooms = [];
+
+      snap.forEach((d) => {
+        const room = d.data();
+
+        if ((room.memberIds || []).includes(me.memberId)) {
+
+          if (!activeChatRooms.includes(room.roomName)) {
+            activeChatRooms.push(room.roomName);
+          }
+
+       }
+     });
+
+      renderChatList();
     }
 
     function renderChatList() {
@@ -1232,6 +1281,16 @@ if (voices.length > 0) {
 
 
 <script>
+
+const APP_VERSION = "1.1.3";
+window.addEventListener("DOMContentLoaded", () => {
+  const ver = document.getElementById("app-version");
+
+  if(ver){
+    ver.innerText = `Ver ${APP_VERSION}`;
+  }
+});
+
 /* Profile Phone Display Patch START */
 (function(){
   function syncProfilePhoneDisplay(){
@@ -1331,6 +1390,14 @@ function getCurrentUserName(){
 /* ===== 전화번호 기반 회원 ID 함수 ===== */
 function normalizePhoneNumber(phone){
  return String(phone || "").replace(/\D/g,"");
+}
+
+function makeMemberId(profile) {
+  const gisu = String(profile.gisu || "").replace(/[^0-9]/g, "");
+  const name = (profile.name || "").trim();
+  const phone = normalizePhoneNumber(profile.phone || "");
+
+  return `${gisu}_${name}_${phone}`;
 }
 
 function extractPhoneFromText(text){
@@ -1596,7 +1663,27 @@ function appendLocalMessage(sender,message,roomName, shouldSave=true){
 }
 
 window.saveChatRealtime=async(roomName,sender,message)=>{
+
+   if (!String(message || "").trim()) {
+    return;
+  }
+
  const roomId=makeRoomId(roomName);
+
+ await setDoc(
+  doc(db, "chat_rooms", roomId),
+  {
+    roomName,
+    roomId,
+    members,
+    memberIds,
+    lastMessage: message,
+    lastSender: sender,
+    lastSenderId: getMemberIdByName(sender),
+    updatedAt: serverTimestamp()
+  },
+  { merge:true }
+);
 
  return await addDoc(
   collection(db,"chat_rooms",roomId,"messages"),
@@ -1610,7 +1697,8 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
    message,
    readBy:[sender],
    readByIds:[getMemberIdByName(sender)],
-   createdAt:serverTimestamp()
+   createdAt:serverTimestamp(),
+   clientCreatedAt: Date.now()
   }
  );
 };
@@ -1766,11 +1854,20 @@ window.registerOrUpdateMember=async()=>{
  }
 
  try{
-   await setDoc(
-     doc(db,"users",profile.memberId || normalizePhoneNumber(profile.phone) || profile.name),
-     profile,
-     { merge:true }
-   );
+
+    if (!profile.gisu || !profile.name || !profile.phone) {
+       alert("기수, 이름, 전화번호는 반드시 입력해야 합니다.");
+       return;
+    }
+
+  const memberId = makeMemberId(profile);
+  profile.memberId = memberId;
+
+  await setDoc(
+    doc(db,"users", memberId),
+    profile,
+    { merge:true }
+  );
 
    mergeAlumniIntoLocal(profile);
 
@@ -2284,6 +2381,26 @@ async function ymhSaveChatRealtime(roomName, message){
 
   const members = ymhGetRoomMembers(roomName);
   const roomId = ymhMakeRoomId(roomName);
+
+  if (!activeChatRooms.includes(roomName)) {
+  activeChatRooms.push(roomName);
+  renderChatList();
+ }
+
+await setDoc(
+  doc(window.db, "chat_rooms", roomId),
+  {
+    roomName,
+    roomId,
+    members: members.map(p => p.name),
+    memberIds: members.map(p => p.memberId),
+    lastMessage: String(message || "").slice(0,80),
+    lastSender: me.name,
+    lastSenderId: me.memberId,
+    updatedAt: serverTimestamp()
+  },
+  { merge: true }
+);
 
   return await addDoc(
     collection(window.db, "chat_rooms", roomId, "messages"),
@@ -2938,6 +3055,7 @@ window.addEventListener("focus", ()=>{
 });
 </script>
 <!-- YM Lounge Name + Video Alert Patch END -->
+
 
 </body>
 </html>
