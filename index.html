@@ -917,34 +917,44 @@
     }
     
   async function loadMyChatRoomsFromFirebase() {
+  try {
     alert("채팅방 불러오기 실행됨");
 
     const me = ymhGetCurrentProfile();
-
     alert("현재 사용자: " + JSON.stringify(me));
 
-    if (!me || !me.memberId) return;
+    if (!me || !me.memberId) {
+      alert("memberId 없음");
+      return;
+    }
 
     const snap = await getDocs(
-       collection(window.db, "chat_rooms")
+      collection(window.db, "chat_rooms")
     );
+
+    alert("chat_rooms 개수: " + snap.size);
 
     activeChatRooms = [];
 
-      snap.forEach((d) => {
-        const room = d.data();
+    snap.forEach((d) => {
+      const room = d.data();
 
-        if ((room.memberIds || []).includes(me.memberId)) {
+      if ((room.memberIds || []).includes(me.memberId)) {
+        if (!activeChatRooms.includes(room.roomName)) {
+          activeChatRooms.push(room.roomName);
+        }
+      }
+    });
 
-          if (!activeChatRooms.includes(room.roomName)) {
-            activeChatRooms.push(room.roomName);
-          }
+    alert("내 채팅방 개수: " + activeChatRooms.length);
 
-       }
-     });
+    renderChatList();
 
-      renderChatList();
-    }
+  } catch (e) {
+    alert("채팅방 불러오기 오류: " + e.message);
+    console.error(e);
+  }
+ }
 
     function renderChatList() {
         const chatContainer = document.getElementById('chat-list-anchor');
