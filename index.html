@@ -918,6 +918,9 @@
     
   async function loadMyChatRoomsFromFirebase() {
     const me = ymhGetCurrentProfile();
+
+    alert("현재 memberId: " + (me && me.memberId));
+
     if (!me || !me.memberId) return;
 
     const snap = await getDocs(
@@ -1286,7 +1289,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "1.1.4";
+const APP_VERSION = "1.1.5";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
