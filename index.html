@@ -920,11 +920,9 @@
   try {
     alert("채팅방 불러오기 실행됨");
 
-    const me = window.ymhGetCurrentProfile
-      ? window.ymhGetCurrentProfile()
-      : null;
+    const me = ymhGetCurrentProfile();
 
-   alert("현재 사용자: " + JSON.stringify(me));
+    alert("현재 사용자: " + JSON.stringify(me));
     
     if (!me || !me.memberId) {
       alert("memberId 없음");
