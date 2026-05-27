@@ -429,7 +429,18 @@
             <div class="modal-notice-header" style="background:var(--primary-gradient);">
                 <div style="display:flex; align-items:center; gap:8px; color:white;">
                     <i class="fa-solid fa-gear" style="color:var(--accent-gold);"></i>
-                    <span>영무회 시스템 환경 설정</span>
+                    <span>
+                      영무회 시스템 환경 설정
+                      <span id="app-version"
+                        style="
+                          font-size:11px;
+                          color:rgba(255,255,255,0.7);
+                          margin-left:8px;
+                          font-weight:500;
+                         ">
+                       </span>
+                      </span>
+
                 </div>
             </div>
             <div class="modal-notice-body" style="background:#F8FAFC;">
@@ -1241,6 +1252,16 @@ if (voices.length > 0) {
 
 
 <script>
+
+const APP_VERSION = "1.1.0";
+window.addEventListener("DOMContentLoaded", () => {
+  const ver = document.getElementById("app-version");
+
+  if(ver){
+    ver.innerText = `Ver ${APP_VERSION}`;
+  }
+});
+
 /* Profile Phone Display Patch START */
 (function(){
   function syncProfilePhoneDisplay(){
