@@ -644,6 +644,10 @@
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         
         document.getElementById(`panel-${panelId}`).classList.add('active');
+
+        if (panelId === 'chat') {
+           loadMyChatRoomsFromFirebase();
+        }
         
         if(elem) {
             elem.classList.add('active');
@@ -906,6 +910,31 @@
         }
         navigateTab('chat', '채팅', document.getElementById('nav-chat'));
         openChatRoom(partnerName, letter);
+    }
+    
+  async function loadMyChatRoomsFromFirebase() {
+    const me = ymhGetCurrentProfile();
+    if (!me || !me.memberId) return;
+
+    const snap = await getDocs(
+       collection(window.db, "chat_rooms")
+    );
+
+    activeChatRooms = [];
+
+      snap.forEach((d) => {
+        const room = d.data();
+
+        if ((room.memberIds || []).includes(me.memberId)) {
+
+          if (!activeChatRooms.includes(room.roomName)) {
+            activeChatRooms.push(room.roomName);
+          }
+
+       }
+     });
+
+      renderChatList();
     }
 
     function renderChatList() {
