@@ -2313,8 +2313,9 @@ function ymhUpsertAlumni(profile){
       };
 
       if(idx >= 0) alumniDb[idx] = { ...alumniDb[idx], ...item };
-      else alumniDb.push(item);
-
+      else {
+        console.warn("[YMH] 등록되지 않은 회원이라 alumniDb에 추가하지 않음:", item);
+      }
       if(typeof renderCoreLayout === "function") renderCoreLayout();
       if(typeof populateSupervisorSelectOptions === "function") populateSupervisorSelectOptions();
     }
