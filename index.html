@@ -557,8 +557,11 @@
     ];
 
     let supervisorWhiteList = ["제갈훈"];
-    let currentLoggedInUser = "제갈훈";
+    let currentMemberId =
+      localStorage.getItem("currentMemberId") ||
+      "13_제갈훈_01088542499";
 
+    let currentLoggedInUser = "";
     let chatHistoryLog = []; 
     let activeChatRooms = [];
     let activeChatPartner = "";
@@ -703,7 +706,18 @@
     }
 
     function switchDemoLoginAccount(selectedName) {
-        currentLoggedInUser = selectedName;
+       const selectedAlumnus = alumniDb.find(p => p.name === selectedName);
+
+       if (selectedAlumnus) {
+         currentMemberId = selectedAlumnus.memberId || makeMemberId({
+            name: selectedAlumnus.name,
+            gisu: selectedAlumnus.gisu,
+            phone: selectedAlumnus.phone || extractPhoneFromText(selectedAlumnus.comp)
+          });
+
+          localStorage.setItem("currentMemberId", currentMemberId);
+          currentLoggedInUser = selectedAlumnus.name;
+         }
         
         syncHeaderCrownVisibility();
         syncProfileMenuVisibility();
