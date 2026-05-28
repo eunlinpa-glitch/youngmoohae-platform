@@ -373,30 +373,30 @@
 
                 <div class="form-section-title">기본 정보 수정</div>
                 <div class="form-row-grid">
-                    <div class="form-group"><label class="form-label">이름 *</label><input type="text" class="form-input" id="form-name" value="제갈훈"></div>
-                    <div class="form-group"><label class="form-label">기수 *</label><input type="text" class="form-input" id="form-gisu" value="13"></div>
+                    <div class="form-group"><label class="form-label">이름 *</label><input type="text" class="form-input" id="form-name" value=""></div>
+                    <div class="form-group"><label class="form-label">기수 *</label><input type="text" class="form-input" id="form-gisu" value=""></div>
                 </div>
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label class="form-label">전화번호 *</label>
                     <input type="text" class="form-input" id="form-phone" value="010-8854-2499" placeholder="예: 010-0000-0000">
                 </div>
                 <div class="form-row-grid">
-                    <div class="form-group"><label class="form-label">회사명</label><input type="text" class="form-input" id="form-company" value="티엔피솔루션"></div>
-                    <div class="form-group"><label class="form-label">직책</label><input type="text" class="form-input" id="form-job" value="본부장"></div>
+                    <div class="form-group"><label class="form-label">회사명</label><input type="text" class="form-input" id="form-company" value=""></div>
+                    <div class="form-group"><label class="form-label">직책</label><input type="text" class="form-input" id="form-job" value=""></div>
                 </div>
-                <div class="form-group" style="margin-bottom: 14px;"><label class="fa-solid fa-tag"> 전문 분야</label><input type="text" class="form-input" id="form-field" value="제조"></div>
+                <div class="form-group" style="margin-bottom: 14px;"><label class="fa-solid fa-tag"> 전문 분야</label><input type="text" class="form-input" id="form-field" value=""></div>
                 
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label class="form-label">주요 취급 품목 / 핵심 기술 자산</label>
-                    <input type="text" class="form-input" id="form-assets" value="수계아연이온 배터리 제조, 친환경 2차전지 기술, 반도체 부품 유통">
+                    <input type="text" class="form-input" id="form-assets" value="">
                 </div>
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label class="form-label">🎯 목표 타겟 시장 / 거점 국가</label>
-                    <input type="text" class="form-input" id="form-target" value="일본 반도체 서플라이 체인, 국내 한전 인프라 모빌리티 시장">
+                    <input type="text" class="form-input" id="form-target" value="">
                 </div>
                 <div class="form-group">
                     <label class="form-label">나의 상세 비즈니스 히스토리 및 자기소개</label>
-                    <textarea class="form-textarea" id="form-intro" style="height:90px;">수계아연 배터리 전략 기획 및 글로벌 영업 마케팅을 전담하고 있습니다. 화재 폭발위험이 원천 차단된 자연친환경 차세대 2차 전지 인프라 구축을 추진 중입니다.</textarea>
+                    <textarea class="form-textarea" id="form-intro" style="height:90px;">.</textarea>
                 </div>
             </div>
             
@@ -559,7 +559,7 @@
     let supervisorWhiteList = ["제갈훈"];
     let currentMemberId =
       localStorage.getItem("currentMemberId") ||
-      "13_제갈훈_01088542499";
+      "";
 
     let currentLoggedInUser = "";
     let chatHistoryLog = []; 
@@ -1338,7 +1338,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "1.1.8";
+const APP_VERSION = "2.00";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
@@ -1427,10 +1427,11 @@ const firebaseConfig = {
 
 
 const vapidKey="PUT_VAPID_KEY_HERE";
-
+alert("module script 실행 시작");
 const app=initializeApp(firebaseConfig);
 
 window.db=getFirestore(app);
+alert("Firestore 생성 성공");
 alert("Firebase 초기화 완료");
 window.storage=getStorage(app);
 window.messaging=getMessaging(app);
