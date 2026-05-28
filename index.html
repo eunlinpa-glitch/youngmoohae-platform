@@ -944,9 +944,11 @@
       return;
     }
 
-    const snap = await getDocs(
-      collection(db, "chat_rooms")
-    );
+    alert("chat_rooms 개수: " + snap.size);
+
+   onSnapshot(
+  collection(db, "chat_rooms"),
+  (snap) => {
 
     alert("chat_rooms 개수: " + snap.size);
 
@@ -965,6 +967,12 @@
     alert("내 채팅방 개수: " + activeChatRooms.length);
 
     renderChatList();
+  },
+  (error) => {
+    alert("채팅방 실시간 불러오기 오류: " + error.message);
+    console.error(error);
+  }
+);
 
   } catch (e) {
     alert("채팅방 불러오기 오류: " + e.message);
