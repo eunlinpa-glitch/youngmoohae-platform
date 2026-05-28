@@ -1867,31 +1867,35 @@ function buildProfileFromForm(){
 }
 
 function mergeAlumniIntoLocal(profile){
- if(!profile || !profile.name) return;
+  if(!profile || !profile.memberId) return;
 
- try{
-   const idx = alumniDb.findIndex(p => p.name === profile.name);
+  try{
+    const idx = alumniDb.findIndex(p => p.memberId === profile.memberId);
 
-   const localProfile = {
-     name: profile.name,
-     gisu: profile.gisu || "",
-     comp: profile.comp || profile.company || "",
-     field: profile.field || "",
-     img: profile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
-   };
+    if(idx < 0){
+      console.warn("등록되지 않은 memberId라 로컬 회원 목록에 추가하지 않음:", profile.memberId);
+      return;
+    }
 
-   if(idx >= 0){
-     alumniDb[idx] = { ...alumniDb[idx], ...localProfile };
-   }else{
-     alumniDb.push(localProfile);
-   }
+    const localProfile = {
+      ...alumniDb[idx],
+      memberId: profile.memberId,
+      name: profile.name || alumniDb[idx].name,
+      gisu: profile.gisu || alumniDb[idx].gisu,
+      comp: profile.comp || profile.company || alumniDb[idx].comp || "",
+      field: profile.field || alumniDb[idx].field || "",
+      phone: profile.phone || alumniDb[idx].phone || "",
+      img: profile.img || alumniDb[idx].img
+    };
 
-   renderCoreLayout();
-   populateSupervisorSelectOptions();
+    alumniDb[idx] = localProfile;
 
- }catch(e){
-   console.error("mergeAlumniIntoLocal failed", e);
- }
+    renderCoreLayout();
+    populateSupervisorSelectOptions();
+
+  }catch(e){
+    console.error("mergeAlumniIntoLocal failed", e);
+  }
 }
 
 window.registerOrUpdateMember=async()=>{
@@ -1922,7 +1926,7 @@ window.registerOrUpdateMember=async()=>{
 
   cconst memberId = profile.memberId || currentMemberId;
   profile.memberId = memberId;
-  
+
   await setDoc(
     doc(db,"users", memberId),
     profile,
