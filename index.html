@@ -2557,6 +2557,8 @@ async function ymhRegisterOrUpdateMember(){
   ymhSaveCurrentProfileLocal(profile);
   ymhApplyProfileToScreen(profile);
   ymhUpsertAlumni(profile);
+  
+ alert("window.db = " + !!window.db);
 
   if(!ymhIsFirebaseReady()){
     alert("현재 브라우저에는 저장했습니다. Firebase 연결 후 다시 저장하면 서버에도 저장됩니다.");
