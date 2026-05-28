@@ -944,11 +944,9 @@
       return;
     }
 
-    alert("chat_rooms 개수: " + snap.size);
-
-   onSnapshot(
-  collection(db, "chat_rooms"),
-  (snap) => {
+  window.onSnapshot(
+    window.collection(window.db, "chat_rooms"),
+    (snap) => {
 
     alert("chat_rooms 개수: " + snap.size);
 
@@ -1419,6 +1417,9 @@ const app=initializeApp(firebaseConfig);
 window.db=getFirestore(app);
 window.storage=getStorage(app);
 window.messaging=getMessaging(app);
+
+window.collection = collection;
+window.onSnapshot = onSnapshot;
 
 let unsubscribeActiveRoom = null;
 
