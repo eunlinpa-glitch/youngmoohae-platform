@@ -920,11 +920,22 @@
   try {
     alert("채팅방 불러오기 실행됨");
 
-    const saved = ymhLoadCurrentProfileLocal();
+  const name = typeof currentLoggedInUser !== "undefined"
+    ? currentLoggedInUser
+    : "제갈훈";
 
-    const me = saved?.memberId
-    ? saved
+  const matched = Array.isArray(alumniDb)
+    ? alumniDb.find(p => p.name === name)
     : null;
+
+  const me = matched ? {
+    memberId: matched.memberId || ymhAlertMakeMemberId(
+      matched.name,
+      matched.gisu,
+      matched.phone || ymhAlertExtractPhone(matched.comp)
+    ),
+    name: matched.name
+  } : null;
 
     alert("현재 사용자: " + JSON.stringify(me));
     
@@ -1306,7 +1317,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "1.1.7";
+const APP_VERSION = "1.1.8";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
