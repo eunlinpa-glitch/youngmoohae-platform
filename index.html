@@ -1430,6 +1430,7 @@ const vapidKey="PUT_VAPID_KEY_HERE";
 const app=initializeApp(firebaseConfig);
 
 window.db=getFirestore(app);
+alert("Firebase 초기화 완료");
 window.storage=getStorage(app);
 window.messaging=getMessaging(app);
 
@@ -1919,9 +1920,9 @@ alert("profile = " + JSON.stringify(profile));
  */
 
  if(!isFirebaseConfigured()){
-   alert("Firebase 연결 전입니다. 회원 정보는 저장하지 않았습니다.");
-   return;
- }
+  alert("Firebase 연결 전입니다. 저장하지 않았습니다. 앱을 새로고침하거나 업데이트 후 다시 시도해 주세요.");
+  return;
+}
 
  try{
 
