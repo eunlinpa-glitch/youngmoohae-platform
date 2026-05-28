@@ -1848,6 +1848,7 @@ function buildProfileFromForm(){
  const avatar = document.getElementById("display-avatar-img")?.src || "";
 
  return {
+   memberId: currentMemberId,
    name,
    gisu,
    comp: job ? `${company} · ${job}` : company,
