@@ -944,8 +944,8 @@
       return;
     }
 
-    const snap = await getDocs(
-      collection(window.db, "chat_rooms")
+    const snap = await window.getDocs(
+      window.collection(window.db, "chat_rooms")
     );
 
     alert("chat_rooms 개수: " + snap.size);
