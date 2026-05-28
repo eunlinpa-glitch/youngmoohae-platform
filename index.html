@@ -2297,10 +2297,14 @@ function ymhUpsertAlumni(profile){
 
   try{
     if(Array.isArray(alumniDb)){
-      const idx = alumniDb.findIndex(p =>
-        p.memberId === profile.memberId ||
-        ymhExtractPhoneFromComp(p.comp) === profile.phoneId
-      );
+    if(!profile.memberId) {
+       console.warn("[YMH] memberId 없는 profile 병합 차단:", profile);
+       return;
+    }
+
+    const idx = alumniDb.findIndex(p =>
+      p.memberId && profile.memberId && p.memberId === profile.memberId
+    );
 
       const item = {
         memberId:profile.memberId,
