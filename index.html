@@ -1920,9 +1920,9 @@ window.registerOrUpdateMember=async()=>{
        return;
     }
 
-  const memberId = makeMemberId(profile);
+  cconst memberId = profile.memberId || currentMemberId;
   profile.memberId = memberId;
-
+  
   await setDoc(
     doc(db,"users", memberId),
     profile,
