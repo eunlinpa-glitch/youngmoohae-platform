@@ -919,11 +919,12 @@
     
   async function loadMyChatRoomsFromFirebase() {
   try {
-    alert("채팅방 불러오기 실행됨");
 
   const name = typeof currentLoggedInUser !== "undefined"
     ? currentLoggedInUser
-    : "제갈훈";
+    : "";
+
+   if (!name) return;
 
   const matched = Array.isArray(alumniDb)
     ? alumniDb.find(p => p.name === name)
@@ -938,8 +939,6 @@
     name: matched.name
   } : null;
 
-    alert("현재 사용자: " + JSON.stringify(me));
-    
     if (!me || !me.memberId) {
       alert("memberId 없음");
       return;
