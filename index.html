@@ -1047,7 +1047,7 @@
 
         chatHistoryLog.forEach(log => {
             if (log.room === partnerName) {
-                if (log.sender === currentMemberId) {
+                if (log.senderID === currentMemberId) {
                     const myName = currentLoggedInUser || "동문";
                     msgBox.innerHTML += `
                         <div class="msg-wrapper me">
