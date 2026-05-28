@@ -1902,6 +1902,9 @@ window.registerOrUpdateMember=async()=>{
 
  const profile = buildProfileFromForm();
 
+ console.log("현재 currentMemberId =", currentMemberId);
+ console.log("저장 profile =", profile);
+
  if(!profile.name){
    alert("이름은 반드시 입력해야 합니다.");
    return;
