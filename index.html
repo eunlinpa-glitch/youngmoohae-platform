@@ -1042,7 +1042,7 @@
             msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other"><strong>[전체 공지]</strong> 2026 영무회 연말 글로벌 무역 총회 일정이 다음 주 확정 고지됩니다. 니즈가 있으신 동문들은 상시 기재 바랍니다.</div></div></div>`;
             document.getElementById('official-group-badge').style.display = 'none';
         } else {
-            msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 ${partnerName}동문님! 제갈훈 입니다. 비즈니스 협업 프로필을 보고 메시지 드립니다.</div></div></div>`;
+            msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 ${partnerName}동문님! ${getCurrentUserName()} 입니다. 비즈니스 협업 프로필을 보고 메시지 드립니다.</div></div></div>`;
         }
 
         chatHistoryLog.forEach(log => {
