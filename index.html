@@ -563,6 +563,7 @@
     let activeChatRooms = [];
     let activeChatPartner = "";
     let messageSaltId = 0;
+    let unsubscribeChatRooms = null;
 
     let currentUtterance = null;
     let isSpeechPaused = false;
@@ -944,11 +945,14 @@
       return;
     }
 
-  window.onSnapshot(
+  if (unsubscribeChatRooms) {
+     unsubscribeChatRooms();
+     unsubscribeChatRooms = null;
+    }
+
+  unsubscribeChatRooms = window.onSnapshot(
     window.collection(window.db, "chat_rooms"),
     (snap) => {
-
-    alert("chat_rooms 개수: " + snap.size);
 
     activeChatRooms = [];
 
@@ -961,8 +965,6 @@
         }
       }
     });
-
-    alert("내 채팅방 개수: " + activeChatRooms.length);
 
     renderChatList();
   },
