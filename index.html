@@ -1010,6 +1010,21 @@
     }
 
     function openChatRoom(partnerName, letter) {
+        const partner = alumniDb.find(p => p.name === partnerName);
+
+        if (partner) {
+        const partnerId = partner.memberId || makeMemberId({
+          name: partner.name,
+          gisu: partner.gisu,
+          phone: partner.phone || extractPhoneFromText(partner.comp)
+        });
+
+        if (partnerId === currentMemberId) {
+          alert("자기 자신과의 채팅방은 만들 수 없습니다.");
+          return;
+        }
+       }
+
         activeChatPartner = partnerName;
         document.getElementById('chat-list-view').style.display = 'none';
         document.getElementById('chat-room-view').style.display = 'flex';
