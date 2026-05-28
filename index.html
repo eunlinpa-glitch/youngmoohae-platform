@@ -1911,9 +1911,9 @@ window.registerOrUpdateMember=async()=>{
    Firebase 설정 전에는 로컬 명단에만 반영합니다.
    Firebase 설정 후에는 Firestore users에도 저장합니다.
  */
+
  if(!isFirebaseConfigured()){
-   mergeAlumniIntoLocal(profile);
-   alert("Firebase 설정 전이라 현재 브라우저 명단에만 임시 등록했습니다.");
+   alert("Firebase 연결 전입니다. 회원 정보는 저장하지 않았습니다.");
    return;
  }
 
