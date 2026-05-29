@@ -1990,18 +1990,22 @@ profile.memberId = memberId;
   alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
   return;
 }
+profile.phoneId = ymhNormalizePhone(profile.phone || "");
 
- const usersSnap = await getDocs(collection(db, "users"));
+  const usersSnap = await getDocs(collection(window.db || db, "users"));
 
- const duplicated = usersSnap.docs.find(docItem => {
+  const duplicated = usersSnap.docs.find(docItem => {
   const data = docItem.data();
-  return data.phoneId === profile.phoneId && docItem.id !== memberId;
- });
+  const savedPhoneId = data.phoneId || ymhNormalizePhone(data.phone || "");
 
- if(duplicated){
-   alert("이미 등록된 전화번호입니다. 기존 회원 정보를 확인해 주세요.");
-   return;
- }
+  return savedPhoneId === profile.phoneId &&
+         docItem.id !== profile.memberId;
+});
+
+if(duplicated){
+  alert("이미 등록된 전화번호입니다. 기존 회원 정보를 확인해 주세요.");
+  return;
+}
 
   await setDoc(
     doc(db,"users", memberId),
@@ -2688,6 +2692,33 @@ async function ymhRegisterOrUpdateMember(){
   }
 
   try{
+
+    if(!profile.memberId){
+      profile.memberId = ymhMakeMemberId(
+        profile.name,
+        profile.gisu,
+        profile.phone
+      );
+    }
+
+    if(!profile.memberId){
+      alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+      return;
+    }
+
+    const usersSnap = await getDocs(collection(window.db, "users"));
+
+    const duplicated = usersSnap.docs.find(docItem => {
+      const data = docItem.data();
+      return data.phoneId === profile.phoneId &&
+             docItem.id !== profile.memberId;
+    });
+
+    if(duplicated){
+      alert("이미 등록된 전화번호입니다. 기존 회원 정보를 확인해 주세요.");
+      return;
+    }
+
     await setDoc(
       doc(window.db, "users", profile.memberId),
       { ...profile, updatedAt:serverTimestamp() },
