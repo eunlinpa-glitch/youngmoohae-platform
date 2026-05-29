@@ -264,10 +264,10 @@
 
         <div id="panel-chat" class="tab-panel" style="padding: 0;">
             <div id="chat-list-view">
-                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 공식 마케팅룸', '공')">
+                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 라운지', '공')">
                     <div class="chat-avatar" style="background: #FEF3C7; color: #D97706; font-size:18px;"><i class="fa-solid fa-users"></i></div>
                     <div class="chat-info">
-                        <div class="chat-top-row"><span class="chat-name">영무회 공식 마케팅룸</span><span class="chat-time">상시 가동</span></div>
+                        <div class="chat-top-row"><span class="chat-name">영무회 라운지</span><span class="chat-time">상시 가동</span></div>
                         <p class="chat-preview">2026 연말 글로벌 무역 총회 공지방입니다.</p>
                     </div>
                     <span class="chat-badge" id="official-group-badge">2</span>
@@ -543,11 +543,7 @@
 </div>
 
 <script>
-    let alumniDb = [
-        { name: "정희훈", gisu: "20회", comp: "SCM · 대표 (010-5067-0016)", field: "무역", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" },
-        { name: "이준호", gisu: "12회", comp: "대표 (010-3525-2717)", field: "제조", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" },
-        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 · 본부장 (010-8854-2499)", field: "제조", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&0=80" }
-    ];
+   let alumniDb = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
 
     let aiFeeds = [
         { title: "비즈니스 지능 매칭 스캐너 가동 가능", time: "상시", body: "[나의 매칭 요청] 메뉴에 원하시는 키워드나 협업 제안을 적고 분석을 실행해 주십시오. 선배님의 상세 프로필 및 채팅 기록을 해독하여 동역자를 실시간 발굴합니다.", pct: "100%" }
@@ -998,6 +994,10 @@
         const chatContainer = document.getElementById('chat-list-anchor');
         chatContainer.innerHTML = '';
         activeChatRooms.forEach(name => {
+
+           if(name === "영무회 라운지"){
+             return;
+           }
             chatContainer.innerHTML += `
                 <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
                     <div class="chat-avatar">${name[0]}</div>
@@ -1037,8 +1037,8 @@
         const msgBox = document.getElementById('chat-messages-box');
         msgBox.innerHTML = '';
         
-        if(partnerName === '영무회 공식 마케팅룸' || partnerName === '영무회 공식 채팅방') {
-            document.getElementById('header-text').innerText = '영무회 공식 마케팅룸';
+        if(partnerName === '영무회 라운지' || partnerName === '영무회 공식 채팅방') {
+            document.getElementById('header-text').innerText = '영무회 라운지';
             msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other"><strong>[전체 공지]</strong> 2026 영무회 연말 글로벌 무역 총회 일정이 다음 주 확정 고지됩니다. 니즈가 있으신 동문들은 상시 기재 바랍니다.</div></div></div>`;
             document.getElementById('official-group-badge').style.display = 'none';
         } else {
@@ -1046,22 +1046,30 @@
         }
 
         chatHistoryLog.forEach(log => {
-            if (log.room === partnerName) {
-                if (log.senderID === currentMemberId) {
-                    const myName = currentLoggedInUser || "동문";
-                    msgBox.innerHTML += `
-                        <div class="msg-wrapper me">
-                            <div class="msg-container-row">
-                                <span class="unread-counter-num">1</span>
-                                <div class="msg-bubble me">${log.msg}</div>
-                            </div>
-                        </div>`;
-                } else {
-                    msgBox.innerHTML += `
-                        <div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">${log.msg}</div></div></div>`;
-                }
-            }
-        });
+          if (log.room === partnerName) {
+
+            const isMine = log.senderId
+              ? log.senderId === currentMemberId
+              : log.sender === currentLoggedInUser;
+
+              if (isMine) {
+               msgBox.innerHTML += `
+                 <div class="msg-wrapper me">
+                   <div class="msg-container-row">
+                    <span class="unread-counter-num">1</span>
+                    <div class="msg-bubble me">${log.msg}</div>
+                  </div>
+                </div>`;
+           } else {
+             msgBox.innerHTML += `
+               <div class="msg-wrapper other">
+                <div class="msg-container-row">
+                 <div class="msg-bubble other">${log.msg}</div>
+               </div>
+             </div>`;
+          }
+        }
+      });
 
         msgBox.scrollTop = msgBox.scrollHeight;
         setTimeout(() => { document.getElementById('live-chat-input').focus(); }, 100);
@@ -1582,10 +1590,12 @@ function debugFirebaseChatState(label){
 window.debugFirebaseChatState = debugFirebaseChatState;
 
 function getAlumniNames(){
- try{
-   if(Array.isArray(alumniDb)) return alumniDb.map(p=>p.name);
- }catch(e){}
- return ["제갈훈","정희훈","이준호"];
+  try{
+    const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+    return list.map(p => p.name).filter(Boolean);
+  }catch(e){
+    return [];
+  }
 }
 
 function getRoomMembers(roomName){
@@ -1595,9 +1605,13 @@ function getRoomMembers(roomName){
    return [...new Set(window.chatRoomMembersMap[roomName])];
  }
 
- if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+ if(
+   roomName === "영무회 라운지" ||
+   roomName === "영무회 라운지" ||
+   roomName === "영무회 공식 채팅방"
+){
    return [...new Set(getAlumniNames())];
- }
+}
 
  if(!roomName){
    return [me];
@@ -1615,9 +1629,13 @@ function getRoomMemberIds(roomName){
 function makeRoomId(roomName){
  const meId = getCurrentMemberId();
 
- if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
-   return "official_marketing_room";
- }
+ if(
+  roomName === "영무회 라운지" ||
+  roomName === "영무회 라운지" ||
+  roomName === "영무회 공식 채팅방"
+){
+  return "youngmoo_lounge";
+}
 
  const partnerId = getMemberIdByName(roomName);
 
@@ -1629,12 +1647,12 @@ function getLocalStorageKey(roomName){
 }
 
 function loadLocalMessages(roomName){
- try{
-   const raw = localStorage.getItem(getLocalStorageKey(roomName));
-   return raw ? JSON.parse(raw) : [];
- }catch(e){
-   return [];
- }
+  try{
+    const raw = localStorage.getItem(getLocalStorageKey(roomName));
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){
+    return [];
+  }
 }
 
 function saveLocalMessage(roomName, messageData){
@@ -1683,7 +1701,7 @@ function renderMessageBubble(messageData, roomName){
    : "";
 
  const senderLabel =
-   !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+   !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
    ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${escapeHtml(sender)}</div>`
    : "";
 
@@ -1950,9 +1968,19 @@ alert("profile = " + JSON.stringify(profile));
        return;
     }
 
-  cconst memberId = profile.memberId || currentMemberId;
-  profile.memberId = memberId;
+ const memberId = profile.memberId || ymhMakeMemberId(profile.name, profile.gisu, profile.phone);
 
+if(!memberId){
+  alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+  return;
+}
+
+profile.memberId = memberId;
+
+  if(!memberId){
+  alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+  return;
+}
   await setDoc(
     doc(db,"users", memberId),
     profile,
@@ -1988,12 +2016,22 @@ window.subscribeMembers=()=>{
    snap.forEach((d)=>{
      const v=d.data();
      if(v && v.name && v.approved !== false){
-       firebaseMembers.push({
-         name:v.name,
-         gisu:v.gisu || "",
-         comp:v.comp || (v.job ? `${v.company || ""} · ${v.job}` : v.company || ""),
-         field:v.field || "",
-         img:v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+      firebaseMembers.push({
+         memberId: v.memberId || d.id,
+         name: v.name,
+         gisu: v.gisu || "",
+         gisuNumber: v.gisuNumber || "",
+         phone: v.phone || "",
+         phoneId: v.phoneId || "",
+         company: v.company || "",
+         job: v.job || "",
+         comp: v.comp || (v.job ? `${v.company || ""} · ${v.job} (${v.phone || ""})` : `${v.company || ""} (${v.phone || ""})`),
+         field: v.field || "",
+         assets: v.assets || "",
+         target: v.target || "",
+         intro: v.intro || "",
+         img: v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+         approved: v.approved !== false
        });
      }
    });
@@ -2178,17 +2216,23 @@ let ymhUnsubscribeRoom = null;
 let ymhUnsubscribeMembers = null;
 
 function ymhNormalizePhone(phone){
-  return String(phone || "").replace(/\D/g, "");
+  return String(phone || "").replace(/[^\d+]/g, "");
+}
+
+function ymhFormatPhone(phone){
+  const raw = String(phone || "").replace(/[^\d+]/g, "");
+
+  // 한국 휴대폰
+  if(/^010\d{8}$/.test(raw)){
+    return raw.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  }
+
+  // 해외번호
+  return raw;
 }
 
 function ymhNormalizeGisu(gisu){
   return String(gisu || "").replace(/\D/g, "");
-}
-
-function ymhFormatPhone(phone){
-  const p = ymhNormalizePhone(phone);
-  if(p.length === 11) return `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}`;
-  return String(phone || "");
 }
 
 function ymhMakeMemberId(name, gisu, phone){
@@ -2231,9 +2275,24 @@ function ymhGetFormProfile(){
 
 function ymhSaveCurrentProfileLocal(profile){
   if(!profile?.memberId) return;
+
   localStorage.setItem("ymh_current_member_id", profile.memberId);
   localStorage.setItem("ymh_current_profile", JSON.stringify(profile));
+  localStorage.setItem("currentMemberId", profile.memberId);
+
   window.ymhCurrentProfile = profile;
+
+  const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+  const idx = list.findIndex(p => p.memberId === profile.memberId);
+
+  if(idx >= 0){
+    list[idx] = { ...list[idx], ...profile };
+  }else{
+    list.push(profile);
+  }
+
+  localStorage.setItem("ymh_alumni_db", JSON.stringify(list));
+  alumniDb = list;
 }
 
 function ymhLoadCurrentProfileLocal(){
@@ -2387,7 +2446,7 @@ function ymhGetActiveRoomName(){
 function ymhGetRoomMembers(roomName){
   ymhSeedLocalMembers();
 
-  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+  if(roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방"){
     try{
       return alumniDb.map(p => ymhGetMemberByName(p.name)).filter(p => p.memberId);
     }catch(e){
@@ -2407,8 +2466,12 @@ function ymhGetRoomMembers(roomName){
 }
 
 function ymhMakeRoomId(roomName){
-  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
-    return "official_marketing_room";
+  if(
+     roomName === "영무회 라운지" ||
+     roomName === "영무회 라운지" ||
+     roomName === "영무회 공식 채팅방"
+    ){
+    return "youngmoo_lounge";
   }
 
   return ymhGetRoomMembers(roomName)
@@ -2447,7 +2510,7 @@ function ymhRenderMessage(data, roomName){
     ? `<span class="unread-counter-num">${unread}</span>`
     : "";
 
-  const senderLabel = !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+  const senderLabel = !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
     ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${ymhEscapeHtml(data.sender)}</div>`
     : "";
 
@@ -2723,12 +2786,12 @@ import {
 
 /*
   목적:
-  1) "영무회 공식 마케팅룸" 표시명을 "영무회 라운지"로 변경
+  1) "영무회 라운지" 표시명을 "영무회 라운지"로 변경
   2) 새 메시지 도착 시 애후배_알림.mp4 팝업 표시
   3) "새 메시지 보기" 클릭 시 해당 채팅방으로 이동
 
   주의:
-  - 내부 Firestore roomId는 official_marketing_room 그대로 유지
+  - 내부 Firestore roomId는 youngmoo_lounge 그대로 유지
   - Firebase / 회원 저장 / 기존 채팅 구조는 변경하지 않음
 */
 
@@ -2736,10 +2799,6 @@ let ymhVideoAlertTargetRoom = "";
 let ymhVideoAlertLastKey = {};
 let ymhVideoAlertStarted = false;
 let ymhVideoAlertUnsubs = [];
-
-function ymhAlertNormalizePhone(phone){
-  return String(phone || "").replace(/\D/g, "");
-}
 
 function ymhAlertNormalizeGisu(gisu){
   return String(gisu || "").replace(/\D/g, "");
@@ -2830,10 +2889,10 @@ function ymhRenameOfficialRoomToLounge(){
   document.querySelectorAll("*").forEach(el=>{
     if(el.childNodes && el.childNodes.length){
       el.childNodes.forEach(node=>{
-        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 마케팅룸")){
-          node.nodeValue = node.nodeValue.replaceAll("영무회 공식 마케팅룸","영무회 라운지");
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 라운지")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 라운지","영무회 라운지");
         }
-        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 채팅방")){
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 라운지")){
           node.nodeValue = node.nodeValue.replaceAll("영무회 공식 채팅방","영무회 라운지");
         }
       });
@@ -2841,7 +2900,7 @@ function ymhRenameOfficialRoomToLounge(){
   });
 
   const header = document.getElementById("header-text");
-  if(header && (header.innerText === "영무회 공식 마케팅룸" || header.innerText === "영무회 공식 채팅방")){
+  if(header && (header.innerText === "영무회 라운지" || header.innerText === "영무회 라운지")){
     header.innerText = "영무회 라운지";
   }
 }
@@ -2849,14 +2908,14 @@ function ymhRenameOfficialRoomToLounge(){
 /* 기존 openChatRoom이 옛 이름을 기준으로 움직이므로 표시만 라운지로 바꿈 */
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
 window.openChatRoom = function(name, letter){
-  const internalName = name === "영무회 라운지" ? "영무회 공식 마케팅룸" : name;
+  const internalName = name === "영무회 라운지" ? "영무회 라운지" : name;
 
   if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
     ymhOldOpenChatRoomForLoungeAlert(internalName, letter);
   }
 
-  if(name === "영무회 라운지" || internalName === "영무회 공식 마케팅룸" || internalName === "영무회 공식 채팅방"){
-    window.activeChatPartner = "영무회 공식 마케팅룸";
+  if(name === "영무회 라운지" || internalName === "영무회 라운지" || internalName === "영무회 공식 채팅방"){
+    window.activeChatPartner = "영무회 라운지";
     const header = document.getElementById("header-text");
     if(header) header.innerText = "영무회 라운지";
   }
@@ -2987,7 +3046,7 @@ function ymhShowVideoAlert(roomName, senderName, message){
   const title = document.getElementById("ymh-video-alert-title");
   const text = document.getElementById("ymh-video-alert-text");
 
-  const displayRoom = roomName === "영무회 공식 마케팅룸" ? "영무회 라운지" : roomName;
+  const displayRoom = roomName === "영무회 라운지" ? "영무회 라운지" : roomName;
 
   if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
   if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
@@ -3018,7 +3077,7 @@ function ymhCloseVideoAlert(){
 }
 
 function ymhOpenVideoAlertTargetRoom(){
-  const room = ymhVideoAlertTargetRoom || "영무회 공식 마케팅룸";
+  const room = ymhVideoAlertTargetRoom || "영무회 라운지";
   ymhCloseVideoAlert();
 
   try{
@@ -3028,7 +3087,7 @@ function ymhOpenVideoAlertTargetRoom(){
     }
 
     setTimeout(()=>{
-      if(room === "영무회 공식 마케팅룸" || room === "영무회 공식 채팅방"){
+      if(room === "영무회 라운지" || room === "영무회 공식 채팅방"){
         window.openChatRoom("영무회 라운지", "공");
       }else{
         window.openChatRoom(room, room[0]);
@@ -3046,7 +3105,7 @@ function ymhShowBadgesForAlert(roomName){
     bottomBadge.innerText = "1";
   }
 
-  if(roomName === "영무회 공식 마케팅룸"){
+  if(roomName === "영무회 라운지"){
     const officialBadge = document.getElementById("official-group-badge");
     if(officialBadge){
       officialBadge.style.display = "inline-block";
@@ -3073,7 +3132,7 @@ function ymhHandleIncomingForVideoAlert(roomName, data, docId){
   const currentRoom = ymhGetCurrentRoomNameForAlert();
 
   /* 현재 보고 있는 방이면 팝업 생략 */
-  if(currentRoom === roomName || (roomName === "영무회 공식 마케팅룸" && currentRoom === "영무회 라운지")){
+  if(currentRoom === roomName || (roomName === "영무회 라운지" && currentRoom === "영무회 라운지")){
     return;
   }
 
@@ -3124,7 +3183,7 @@ function ymhStartVideoAlertListener(){
   });
   ymhVideoAlertUnsubs = [];
 
-  ymhSubscribeAlertRoom("영무회 공식 마케팅룸", "official_marketing_room");
+  ymhSubscribeAlertRoom("영무회 라운지", "youngmoo_lounge");
 
   ymhAlertAllMembers().forEach(member=>{
     if(member.memberId && member.memberId !== me.memberId){
