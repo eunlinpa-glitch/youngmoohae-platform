@@ -1943,9 +1943,6 @@ window.registerOrUpdateMember=async()=>{
 alert("currentMemberId = " + currentMemberId);
 alert("profile = " + JSON.stringify(profile));
 
- console.log("현재 currentMemberId =", currentMemberId);
- console.log("저장 profile =", profile);
-
  if(!profile.name){
    alert("이름은 반드시 입력해야 합니다.");
    return;
@@ -2116,11 +2113,19 @@ if(window.executeSendMsg){
       input.value="";
       console.log("[YM CHAT] Firestore 저장 성공", { roomName, senderName, text });
    }catch(e){
-      console.error("[YM CHAT] Firestore 저장 실패", e);
-      appendLocalMessage(senderName,text,roomName,true);
-      input.value="";
-      alert("Firebase 저장 실패: 브라우저 로컬 저장소에는 저장했습니다. 콘솔 오류를 확인해 주세요.");
-   }
+  console.error("[YMH CHAT] Firestore 저장 실패 상세", {
+    error: e,
+    code: e.code,
+    message: e.message,
+    roomName,
+    senderName,
+    text
+  });
+
+  appendLocalMessage(senderName,text,roomName,true);
+  input.value="";
+  alert("Firebase 채팅 저장 실패: " + (e.message || e.code || e));
+  }
  };
 
 }
