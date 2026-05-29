@@ -2049,7 +2049,12 @@ window.subscribeMembers=()=>{
      기존 데모 동문은 보존하고,
      Firebase 신규/수정 회원을 병합합니다.
    */
-   firebaseMembers.forEach(m=>mergeAlumniIntoLocal(m));
+   firebaseMembers.forEach(m => mergeAlumniIntoLocal(m));
+
+   alumniDb = firebaseMembers;
+   localStorage.setItem("ymh_alumni_db", JSON.stringify(firebaseMembers));
+
+   renderCoreLayout();
 
  },(error)=>{
    console.error("members subscription failed", error);
