@@ -1999,7 +1999,7 @@ profile.phoneId = ymhNormalizePhone(profile.phone || "");
   const savedPhoneId = data.phoneId || ymhNormalizePhone(data.phone || "");
 
   return savedPhoneId === profile.phoneId &&
-         docItem.id !== profile.memberId;
+ 
 });
 
 if(duplicated){
