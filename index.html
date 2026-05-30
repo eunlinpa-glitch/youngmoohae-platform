@@ -543,11 +543,7 @@
 </div>
 
 <script>
-    let alumniDb = [
-        { name: "정희훈", gisu: "20회", comp: "SCM · 대표 (010-5067-0016)", field: "무역", img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80" },
-        { name: "이준호", gisu: "12회", comp: "대표 (010-3525-2717)", field: "제조", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" },
-        { name: "제갈훈", gisu: "13회", comp: "티엔피솔루션 · 본부장 (010-8854-2499)", field: "제조", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&0=80" }
-    ];
+    let alumniDb = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
 
     let aiFeeds = [
         { title: "비즈니스 지능 매칭 스캐너 가동 가능", time: "상시", body: "[나의 매칭 요청] 메뉴에 원하시는 키워드나 협업 제안을 적고 분석을 실행해 주십시오. 선배님의 상세 프로필 및 채팅 기록을 해독하여 동역자를 실시간 발굴합니다.", pct: "100%" }
@@ -1590,10 +1586,12 @@ function debugFirebaseChatState(label){
 window.debugFirebaseChatState = debugFirebaseChatState;
 
 function getAlumniNames(){
- try{
-   if(Array.isArray(alumniDb)) return alumniDb.map(p=>p.name);
- }catch(e){}
- return ["제갈훈","정희훈","이준호"];
+  try{
+    const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+    return list.map(p => p.name).filter(Boolean);
+  }catch(e){
+    return [];
+  }
 }
 
 function getRoomMembers(roomName){
@@ -1603,7 +1601,7 @@ function getRoomMembers(roomName){
    return [...new Set(window.chatRoomMembersMap[roomName])];
  }
 
- if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+ if( roomName === "영무회 라운지" || roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
    return [...new Set(getAlumniNames())];
  }
 
@@ -1690,22 +1688,10 @@ function renderMessageBubble(messageData, roomName){
    ? `<span class="unread-counter-num">${unreadCount}</span>`
    : "";
 
- const senderProfile = alumniDb.find(p => p.name === sender) || {};
- const senderGisu = senderProfile.gisu || "";
- const senderImg = senderProfile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80";
- const senderDisplayName = `${senderGisu ? senderGisu.replace("회", "기") + " " : ""}${sender}`;
-
  const senderLabel =
-  !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
-  ? `
-    <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-      <img src="${senderImg}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-      <div style="font-size:11px; font-weight:800; color:#475569;">
-        ${escapeHtml(senderDisplayName)}
-      </div>
-    </div>
-  `
-  : "";
+   !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+   ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${escapeHtml(sender)}</div>`
+   : "";
 
  return `
 <div class="msg-wrapper ${isMe?'me':'other'}">
@@ -1970,7 +1956,7 @@ alert("profile = " + JSON.stringify(profile));
        return;
     }
 
-  cconst memberId = profile.memberId || currentMemberId;
+  const memberId = profile.memberId || currentMemberId;
   profile.memberId = memberId;
 
   await setDoc(
@@ -2251,9 +2237,24 @@ function ymhGetFormProfile(){
 
 function ymhSaveCurrentProfileLocal(profile){
   if(!profile?.memberId) return;
+
   localStorage.setItem("ymh_current_member_id", profile.memberId);
   localStorage.setItem("ymh_current_profile", JSON.stringify(profile));
+  localStorage.setItem("currentMemberId", profile.memberId);
+
   window.ymhCurrentProfile = profile;
+
+  const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+  const idx = list.findIndex(p => p.memberId === profile.memberId);
+
+  if(idx >= 0){
+    list[idx] = { ...list[idx], ...profile };
+  }else{
+    list.push(profile);
+  }
+
+  localStorage.setItem("ymh_alumni_db", JSON.stringify(list));
+  alumniDb = list;
 }
 
 function ymhLoadCurrentProfileLocal(){
