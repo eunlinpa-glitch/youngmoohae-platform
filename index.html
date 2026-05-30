@@ -18,7 +18,3290 @@
     <meta name="theme-color" content="#ffffff">
 
     <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" type="image/png" href="/icon.png"><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- iPhone -->
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="apple-touch-fullscreen" content="yes">
+   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+   <meta name="apple-mobile-web-app-title" content="영무회">
+    <!-- Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- 공통 -->
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="apple-touch-icon" href="/icon.png">
     <link rel="icon" type="image/png" href="/icon.png">
+
+    <title>영무회 비즈니스 네트워킹 플랫폼</title>
+</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            --gold-light: #FEF3C7;
+            --accent-gold: #D4AF37; 
+            --bg-glass: #F8FAFC;
+            --border-soft: #E2E8F0;
+            --text-dark: #0F172A;
+            --text-muted: #64748B;
+            --shadow-premium: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            --shadow-gold: 0 10px 20px -3px rgba(212, 175, 55, 0.2);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; letter-spacing: -0.3px; }
+        body { background: #EEF2F6; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
+        .phone-container { width: 100%; max-width: 430px; height: 100vh; background: #ffffff; display: flex; flex-direction: column; position: relative; box-shadow: 0 25px 60px -15px rgba(15,23,42,0.3); overflow: hidden; }
+        .header { background: #ffffff; color: var(--text-dark); padding: 16px 20px; text-align: center; font-size: 17px; font-weight: 800; border-bottom: 1px solid var(--border-soft); position: relative; display: flex; align-items: center; justify-content: center; min-height: 56px; }
+        .back-btn { position: absolute; left: 20px; font-size: 16px; color: var(--text-dark); cursor: pointer; display: none; }
+        
+        .demo-secret-title-trigger { cursor: pointer; user-select: none; }
+
+        .header-buttons-group { position: absolute; right: 18px; display: flex; align-items: center; gap: 14px; }
+        .global-settings-trigger { font-size: 17px; color: #64748B; cursor: pointer; transition: all 0.2s; }
+        .global-settings-trigger:hover { transform: rotate(45deg); color: #0F172A; }
+        .global-notice-trigger { font-size: 17px; color: #D97706; cursor: pointer; position: relative; transition: all 0.2s; }
+        .global-notice-trigger:hover { transform: scale(1.1); }
+        .supervisor-trigger { font-size: 17px; color: #CBD5E1; cursor: pointer; display: none; transition: all 0.2s; }
+        .supervisor-trigger.active-crown { color: #2563EB; display: block; }
+        .supervisor-trigger.active-crown:hover { transform: scale(1.1); }
+        .notice-dot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 8px #EF4444; }
+
+        .main-content { flex: 1; overflow-y: auto; background: #F1F5F9; padding-bottom: 75px; }
+        .tab-panel { display: none; padding: 18px; animation: fadeInTab 0.3s ease-in-out; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeInTab { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .nav-bar { position: absolute; bottom: 0; width: 100%; height: 70px; background: #ffffff; border-top: 1px solid var(--border-soft); display: flex; justify-content: space-around; align-items: center; z-index: 10; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #A2B1C6; cursor: pointer; text-decoration: none; font-size: 11px; width: 25%; font-weight: 700; transition: all 0.25s ease; position: relative; }
+        .nav-item.active { color: #D97706; }
+        .nav-item i { font-size: 21px; margin-bottom: 5px; transition: transform 0.2s; }
+        .nav-item:hover i { transform: translateY(-2px); }
+        .nav-badge { position: absolute; top: 2px; right: 22px; background: #EF4444; color: white; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px; box-shadow: 0 2px 4px rgba(239,68,68,0.4); display: none; }
+        
+        /* [1번 탭: 동문 주소록] */
+        .summary-card { background: var(--primary-gradient); color: white; padding: 20px; border-radius: 18px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; overflow: hidden; }
+        .summary-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 180px; height: 180px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; filter: blur(30px); }
+        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s; }
+        .search-box:focus { border-color: #F59E0B; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+        .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .alumni-item { background: white; border: 1px solid var(--border-soft); padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); cursor: pointer; transition: all 0.2s ease; }
+        .alumni-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-premium); border-color: #CBD5E1; }
+        .avatar-img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 0 0 2px var(--border-soft); }
+        .alumni-details { flex: 1; }
+        .name-row { display: flex; align-items: center; gap: 6px; }
+        .tag-gisu { font-size: 11px; color: var(--text-muted); font-weight: 700; background: #F1F5F9; padding: 2px 6px; border-radius: 6px; }
+        .tag-status { font-size: 11px; background: #FFF9E6; color: #D97706; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: auto; border: 1px solid #FDE68A; }
+        
+        .crown-icon-inline { color: #F59E0B; font-size: 12px; animation: crownShine 2s infinite ease-in-out; }
+        @keyframes crownShine { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.15); opacity: 1; color: #D4AF37; } }
+
+        .biz-text { font-size: 13px; color: var(--text-dark); margin-top: 4px; font-weight: 700; }
+        .field-text { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        
+        /* [2번 탭: 채팅] */
+        .chat-item { background: white; border-bottom: 1px solid var(--border-soft); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: background 0.2s; }
+        .chat-item:hover { background: #F8FAFC; }
+        .chat-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+        .chat-time { font-size: 11px; color: var(--text-muted); }
+        .chat-preview { font-size: 13px; color: var(--text-muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+        .chat-badge { background: #EF4444; color: white; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 5px rgba(239,68,68,0.3); }
+        
+        .chat-view-container { display: none; flex-direction: column; height: 100%; background: #E8EBF0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+        
+        .msg-wrapper { display: flex; flex-direction: column; margin-bottom: 2px; width: 100%; }
+        .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
+        .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
+        .msg-container-row { display: flex; align-items: flex-end; gap: 6px; width: 100%; justify-content: flex-end; }
+        .msg-wrapper.other .msg-container-row { justify-content: flex-start; }
+        .unread-counter-num { font-size: 11px; color: #D97706; font-weight: 800; margin-bottom: 4px; display: inline-block; }
+        
+        .msg-bubble { max-width: 78%; padding: 11px 15px; border-radius: 16px; font-size: 14px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: inline-block; text-align: left; word-break: break-all; }
+        .msg-bubble.me { background: var(--gold-gradient); color: white; font-weight: 600; border-top-right-radius: 4px; box-shadow: var(--shadow-gold); }
+        .msg-bubble.other { background: white; color: var(--text-dark); border: 1px solid var(--border-soft); border-top-left-radius: 4px; }
+        .chat-input-row { padding: 14px; background: white; border-top: 1px solid var(--border-soft); display: flex; gap: 10px; align-items: center; }
+        
+        /* [3번 탭: AI 라운지] */
+        .sub-tab-container { display: flex; gap: 8px; margin-bottom: 18px; background: #E2E8F0; padding: 4px; border-radius: 12px; }
+        .sub-tab { flex: 1; text-align: center; padding: 9px; color: var(--text-muted); border-radius: 9px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .sub-tab.active { background: white; color: var(--text-dark); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .ai-sub-panel { display: none; }
+        .ai-sub-panel.active { display: block; }
+        
+        .ai-hub-control-card { background: white; border: 1px solid var(--border-soft); border-radius: 24px; padding: 20px; margin-bottom: 18px; box-shadow: var(--shadow-premium); position: relative; }
+        .ai-hub-control-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: var(--gold-gradient); border-top-left-radius: 24px; border-top-right-radius: 24px; }
+        .ai-hub-header { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F1F5F9; padding-bottom: 14px; margin-bottom: 16px; }
+        
+        .ai-assistant-visual { display: flex; align-items: center; }
+        .ai-vis-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid white; }
+        .ai-vis-비서 { background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%); }
+        .ai-hub-title { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+        
+        .ai-briefing-panel { display: flex; flex-direction: column; gap: 0; overflow: hidden; border-radius: 18px; border: 1px solid var(--border-soft); background: white; }
+        .ai-video-space { width: 100%; height: 230px; background: #000000; position: relative; overflow: hidden; }
+        .large-briefing-video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; display: block; }
+        .ai-text-space { padding: 18px; background: #F8FAFC; border-top: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 10px; }
+        .ai-profile-tag-row { display: flex; align-items: center; gap: 8px; }
+        .ai-name-tag { font-size: 14px; font-weight: 900; color: white; background: linear-gradient(135deg, #4F46E5, #2563EB); padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(79,70,229,0.2); }
+        .ai-lang-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); background: #E2E8F0; padding: 2px 6px; border-radius: 4px; }
+
+        .briefing-text { font-size: 13.5px; color: var(--text-dark); line-height: 1.6; text-align: justify; font-weight: 500; }
+        .click-speak-tip { font-size: 11.5px; color: #D97706; font-weight: 700; display: flex; align-items: center; gap: 4px; cursor: pointer; transition: opacity 0.2s; }
+
+        .feed-card { background: white; border: 1px solid var(--border-soft); border-radius: 18px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .feed-icon-box { width: 32px; height: 32px; border-radius: 50%; background: var(--gold-light); display: flex; align-items: center; justify-content: center; color: #D97706; }
+        .feed-title { font-size: 14px; font-weight: 800; color: var(--text-dark); }
+        .feed-time { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+        .feed-body { font-size: 13px; color: #475569; line-height: 1.55; margin-bottom: 14px; }
+        .match-bar-container { display: flex; align-items: center; justify-content: space-between; background: #FFFDF5; padding: 10px 14px; border-radius: 10px; border: 1px solid #FEF3C7; }
+        .match-percent { font-size: 13px; font-weight: 800; color: #B45309; }
+        
+        /* [4번 탭: 내 정보 설정] */
+        .profile-hero { display: flex; align-items: center; gap: 16px; background: white; border: 1px solid var(--border-soft); padding: 18px; border-radius: 20px; margin-bottom: 18px; box-shadow: var(--shadow-premium); }
+        .avatar-wrapper { position: relative; width: 64px; height: 64px; cursor: pointer; }
+        .profile-main-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-gold); box-shadow: var(--shadow-gold); }
+        .avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; opacity: 0; transition: opacity 0.2s; }
+        .avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+        .profile-hero-name { font-size: 18px; font-weight: 800; color: var(--text-dark); }
+        .profile-hero-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
+        
+        .form-section { background: white; border: 1px solid var(--border-soft); padding: 20px; border-radius: 20px; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); }
+        .form-section-title { font-size: 14px; font-weight: 800; color: var(--text-dark); margin-bottom: 16px; border-left: 3px solid #F59E0B; padding-left: 8px; }
+        .form-row-grid { display: flex; gap: 12px; margin-bottom: 14px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .form-label { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+        .form-input { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); width: 100%; transition: all 0.2s; }
+        .form-input:focus { background: white; border-color: #F59E0B; outline: none; }
+        .form-textarea { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: #F8FAFC; color: var(--text-dark); resize: none; height: 75px; line-height: 1.45; width: 100%; transition: all 0.2s; }
+        .form-textarea:focus { background: white; border-color: #F59E0B; outline: none; }
+        .form-select { padding: 11px 14px; border: 1px solid #CBD5E1; border-radius: 10px; font-size: 14px; background: white; color: var(--text-dark); width: 100%; outline: none; }
+        
+        .submit-btn { width: 100%; background: var(--gold-gradient); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: var(--shadow-gold); transition: all 0.2s; }
+        .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        .notice-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .notice-modal-card { width: 88%; max-width: 360px; background: white; border-radius: 24px; box-shadow: 0 30px 60px -5px rgba(0, 0, 0, 0.25); overflow: hidden; border: 1px solid rgba(255,255,255,0.7); animation: modalPopup 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes modalPopup { from { transform: scale(0.9) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        
+        .modal-notice-header { background: var(--primary-gradient); color: white; padding: 18px 20px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--accent-gold); }
+        .notice-stepper-zone { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; }
+        .step-arrow-btn { color: white; cursor: pointer; transition: color 0.2s; padding: 2px 4px; }
+        .step-arrow-btn:hover { color: var(--accent-gold); }
+        
+        .modal-notice-body { padding: 22px 20px; font-size: 14px; color: var(--text-dark); line-height: 1.6; max-height: 380px; overflow-y: auto; }
+        .modal-notice-footer { padding: 14px 20px; background: #F8FAFC; border-top: 1px solid var(--border-soft); display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-close-btn { background: #0F172A; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; transition: background 0.2s; }
+        .modal-close-btn:hover { background: var(--accent-gold); }
+        
+        .supervisor-modal-card { width: 92%; max-width: 380px; background: #FFFFFF; border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.3); overflow: hidden; border: 2px solid #3B82F6; animation: modalPopup 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .supervisor-header { background: linear-gradient(135deg, #1E3A8A, #2563EB); color: white; padding: 18px 20px; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .req-log-card { background: #F8FAFC; border: 1px solid var(--border-soft); padding: 12px; border-radius: 10px; margin-bottom: 8px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+
+        .toggle-switch-container { display: flex; align-items: center; justify-content: space-between; background: #F8FAFC; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border-soft); margin-top: 10px; }
+        .switch-label-text { font-size: 13.5px; font-weight: 700; color: var(--text-dark); }
+        .switch-input-obj { display: none; }
+        .switch-slider-btn { display: inline-block; width: 46px; height: 24px; background: #CBD5E1; border-radius: 20px; position: relative; cursor: pointer; transition: background 0.25s; }
+        .switch-slider-btn::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 4px; transition: all 0.25s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .switch-input-obj:checked + .switch-slider-btn { background: #D97706; }
+        .switch-input-obj:checked + .switch-slider-btn::after { left: 24px; }
+    
+        /* Mobile zoom prevention patch */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
+        input, textarea, select, button {
+            font-size: 16px !important;
+        }
+        .phone-container {
+            max-width: 430px;
+            width: 100%;
+            min-height: 100dvh;
+            height: 100dvh;
+        }
+        .main-content {
+            overscroll-behavior: contain;
+        }
+
+         body.general-user .fa-crown{
+              display:none !important;
+        } 
+        body.general-user #supervisor-hub-wrapper{
+              display:none !important;
+        }
+
+
+    </style>
+
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="header" id="dynamic-header">
+        <i class="fa-solid fa-arrow-left back-btn" id="global-back-btn" onclick="exitActiveChat()"></i>
+        <span id="header-text" class="demo-secret-title-trigger" onclick="triggerSecretDemoAlertFromTitle()">영무회 동문</span>
+        
+        <div class="header-buttons-group">
+            <div class="supervisor-trigger" id="master-crown-btn" onclick="openSupervisorConsole()">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <div class="global-notice-trigger" onclick="openGlobalNoticePopup()">
+                <i class="fa-solid fa-bullhorn"></i>
+                <div class="notice-dot" id="global-notice-dot"></div>
+            </div>
+
+            <div class="global-settings-trigger" onclick="openGlobalSettingsPopup()">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content" id="scroll-content-view">
+        <div id="panel-alumni" class="tab-panel active">
+            <div class="summary-card">
+                <p style="font-size: 12px; font-weight: 700; opacity: 0.85; text-transform:uppercase; letter-spacing:0.5px;">Registered Alumni</p>
+                <h1 style="font-size: 34px; font-weight: 900; margin-top: 2px;" id="total-count-badge">3명</h1>
+            </div>
+            <input type="text" class="search-box" placeholder="🔍 찾아보고 싶은 동문의 이름, 회사, 키워드 검색...">
+            <div class="list-title">전체 동문 명부 (기수순 · 가나다순)</div>
+            <div id="alumni-list-anchor"></div>
+        </div>
+
+        <div id="panel-chat" class="tab-panel" style="padding: 0;">
+            <div id="chat-list-view">
+                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 라운지', '공')">
+                    <div class="chat-avatar" style="background: #FEF3C7; color: #D97706; font-size:18px;"><i class="fa-solid fa-users"></i></div>
+                    <div class="chat-info">
+                        <div class="chat-top-row"><span class="chat-name">영무회 라운지</span><span class="chat-time">상시 가동</span></div>
+                        <p class="chat-preview">2026 연말 글로벌 무역 총회 공지방입니다.</p>
+                    </div>
+                    <span class="chat-badge" id="official-group-badge">2</span>
+                </div>
+                <div id="chat-list-anchor"></div>
+            </div>
+            
+            <div id="chat-room-view" class="chat-view-container">
+                <div class="chat-messages" id="chat-messages-box"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="live-chat-input" class="search-box" style="margin-bottom:0; flex:1;" placeholder="비즈니스 메시지 협의 전송..." onkeydown="handleChatKeyDown(event)">
+                    <button class="submit-btn" style="width:auto; padding:12px 22px;" onclick="executeSendMsg()">전송</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-ai" class="tab-panel">
+            <div class="sub-tab-container">
+                <div class="sub-tab active" id="sub-btn-feed" onclick="switchAiSubTab('feed')">AI 추천 피드</div>
+                <div class="sub-tab" id="sub-btn-request" onclick="switchAiSubTab('request')">나의 매칭 요청</div>
+            </div>
+            
+            <div id="ai-sub-feed" class="ai-sub-panel active">
+                <div class="ai-hub-control-card" style="padding:14px;">
+                    <div class="ai-hub-header" style="margin-bottom:12px; padding-bottom:10px;">
+                        <div class="ai-assistant-visual">
+                            <div class="ai-vis-circle ai-vis-비서"><i class="fa-solid fa-user-tie"></i></div>
+                        </div>
+                        <div class="ai-hub-title">영무회 전담 AI 비서실 오디오 브리핑</div>
+                    </div>
+                    
+                    <div class="ai-briefing-panel" id="ai-realtime-briefing-anchor">
+                        <div class="ai-video-space">
+                            <video id="video-avatar-비서" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/애비서1.mp4" preload="metadata" muted playsinline onclick="handleAssistantTap('비서', document.getElementById('text-target-비서').innerText, 'ko-KR', 'female', 'video-avatar-비서')"></video>
+                        </div>
+                        <div class="ai-text-space">
+                            <div class="ai-profile-tag-row">
+                                <span class="ai-name-tag">애비서</span>
+                                <span class="ai-lang-tag">ko-KR Female</span>
+                            </div>
+                            <p class="briefing-text" id="text-target-비서">[나의 매칭 요청]을 상단 탭에서 접수하시면, 최고 임원 관제 데이터를 크로스 데이터 세부 해독하여 분석서 요약 및 음성 브리핑을 실시간 이곳에 인덱싱하여 표출합니다.</p>
+                            <div class="click-speak-tip" onclick="handleAssistantTap('비서', document.getElementById('text-target-비서').innerText, 'ko-KR', 'female', 'video-avatar-비서')">
+                                <i class="fa-solid fa-circle-play"></i> 터치 시 비서실 브리핑 가동
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ai-feed-anchor"></div>
+            </div>
+            
+            <div id="ai-sub-request" class="ai-sub-panel">
+                <div class="form-section">
+                    <div class="form-section-title">🔮 AI 기반 맞춤형 파트너 정밀 탐색</div>
+                    <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">원하시는 타겟 바이어, 협업 니즈, 혹은 사업 인프라를 상세히 기록해 주세요. AI 비서가 주소록을 해독하여 가장 싱크로율이 높은 동문을 라운지에 매칭시킵니다.</p>
+                    <div class="form-group">
+                        <label class="form-label">나의 비즈니스 니즈 / 요청 조건 기재</label>
+                        <textarea id="ai-request-input" class="form-textarea" style="height:120px;" placeholder="예: 일본 반도체 부품 유통망을 뚫고 싶습니다. 관련 제조사 바이어나 일본 지사 경험이 풍부한 동문 선배님을 매칭 및 중개해 주세요." onkeydown="handleAiRequestKeyDown(event)"></textarea>
+                    </div>
+                    <button class="submit-btn" style="margin-top:14px; background:#0F172A;" onclick="analyzeAiRequest()">임원진 연계 인공지능 매칭 가동</button>
+                </div>
+                <div id="ai-analysis-result" style="display:none;" class="form-section"></div>
+            </div>
+        </div>
+
+        <div id="panel-profile" class="tab-panel">
+            <div class="profile-hero">
+                <div class="avatar-wrapper" onclick="triggerAvatarUpload()">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" class="profile-main-avatar" id="display-avatar-img">
+                    <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <input type="file" id="hidden-file-input" style="display:none;" accept="image/*" onchange="processAvatarChange(this)">
+                <div>
+                    <div class="profile-hero-name" id="hero-name-label">정보 미등록</div>
+                    <div class="profile-hero-meta" id="hero-meta-label">기수 미등록 · 미등록</div>
+                    <div class="profile-hero-meta" id="hero-phone-label" style="font-size:12px; color:#334155; font-weight:700;">전화번호 미등록</div>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">사진을 클릭해 프로필 이미지를 자유롭게 교체하세요.</p>
+                </div>
+            </div>
+
+            <div id="supervisor-hub-wrapper" class="form-section" style="border: 1px dashed #D97706; background: #FFFDF7; display: none;">
+                <div class="form-section-title" style="color: #B45309;"><i class="fa-solid fa-shield-halved"></i> 👑 임원진(슈퍼바이저) 권한 동적 위임 허브</div>
+                <p style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">선배님이 현재 최고 마스터 계정이시므로, 아래 명단에서 추가할 동문을 선택해 임원 권한을 마음대로 부여하거나 즉시 회수하실 수 있습니다.</p>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label class="form-label">권한 조율 대상 동문 선택</label>
+                    <select id="supervisor-target-select" class="form-select"></select>
+                </div>
+                <div class="form-row-grid" style="margin-bottom:0;">
+                    <button class="submit-btn" style="background:#2563EB; box-shadow:0 4px 10px rgba(37,99,235,0.2);" onclick="grantSupervisorRole()">임원 권한 부여</button>
+                    <button class="submit-btn" style="background:#EF4444; box-shadow:0 4px 10px rgba(239,68,68,0.2);" onclick="revokeSupervisorRole()">권한 즉시 회수</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <!--
+                <div class="form-group" style="margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border-soft);">
+                    <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> [시뮬레이터용] 현재 접속 회원 계정 변경</label>
+                    <select class="form-select" style="background:#EBF2FF; border-color:#93C5FD; font-weight:700;" onchange="switchDemoLoginAccount(this.value)">
+                        <option value="제갈훈">제갈훈 (13회 최고 임원 - 관리 권한 및 모든 탭 왕관 표출)</option>
+                        <option value="정희훈">정희훈 (20회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
+                        <option value="이준호">이준호 (12회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
+                    </select>
+                </div>
+                -->
+                <div class="form-section-title">기본 정보 수정</div>
+                <div class="form-row-grid">
+                    <div class="form-group"><label class="form-label">이름 *</label><input type="text" class="form-input" id="form-name" value=""></div>
+                    <div class="form-group"><label class="form-label">기수 *</label><input type="text" class="form-input" id="form-gisu" value=""></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">전화번호 *</label>
+                    <input type="text" class="form-input" id="form-phone" value="" placeholder="예: 010-0000-0000">
+                </div>
+                <div class="form-row-grid">
+                    <div class="form-group"><label class="form-label">회사명</label><input type="text" class="form-input" id="form-company" value=""></div>
+                    <div class="form-group"><label class="form-label">직책</label><input type="text" class="form-input" id="form-job" value=""></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;"><label class="fa-solid fa-tag"> 전문 분야</label><input type="text" class="form-input" id="form-field" value=""></div>
+                
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">주요 취급 품목 / 핵심 기술 자산</label>
+                    <input type="text" class="form-input" id="form-assets" value="">
+                </div>
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">🎯 목표 타겟 시장 / 거점 국가</label>
+                    <input type="text" class="form-input" id="form-target" value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">나의 상세 비즈니스 히스토리 및 자기소개</label>
+                    <textarea class="form-textarea" id="form-intro" style="height:90px;">.</textarea>
+                </div>
+            </div>
+            
+            <button class="submit-btn" onclick="saveProfileData()"><i class="fa-solid fa-floppy-disk"></i> 프로필 정보 변경 저장</button>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="global-notice-modal" onclick="closeGlobalNoticePopup(event)">
+        <div class="notice-modal-card" onclick="event.stopPropagation()">
+            <div class="modal-notice-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-bullhorn" style="color: var(--accent-gold);"></i>
+                    <span id="modal-notice-main-title">공지사항</span>
+                </div>
+                <div class="notice-stepper-zone" id="notice-stepper-ui">
+                    <i class="fa-solid fa-chevron-left step-arrow-btn" onclick="navigateNoticePage(-1)"></i>
+                    <span id="notice-page-indicator">1 / 1</span>
+                    <i class="fa-solid fa-chevron-right step-arrow-btn" onclick="navigateNoticePage(1)"></i>
+                </div>
+            </div>
+            <div class="modal-notice-body" id="modal-notice-main-body"></div>
+            <div class="modal-notice-footer">
+                <button class="modal-close-btn" onclick="closeGlobalNoticePopup(null)">내용 확인 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="global-settings-modal" onclick="closeGlobalSettingsPopup()">
+        <div class="notice-modal-card" onclick="event.stopPropagation()" style="max-width:360px;">
+            <div class="modal-notice-header" style="background:var(--primary-gradient);">
+                <div style="display:flex; align-items:center; gap:8px; color:white;">
+                    <i class="fa-solid fa-gear" style="color:var(--accent-gold);"></i>
+                    <span>
+                      영무회 시스템 환경 설정
+                      <span id="app-version"
+                        style="
+                          font-size:11px;
+                          color:rgba(255,255,255,0.7);
+                          margin-left:8px;
+                          font-weight:500;
+                         ">
+                       </span>
+                      </span>
+
+                </div>
+            </div>
+            <div class="modal-notice-body" style="background:#F8FAFC;">
+                <div class="form-section-title" style="margin-bottom:8px;">🔔 알림 통제 마스터 허브</div>
+                <p style="font-size:11.5px; color:var(--text-muted); line-height:1.45; margin-bottom:12px;">
+                    동문들로부터 신규 비즈니스 협의 채팅이 인덱싱될 때, 백그라운드 푸시 이후 진입 시 전담 비서 영상 팝업의 자동 표출 여부를 제어합니다.
+                </p>
+                
+                <div class="toggle-switch-container">
+                    <span class="switch-label-text" id="toggle-status-txt">실시간 영상 알림 활성화 (ON)</span>
+                    <div>
+                        <input type="checkbox" id="video-alert-toggle-checkbox" class="switch-input-obj" checked onchange="handleAlertToggleChange(this)">
+                        <label for="video-alert-toggle-checkbox" class="switch-slider-btn"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-notice-footer">
+                <button class="modal-close-btn" onclick="closeGlobalSettingsPopup()">설정 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="chat-video-alert-modal" onclick="closeVideoAlertPopup()">
+        <div class="notice-modal-card" onclick="event.stopPropagation()" style="max-width:380px; border:2px solid var(--accent-gold);">
+            <div class="modal-notice-header" style="background:var(--primary-gradient);">
+                <div style="display:flex; align-items:center; gap:8px; color:white;">
+                    <i class="fa-solid fa-bell-ring fa-bounce" style="color:var(--accent-gold);"></i>
+                    <span>비서실 긴급 메시지 알림</span>
+                </div>
+            </div>
+            <div class="ai-briefing-panel">
+                <div class="ai-video-space" style="height:210px;">
+                    <video id="alert-video-obj" class="large-briefing-video" src="https://storage.googleapis.com/youngmoo-hae-assets/%EC%95%A0%ED%9B%84%EB%B0%B0_%EC%95%8C%EB%A6%BC.mp4" preload="metadata" muted playsinline></video>
+                </div>
+                <div class="ai-text-space" style="background:#FFFDF9;">
+                    <div style="font-size:12px; font-weight:800; color:#B45309; background:#FEF3C7; padding:3px 8px; border-radius:4px; align-self:flex-start;" id="alert-sender-title">
+                        정희훈 선배님 (20회) 신규 메시지
+                    </div>
+                    <p class="briefing-text" id="alert-speech-text" style="font-weight:700; color:var(--text-dark);">
+                        비즈니스 협의 메시지가 수신되었습니다. 확인하시겠습니까?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-notice-footer" style="background:#F1F5F9; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-muted);" id="alert-time-stamp">2026.05.24 14:44</span>
+                <div style="display:flex; gap:8px;">
+                    <button class="modal-close-btn" style="background:#64748B;" onclick="closeVideoAlertPopup()">닫기</button>
+                    <button class="modal-close-btn" style="background:var(--gold-gradient); box-shadow:var(--shadow-gold);" onclick="jumpToAlertChatRoom()">방 진입</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notice-modal-overlay" id="supervisor-console-modal" onclick="closeSupervisorConsole(event)">
+        <div class="supervisor-modal-card" onclick="event.stopPropagation()">
+            <div class="supervisor-header">
+                <i class="fa-solid fa-crown" style="color: var(--accent-gold);"></i>
+                <span>영무회 최고 임원진 전용 제어 콘솔</span>
+            </div>
+            <div class="modal-notice-body" style="background:#F8FAFC; max-height:420px;">
+                <div class="form-section" style="margin-bottom:14px; border-color:var(--accent-gold); background:#FFFDF7;">
+                    <div class="form-section-title" style="color:#B45309;"><i class="fa-solid fa-play"></i> 🎥 관제실 제어: 가상 영상 알림 강제 발송</div>
+                    <p style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:8px;">아래 동문을 선택하고 버튼을 누르면, 애후배 알림 영상이 팝업으로 구동됩니다.</p>
+                    <div class="form-row-grid" style="margin-bottom:8px;">
+                        <select id="demo-alert-sender" class="form-select" style="background:white;">
+                            <option value="정희훈">정희훈 선배님 (20회)</option>
+                            <option value="이준호">이준호 대표님 (12회)</option>
+                        </select>
+                    </div>
+                    <button class="submit-btn" style="background:var(--primary-gradient);" onclick="triggerDemoVideoChatAlert()">⚡ 가상 영상 알림 팝업 즉시 가동</button>
+                </div>
+
+                <div class="form-section" style="margin-bottom:14px; border-color:#3B82F6;">
+                    <div class="form-section-title" style="color:#1E3A8A;"><i class="fa-solid fa-pen-to-square"></i> 글로벌 공지사항 즉시 변경/발행</div>
+                    <input type="text" id="sup-notice-title" class="form-input" style="width:100%; margin-bottom:8px; background:white;" placeholder="변경할 공지 한줄 요약 타이틀">
+                    <textarea id="sup-notice-text" class="form-textarea" style="width:100%; height:120px; background:white; resize:none;" placeholder="전체 동문이 확성기를 누르면 즉시 팝업으로 보게 될 본문 내용을 작성해 주십시오..."></textarea>
+                    <button class="submit-btn" style="background:#1E3A8A; margin-top:8px; box-shadow: 0 4px 10px rgba(30,58,138,0.2);" onclick="deploySupervisorNotice()">⚡ 신규 공지사항 전격 실시간 발행</button>
+                </div>
+                
+                <div class="form-section" style="border-color:#3B82F6; margin-bottom:0;">
+                    <div class="form-section-title" style="color:#1E3A8A;"><i class="fa-solid fa-list-check"></i> 동문 매칭 의뢰 실시간 인덱싱 현황</div>
+                    <div id="sup-request-list-box" style="max-height:140px; overflow-y:auto; color:var(--text-dark);">
+                        <p style="font-size:11px; color:var(--text-muted); text-align:center; padding:10px;">현재 접수된 신규 동문 의뢰 자산이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-notice-footer">
+                <button class="modal-close-btn" style="background:#64748B;" onclick="closeSupervisorConsole(null)">콘솔 닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar" id="global-nav-bar">
+        <div class="nav-item active" id="nav-alumni" onclick="navigateTab('alumni', '영무회 동문', this)"><i class="fa-solid fa-address-book"></i>동문</div>
+        <div class="nav-item" id="nav-chat" onclick="navigateTab('chat', '채팅', this)"><i class="fa-solid fa-comments"></i>채팅<span class="nav-badge" id="bottom-nav-chat-badge">1</span></div>
+        <div class="nav-item" id="nav-ai" onclick="navigateTab('ai', 'AI 라운지', this)"><i class="fa-solid fa-brain"></i>AI 라운지</div>
+        <div class="nav-item" id="nav-profile" onclick="navigateTab('profile', '내 정보', this)"><i class="fa-solid fa-user"></i>내 정보</div>
+    </div>
+</div>
+
+<script>
+   let alumniDb = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+
+   localStorage.removeItem("ymh_alumni_db");
+
+    let aiFeeds = [
+        { title: "비즈니스 지능 매칭 스캐너 가동 가능", time: "상시", body: "[나의 매칭 요청] 메뉴에 원하시는 키워드나 협업 제안을 적고 분석을 실행해 주십시오. 선배님의 상세 프로필 및 채팅 기록을 해독하여 동역자를 실시간 발굴합니다.", pct: "100%" }
+    ];
+
+    let supervisorIncomingRequests = [
+        { sender: "이준호 (12회)", text: "수계아연 인프라 벤처 펀딩 자금 조달 및 투자 심사 연계 매칭 의뢰" }
+    ];
+
+    let supervisorWhiteList = ["제갈훈"];
+    let currentMemberId =
+      localStorage.getItem("currentMemberId") ||
+      "";
+
+    let currentLoggedInUser = "";
+    let chatHistoryLog = []; 
+    let activeChatRooms = [];
+    let activeChatPartner = "";
+    let messageSaltId = 0;
+    let unsubscribeChatRooms = null;
+
+    let currentUtterance = null;
+    let isSpeechPaused = false;
+    let remainingSpeechText = "";
+    let currentSpeakingAssistant = "";
+
+    let isVideoAlertEnabled = true;
+
+    let globalNoticeArray = [
+        {
+            title: "📣 2026 연말 글로벌 무역 정기 총회 안내",
+            badge: "영무회 의장단 긴급 비즈니스 공지",
+            body: `• <strong>일시:</strong> 2026년 12월 11일(금) 18:00<br>• <strong>장소:</strong> 그랜드 인터컨티넨탈 서울 파르나스 오키드룸<br>• <strong>의제:</strong> 글로벌 공급망 다변화 및 동문 교역액 증대안<br><br>이번 총회에는 <strong>현대자동차, 한국전력(KEPCO), 서울도시공사(SH공사)</strong> 등 주요 인프라 파크의 구매 전략 핵심 관계자들이 내빈으로 참석할 예정입니다.<br><br>반도체 공급전략 수립 및 <strong style="color: #B45309;">수계아연 배터리 친환경 2차전지 스펙 적용</strong> 등 중대한 매칭 결속이 논의되오니, 임원진 및 소속 회원 동문 선후배님들께서는 전원 참석을 목표로 일정을 조율해 주시기 바랍니다.`
+        }
+    ];
+    let currentNoticePageIndex = 0; 
+
+    let demoTargetSenderCache = "정희훈"; 
+
+    const GCS_BASE_URL = "https://storage.googleapis.com/youngmoo-hae-assets";
+
+    function openGlobalSettingsPopup() {
+        document.getElementById('global-settings-modal').style.display = 'flex';
+    }
+    function closeGlobalSettingsPopup() {
+        document.getElementById('global-settings-modal').style.display = 'none';
+    }
+
+    function handleAlertToggleChange(checkboxObj) {
+        isVideoAlertEnabled = checkboxObj.checked;
+        const statusTxt = document.getElementById('toggle-status-txt');
+        if (isVideoAlertEnabled) {
+            statusTxt.innerText = "실시간 영상 알림 활성화 (ON)";
+        } else {
+            statusTxt.innerText = "실시간 영상 알림 비활성화 (OFF)";
+        }
+    }
+
+    function processIncomingMessageNotification(senderName) {
+        demoTargetSenderCache = senderName;
+        const targetAlumnus = alumniDb.find(p => p.name === senderName);
+        const gisuLabel = targetAlumnus ? targetAlumnus.gisu : "동문";
+        
+        chatHistoryLog.push({ room: senderName, sender: senderName, msg: "선배님, 제 제어 콘솔 프로필 보시고 수계아연 2차전지 스펙 매칭 건으로 긴급 연락 올렸습니다. 시간 나실 때 채팅 부탁드립니다." });
+        if(!activeChatRooms.includes(senderName)) { activeChatRooms.push(senderName); }
+
+        if (isVideoAlertEnabled) {
+            document.getElementById('alert-sender-title').innerText = `${senderName} 선배님 (${gisuLabel}) 신규 메시지`;
+            
+            const now = new Date();
+            document.getElementById('alert-time-stamp').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            document.getElementById('chat-video-alert-modal').style.display = "flex";
+            
+            const speechText = "비즈니스 협의 메시지가 수신되었습니다. 확인하시겠습니까?";
+            const videoElement = document.getElementById('alert-video-obj');
+            executeTtsSpeechEngine(speechText, 'ko-KR', 'female', videoElement);
+        } else {
+            const bottomBadge = document.getElementById('bottom-nav-chat-badge');
+            if(bottomBadge) bottomBadge.style.display = "block";
+            alert(`💬 [백그라운드 알림] ${senderName} 선배님으로부터 신규 메시지가 수신되었습니다. (환경설정에서 영상 팝업 알림이 꺼져 있어 하단 채팅방 배지로 인덱싱 처리되었습니다.)`);
+        }
+    }
+
+    function triggerSecretDemoAlertFromTitle() {
+        let randomSender = (currentLoggedInUser === "정희훈") ? "이준호" : "정희훈";
+        processIncomingMessageNotification(randomSender);
+    }
+
+    function navigateTab(panelId, title, elem) {
+        activeChatPartner = "";
+        document.getElementById('chat-list-view').style.display = 'block';
+        document.getElementById('chat-room-view').style.display = 'none';
+        document.getElementById('global-back-btn').style.display = 'none';
+        document.getElementById('global-nav-bar').style.pointerEvents = "";
+        document.getElementById('global-nav-bar').style.opacity = "";
+
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        
+        document.getElementById(`panel-${panelId}`).classList.add('active');
+
+        if (panelId === 'chat') {
+           loadMyChatRoomsFromFirebase();
+        }
+        
+        if(elem) {
+            elem.classList.add('active');
+        } else {
+            const targetNav = document.getElementById(`nav-${panelId}`);
+            if(targetNav) targetNav.classList.add('active');
+        }
+        
+        const headerTextObj = document.getElementById('header-text');
+        if(panelId === 'alumni') {
+            headerTextObj.innerText = "영무회 동문"; 
+        } else {
+            headerTextObj.innerText = title;
+        }
+        
+       if(panelId === 'chat') {
+            const bottomBadge = document.getElementById('bottom-nav-chat-badge');
+            if(bottomBadge) bottomBadge.style.display = "none";
+
+            setTimeout(() => {
+                loadMyChatRoomsFromFirebase();
+            }, 300);
+        }
+
+        syncHeaderCrownVisibility();
+        if(panelId === 'profile') {
+            syncProfileMenuVisibility();
+        }
+        
+        if(panelId === 'chat') { renderChatList(); }
+    }
+
+    function syncHeaderCrownVisibility() {
+        const crownBtn = document.getElementById('master-crown-btn');
+        if(!crownBtn) return;
+        if (supervisorWhiteList.includes(currentLoggedInUser)) { 
+            crownBtn.className = "supervisor-trigger active-crown"; 
+        } else { 
+            crownBtn.className = "supervisor-trigger"; 
+        }
+    }
+
+    function syncProfileMenuVisibility() {
+        const targetHub = document.getElementById('supervisor-hub-wrapper');
+        if(!targetHub) return;
+        
+        if (supervisorWhiteList.includes(currentLoggedInUser)) {
+            targetHub.style.display = "block";
+        } else {
+            targetHub.style.display = "none";
+        }
+    }
+
+    function switchDemoLoginAccount(selectedName) {
+       const selectedAlumnus = alumniDb.find(p => p.name === selectedName);
+
+       if (selectedAlumnus) {
+         currentMemberId = selectedAlumnus.memberId || makeMemberId({
+            name: selectedAlumnus.name,
+            gisu: selectedAlumnus.gisu,
+            phone: selectedAlumnus.phone || extractPhoneFromText(selectedAlumnus.comp)
+          });
+
+          localStorage.setItem("currentMemberId", currentMemberId);
+          currentLoggedInUser = selectedAlumnus.name;
+         }
+        
+        syncHeaderCrownVisibility();
+        syncProfileMenuVisibility();
+        renderCoreLayout(); 
+        
+        const matchedAlumnus = alumniDb.find(p => p.name === selectedName);
+        if(matchedAlumnus) {
+            document.getElementById('form-name').value = matchedAlumnus.name;
+            document.getElementById('form-gisu').value = parseInt(matchedAlumnus.gisu);
+            document.getElementById('form-field').value = matchedAlumnus.field;
+            
+            let compClean = matchedAlumnus.comp.split('(')[0].replace('·', '').trim();
+            document.getElementById('form-company').value = compClean;
+            document.getElementById('hero-name-label').innerText = matchedAlumnus.name;
+            document.getElementById('hero-meta-label').innerText = `${matchedAlumnus.gisu} · ${matchedAlumnus.field}`;
+            const phoneMatch = matchedAlumnus.comp.match(/\(([^)]+)\)/);
+            const phoneValue = phoneMatch ? phoneMatch[1] : "";
+            const phoneInput = document.getElementById('form-phone');
+            const phoneLabel = document.getElementById('hero-phone-label');
+            if(phoneInput) phoneInput.value = phoneValue;
+            if(phoneLabel) phoneLabel.innerText = phoneValue || "전화번호 미등록";
+            document.getElementById('display-avatar-img').src = matchedAlumnus.img;
+        }
+    }
+
+    function populateSupervisorSelectOptions() {
+        const select = document.getElementById('supervisor-target-select');
+        if(!select) return;
+        select.innerHTML = '';
+        alumniDb.filter(p => p.name !== "제갈훈").sort((a, b) => {
+            let numA = parseInt(a.gisu);
+            let numB = parseInt(b.gisu);
+            if (numA !== numB) return numA - numB;
+            return a.name.localeCompare(b.name, 'ko');
+        }).forEach(p => {
+            const isAlreadySup = supervisorWhiteList.includes(p.name) ? " (현재 임원 권한 보유중)" : "";
+            select.innerHTML += `<option value="${p.name}">${p.name} (${p.gisu}) - ${p.comp.split('·')[0].trim()}${isAlreadySup}</option>`;
+        });
+    }
+
+    function grantSupervisorRole() {
+        const targetName = document.getElementById('supervisor-target-select').value;
+        if(!targetName) return;
+        if (supervisorWhiteList.includes(targetName)) { alert(`⚠️ ${targetName} 동문은 이미 임원진 권한을 가지고 있습니다.`); return; }
+        supervisorWhiteList.push(targetName);
+        populateSupervisorSelectOptions();
+        syncHeaderCrownVisibility();
+        syncProfileMenuVisibility();
+        renderCoreLayout(); 
+        alert(`👑 [권한 위임 완료] ${targetName} 동문에게 최고 임원진(슈퍼바이저) 제어 권한이 완벽하게 인계되었습니다!`);
+    }
+
+    function revokeSupervisorRole() {
+        const targetName = document.getElementById('supervisor-target-select').value;
+        if(!targetName) return;
+        if (!supervisorWhiteList.includes(targetName)) { alert(`⚠️ ${targetName} 동문은 원래 관리자 권한이 없습니다.`); return; }
+        supervisorWhiteList = supervisorWhiteList.filter(name => name !== targetName);
+        populateSupervisorSelectOptions();
+        syncHeaderCrownVisibility();
+        syncProfileMenuVisibility();
+        renderCoreLayout(); 
+        alert(`🚫 [권한 회수 완료] ${targetName} 동문의 관리자 제어 권한이 안전하게 파기되었습니다.`);
+    }
+
+    function openGlobalNoticePopup() {
+        if(globalNoticeArray.length === 0) { alert("현재 인프라 망에 등록된 공지사항이 없습니다."); return; }
+        currentNoticePageIndex = 0; 
+        renderNoticePageContent();
+        document.getElementById('global-notice-modal').style.display = 'flex';
+        const dot = document.getElementById('global-notice-dot');
+        if(dot) dot.style.display = 'none';
+    }
+
+    function renderNoticePageContent() {
+        const currentData = globalNoticeArray[currentNoticePageIndex];
+        document.getElementById('modal-notice-main-title').innerText = currentData.badge;
+        document.getElementById('notice-page-indicator').innerText = `${currentNoticePageIndex + 1} / ${globalNoticeArray.length}`;
+        document.getElementById('modal-notice-main-body').innerHTML = `
+            <p style="font-weight: 700; font-size: 15px; color: #1E3A8A; margin-bottom: 10px;">${currentData.title}</p>
+            <p style="font-size: 13.5px; color: var(--text-dark); line-height: 1.65; white-space: pre-wrap; text-align:justify;">${currentData.body}</p>
+        `;
+    }
+
+    function navigateNoticePage(direction) {
+        let targetIndex = currentNoticePageIndex + direction;
+        if (targetIndex < 0 || targetIndex >= globalNoticeArray.length) return; 
+        currentNoticePageIndex = targetIndex;
+        renderNoticePageContent();
+    }
+
+    function closeGlobalNoticePopup(event) { document.getElementById('global-notice-modal').style.display = 'none'; }
+
+    function openSupervisorConsole() {
+        document.getElementById('supervisor-console-modal').style.display = 'flex';
+        renderSupervisorRequests();
+    }
+    function closeSupervisorConsole(event) { document.getElementById('supervisor-console-modal').style.display = 'none'; }
+
+    function renderSupervisorRequests() {
+        const box = document.getElementById('sup-request-list-box');
+        if(!box) return;
+        box.innerHTML = '';
+        if(supervisorIncomingRequests.length === 0) {
+            box.innerHTML = `<p style="font-size:11px; color:var(--text-muted); text-align:center; padding:10px;">현재 접수된 신규 동문 의뢰 자산이 없습니다.</p>`;
+            return;
+        }
+        supervisorIncomingRequests.forEach(r => {
+            box.innerHTML += `
+                <div class="req-log-card">
+                    <strong>👤 의뢰인: ${r.sender}</strong>
+                    <p style="margin-top:3px; color:#334155;">${r.text}</p>
+                </div>`;
+        });
+    }
+
+    function deploySupervisorNotice() {
+        const titleInput = document.getElementById('sup-notice-title').value.trim();
+        const textInput = document.getElementById('sup-notice-text').value.trim();
+        
+        if(!titleInput || !textInput) { alert("공지 제목과 내용을 모두 정확히 기술해 주십시오."); return; }
+        
+        globalNoticeArray.unshift({
+            badge: "🔥 최고 임원진 실시간 특급 공지",
+            title: `📣 ${titleInput}`,
+            body: textInput
+        });
+        
+        const redDot = document.getElementById('global-notice-dot');
+        if(redDot) redDot.style.display = 'block';
+        
+        document.getElementById('sup-notice-title').value = '';
+        document.getElementById('sup-notice-text').value = '';
+        
+        closeSupervisorConsole(null);
+        alert(`⚡ 최고 임원진 권한 인증 완료! 신규 공지가 배열망에 누적 보존되었으며, 전체 공지 개수는 총 ${globalNoticeArray.length}개로 확장되었습니다.`);
+    }
+
+    function triggerDemoVideoChatAlert() {
+        const senderSelect = document.getElementById('demo-alert-sender').value;
+        closeSupervisorConsole(null);
+        processIncomingMessageNotification(senderSelect);
+    }
+
+    function closeVideoAlertPopup() {
+        if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        const videoElement = document.getElementById('alert-video-obj');
+        if(videoElement) { videoElement.pause(); videoElement.currentTime = 0; }
+        document.getElementById('chat-video-alert-modal').style.display = "none";
+    }
+
+    function jumpToAlertChatRoom() {
+        closeVideoAlertPopup();
+        jumpToDirectChat(demoTargetSenderCache, demoTargetSenderCache[0]);
+    }
+
+    function renderCoreLayout() {
+        alumniDb.sort((a, b) => {
+            let numA = parseInt(a.gisu);
+            let numB = parseInt(b.gisu);
+            if (numA !== numB) {
+                return numA - numB;
+            }
+            return a.name.localeCompare(b.name, 'ko');
+        });
+
+        const alumniContainer = document.getElementById('alumni-list-anchor');
+        if(alumniContainer) {
+            alumniContainer.innerHTML = '';
+            document.getElementById('total-count-badge').innerText = `${alumniDb.length}명`;
+            alumniDb.forEach(p => {
+                let crownHtml = supervisorWhiteList.includes(p.name) ? `<i class="fa-solid fa-crown crown-icon-inline" title="영무회 임원진"></i>` : '';
+                
+                alumniContainer.innerHTML += `
+                    <div class="alumni-item" onclick="jumpToDirectChat('${p.name}', '${p.name[0]}')">
+                        <img src="${p.img}" class="avatar-img">
+                        <div class="alumni-details">
+                            <div class="name-row"><strong>${p.name}</strong> ${crownHtml} <span class="tag-gisu">${p.gisu}</span><span class="tag-status">매칭 가능</span></div>
+                            <div class="biz-text">${p.comp}</div>
+                            <div class="field-text">${p.field}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+        renderAiFeedLayout();
+    }
+
+    function renderAiFeedLayout() {
+        const aiContainer = document.getElementById('ai-feed-anchor');
+        if(!aiContainer) return;
+        aiContainer.innerHTML = '';
+        aiFeeds.forEach(f => {
+            let matchHtml = f.pct ? `<div class="match-bar-container"><span style="font-size:13px; font-weight:700;">시너지 분석 결과</span><span class="match-percent">${f.pct} 적합</span></div>` : '';
+            aiContainer.innerHTML += `
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <div class="feed-icon-box"><i class="fa-solid fa-brain"></i></div>
+                        <div class="feed-title">${f.title}</div>
+                        <span class="feed-time">${f.time}</span>
+                    </div>
+                    <p class="feed-body">${f.body}</p>
+                    ${matchHtml}
+                </div>`;
+        });
+    }
+
+    function jumpToDirectChat(partnerName, letter) {
+        if(partnerName !== "제갈훈") {
+            if (!activeChatRooms.includes(partnerName)) { activeChatRooms.push(partnerName); }
+        }
+        navigateTab('chat', '채팅', document.getElementById('nav-chat'));
+        openChatRoom(partnerName, letter);
+    }
+    
+  async function loadMyChatRoomsFromFirebase() {
+  try {
+
+  const name = typeof currentLoggedInUser !== "undefined"
+    ? currentLoggedInUser
+    : "";
+
+   if (!name) return;
+
+  const matched = Array.isArray(alumniDb)
+    ? alumniDb.find(p => p.name === name)
+    : null;
+
+  const me = matched ? {
+    memberId: matched.memberId || ymhAlertMakeMemberId(
+      matched.name,
+      matched.gisu,
+      matched.phone || ymhAlertExtractPhone(matched.comp)
+    ),
+    name: matched.name
+  } : null;
+
+    if (!me || !me.memberId) {
+      alert("memberId 없음");
+      return;
+    }
+
+  if (unsubscribeChatRooms) {
+     unsubscribeChatRooms();
+     unsubscribeChatRooms = null;
+    }
+
+  unsubscribeChatRooms = window.onSnapshot(
+    window.collection(window.db, "chat_rooms"),
+    (snap) => {
+
+    activeChatRooms = [];
+
+    snap.forEach((d) => {
+      const room = d.data();
+
+      if ((room.memberIds || []).includes(me.memberId)) {
+        if (!activeChatRooms.includes(room.roomName)) {
+          activeChatRooms.push(room.roomName);
+        }
+      }
+    });
+
+    renderChatList();
+  },
+  (error) => {
+    alert("채팅방 실시간 불러오기 오류: " + error.message);
+    console.error(error);
+  }
+);
+
+  } catch (e) {
+    alert("채팅방 불러오기 오류: " + e.message);
+    console.error(e);
+  }
+ }
+
+    function renderChatList() {
+        const chatContainer = document.getElementById('chat-list-anchor');
+        chatContainer.innerHTML = '';
+        activeChatRooms.forEach(name => {
+
+           if(name === "영무회 라운지"){
+             return;
+           }
+            chatContainer.innerHTML += `
+                <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
+                    <div class="chat-avatar">${name[0]}</div>
+                    <div class="chat-info">
+                        <div class="chat-top-row"><span class="chat-name">${name}</span><span class="chat-time">실시간 연결됨</span></div>
+                        <p class="chat-preview">${name} 동문님과 안전한 비즈니스 협의방이 개설되었습니다.</p>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function openChatRoom(partnerName, letter) {
+        const partner = alumniDb.find(p => p.name === partnerName);
+
+        if (partner) {
+        const partnerId = partner.memberId || makeMemberId({
+          name: partner.name,
+          gisu: partner.gisu,
+          phone: partner.phone || extractPhoneFromText(partner.comp)
+        });
+
+        if (partnerId === currentMemberId) {
+          alert("자기 자신과의 채팅방은 만들 수 없습니다.");
+          return;
+        }
+       }
+
+        activeChatPartner = partnerName;
+        document.getElementById('chat-list-view').style.display = 'none';
+        document.getElementById('chat-room-view').style.display = 'flex';
+        document.getElementById('global-back-btn').style.display = 'block';
+        document.getElementById('header-text').innerText = partnerName;
+        
+        document.getElementById('global-nav-bar').style.pointerEvents = "";
+        document.getElementById('global-nav-bar').style.opacity = "";
+
+        const msgBox = document.getElementById('chat-messages-box');
+        msgBox.innerHTML = '';
+        
+        if(partnerName === '영무회 라운지' || partnerName === '영무회 공식 채팅방') {
+            document.getElementById('header-text').innerText = '영무회 라운지';
+            msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other"><strong>[전체 공지]</strong> 2026 영무회 연말 글로벌 무역 총회 일정이 다음 주 확정 고지됩니다. 니즈가 있으신 동문들은 상시 기재 바랍니다.</div></div></div>`;
+            document.getElementById('official-group-badge').style.display = 'none';
+        } else {
+            msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other">안녕하세요 ${partnerName}동문님! ${myName} 입니다. 비즈니스 협업 프로필을 보고 메시지 드립니다.</div></div></div>`;
+        }
+
+        chatHistoryLog.forEach(log => {
+          if (log.room === partnerName) {
+
+            const isMine = log.senderId
+              ? log.senderId === currentMemberId
+              : log.sender === currentLoggedInUser;
+
+              if (isMine) {
+               msgBox.innerHTML += `
+                 <div class="msg-wrapper me">
+                   <div class="msg-container-row">
+                    <span class="unread-counter-num">1</span>
+                    <div class="msg-bubble me">${log.msg}</div>
+                  </div>
+                </div>`;
+           } else {
+             msgBox.innerHTML += `
+               <div class="msg-wrapper other">
+                <div class="msg-container-row">
+                 <div class="msg-bubble other">${log.msg}</div>
+               </div>
+             </div>`;
+          }
+        }
+      });
+
+        msgBox.scrollTop = msgBox.scrollHeight;
+        setTimeout(() => { document.getElementById('live-chat-input').focus(); }, 100);
+    }
+
+    function exitActiveChat() {
+        activeChatPartner = "";
+        document.getElementById('chat-list-view').style.display = 'block';
+        document.getElementById('chat-room-view').style.display = 'none';
+        document.getElementById('global-back-btn').style.display = 'none';
+        document.getElementById('header-text').innerText = "채팅";
+        renderChatList();
+    }
+
+    function handleChatKeyDown(event) {
+        if (event.key === 'Enter' || event.keyCode === 13) {
+            executeSendMsg();
+            event.preventDefault();
+        }
+    }
+
+    function executeSendMsg() {
+        const input = document.getElementById('live-chat-input');
+        const msgBox = document.getElementById('chat-messages-box');
+        if(!input.value.trim()) return;
+        
+        const typedText = input.value.trim();
+        messageSaltId++;
+        const currentId = `unread-id-${messageSaltId}`;
+        
+        chatHistoryLog.push({ room: activeChatPartner, sender: "제갈훈", msg: typedText });
+        
+        msgBox.innerHTML += `
+            <div class="msg-wrapper me">
+                <div class="msg-container-row">
+                    <span class="unread-counter-num" id="${currentId}">1</span>
+                    <div class="msg-bubble me">${typedText}</div>
+                </div>
+            </div>`;
+            
+        input.value = '';
+        msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    function switchAiSubTab(subMode) {
+        document.querySelectorAll('.sub-tab').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.ai-sub-panel').forEach(pn => pn.classList.remove('active'));
+        
+        if(subMode === 'feed') {
+            document.getElementById('sub-btn-feed').classList.add('active');
+            document.getElementById('ai-sub-feed').classList.add('active');
+        } else {
+            document.getElementById('sub-btn-request').classList.add('active');
+            document.getElementById('ai-sub-request').classList.add('active');
+            setTimeout(() => { document.getElementById('ai-request-input').focus(); }, 100);
+        }
+    }
+
+    function handleAiRequestKeyDown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            analyzeAiRequest();
+            event.preventDefault();
+        }
+    }
+
+    function analyzeAiRequest() {
+        const text = document.getElementById('ai-request-input').value.trim();
+        const resBox = document.getElementById('ai-analysis-result');
+        if(!text) { alert("요청 조건을 기재해 주십시오."); return; }
+        
+        supervisorIncomingRequests.unshift({ sender: "제갈훈 (13회)", text: text });
+        
+        resBox.style.display = "block";
+        resBox.innerHTML = `
+            <div style="color:#D97706; font-weight:700; font-size:13px; margin-bottom:8px;"><i class="fa-solid fa-compact-disc fa-spin"></i> 임원 관제 센터 데이터 동기화 중...</div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">제출하신 무역 의뢰서가 <strong>최고 임원진 제어 콘솔에 즉시 접수</strong>되었습니다. 의장단 승인 및 크로스 분석 스캔을 진행합니다.</p>
+        `;
+        
+        setTimeout(() => {
+            let matchPartner = alumniDb.find(p => p.name === "제갈훈") || alumniDb[0];
+            let subPartner = alumniDb.find(p => p.name === "이준호") || alumniDb[1];
+            
+            aiFeeds.unshift(
+                {
+                    title: `🎯 [임원 조율 매칭] ${matchPartner.name} 동문과의 공급망 시너지`,
+                    time: "방금 전",
+                    body: `선배님이 작성하신 임원진 의뢰 요청서 자산을 토대로 스캔했습니다. 제조 전문 기업인 <strong>[${matchPartner.comp.split('·')[0].trim()}]</strong>의 ${matchPartner.name} 본부장과의 협력 싱크로율이 완벽합니다.`,
+                    pct: "98%"
+                },
+                {
+                    title: `🇯🇵 [거점 승인 연계] ${subPartner.name} 대표 추천 피드`,
+                    time: "방금 전",
+                    body: `임원 관제 센터에 등록된 인프라 무역 확장 니즈를 기반으로 조율되었습니다. 제조 인프라망 프로필이 매칭되었습니다.`,
+                    pct: "93%"
+                }
+            );
+            
+            renderAiFeedLayout();
+
+            const briefingAnchor = document.getElementById('ai-realtime-briefing-anchor');
+            if(briefingAnchor) {
+                const text비서 = "제갈훈 본부장님, 제출하신 무역 의뢰서를 기반으로 크로스 데이터 정밀 분석을 완료했습니다. 핵심기술 자산인 수계아연 배터리 스펙 적용을 위한 목표 시장 인프라 공급망 진입에 최적화된 12회 이준호 대표를 중개 피드에 인덱싱했습니다. 임원 관제 콘솔 승인 대기 중입니다.";
+
+                briefingAnchor.innerHTML = `
+                    <div class="ai-video-space">
+                        <video id="video-avatar-비서" class="large-briefing-video" src="${GCS_BASE_URL}/애비서1.mp4" preload="metadata" muted playsinline onclick="handleAssistantTap('비서', '${text비서.replace(/'/g, "\\'")}', 'ko-KR', 'female', 'video-avatar-비서')"></video>
+                    </div>
+                    <div class="ai-text-space">
+                        <div class="ai-profile-tag-row">
+                            <span class="ai-name-tag">애비서</span>
+                            <span class="ai-lang-tag">ko-KR Female</span>
+                        </div>
+                        <p class="briefing-text" id="text-target-비서">${text비서}</p>
+                        <div class="click-speak-tip" onclick="handleAssistantTap('비서', '${text비서.replace(/'/g, "\\'")}', 'ko-KR', 'female', 'video-avatar-비서')">
+                            <i class="fa-solid fa-circle-play"></i> 터치 시 비서실 브리핑 가동
+                        </div>
+                    </div>
+                `;
+            }
+
+            switchAiSubTab('feed');
+            alert("🔮 임원진 관제 접수 및 분석 마감 완료! 제갈훈 본부장님의 의뢰 자산을 기반으로 의장단이 조율하고 애비서가 입체 브리핑한 최적의 추천 피드 2건이 배포되었습니다.");
+            document.getElementById('ai-request-input').value = '';
+            resBox.style.display = "none";
+        }, 1500);
+    }
+
+   function handleAssistantTap(assistantType, fullText, langCode, genderType, videoId) {
+    const videoElement = document.getElementById(videoId);
+    
+    if (window.speechSynthesis.speaking && currentSpeakingAssistant !== assistantType) {
+        window.speechSynthesis.cancel();
+        document.querySelectorAll('.large-briefing-video').forEach(v => { v.loop = false; v.pause(); v.currentTime = 0; });
+        isSpeechPaused = false;
+    }
+
+    currentSpeakingAssistant = assistantType;
+
+    if (window.speechSynthesis.speaking && !isSpeechPaused) {
+        window.speechSynthesis.pause(); 
+        isSpeechPaused = true;
+        if (videoElement) { videoElement.pause(); videoElement.loop = false; }
+        return;
+    }
+
+    if (isSpeechPaused) {
+        window.speechSynthesis.resume();
+        isSpeechPaused = false;
+        if (videoElement) { videoElement.loop = true; videoElement.play(); }
+        return;
+    }
+
+    executeTtsSpeechEngine(fullText, langCode, genderType, videoElement);
+}
+
+function executeTtsSpeechEngine(text, langCode, genderType, videoElement) {
+    if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); }
+    
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.lang = langCode;
+    currentUtterance.rate = 1.05;
+
+const voices = window.speechSynthesis.getVoices();
+
+if (voices.length > 0) {
+
+    if (genderType === 'male') {
+
+        const maleVoice =
+            voices.find(v =>
+                v.lang === 'ko-KR' &&
+                (
+                    v.name.includes('Male') ||
+                    v.name.includes('Google')
+                )
+            );
+
+        if (maleVoice) {
+            currentUtterance.voice = maleVoice;
+        }
+
+    } else {
+
+        const femaleVoice =
+
+            voices.find(v =>
+                v.name.includes('유나')
+            )
+
+            ||
+
+            voices.find(v =>
+                v.name.includes('Yuna')
+            )
+
+            ||
+
+            voices.find(v =>
+                v.name.includes('Premium') &&
+                v.lang === 'ko-KR'
+            )
+
+            ||
+
+            voices.find(v =>
+                v.lang === 'ko-KR' &&
+                !v.name.includes('Male')
+            );
+
+        if (femaleVoice) {
+            currentUtterance.voice = femaleVoice;
+        }
+
+    }
+
+}
+
+    currentUtterance.onstart = function() {
+        if (videoElement) {
+            videoElement.loop = true;
+            videoElement.play().catch(e => {});
+        }
+    };
+
+    currentUtterance.onend = function() {
+        setTimeout(() => {
+            if (videoElement) {
+                videoElement.loop = false;
+                videoElement.pause();
+                videoElement.currentTime = 0; 
+            }
+        }, 50);
+        isSpeechPaused = false;
+        currentSpeakingAssistant = "";
+    };
+
+    currentUtterance.onerror = function() {
+        if (videoElement) { videoElement.loop = false; videoElement.currentTime = 0; videoElement.pause(); }
+        isSpeechPaused = false;
+        currentSpeakingAssistant = "";
+    };
+
+    window.speechSynthesis.speak(currentUtterance);
+}
+
+    function triggerAvatarUpload() { document.getElementById('hidden-file-input').click(); }
+    function processAvatarChange(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) { document.getElementById('display-avatar-img').src = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveProfileData() {
+        const newName = document.getElementById('form-name').value.trim();
+        const newGisu = document.getElementById('form-gisu').value.trim();
+        const newComp = document.getElementById('form-company').value.trim();
+        const newJob = document.getElementById('form-job').value.trim();
+        const newField = document.getElementById('form-field').value.trim();
+        const currentImgSrc = document.getElementById('display-avatar-img').src;
+
+        if(!newName || !newGisu) { alert("이름 and 기수 필수"); return; }
+
+        const targetIdx = alumniDb.findIndex(p => p.name === currentLoggedInUser || p.name === "제갈훈");
+        if(targetIdx !== -1) {
+            alumniDb[targetIdx].name = newName;
+            alumniDb[targetIdx].gisu = `${newGisu}회`;
+            alumniDb[targetIdx].comp = `${newComp} · ${newJob}`;
+            alumniDb[targetIdx].field = newField;
+            alumniDb[targetIdx].img = currentImgSrc;
+        }
+
+        document.getElementById('hero-name-label').innerText = newName;
+        document.getElementById('hero-meta-label').innerText = `${newGisu}회 · ${newField}`;
+
+        renderCoreLayout();
+        alert("🎉 고도화된 회원 비즈니스 자산 정보가 마스터 데이터베이스에 무사히 저장되었습니다.");
+    }
+
+    window.onload = function() { 
+        renderCoreLayout(); 
+        populateSupervisorSelectOptions();
+        syncHeaderCrownVisibility();
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateSupervisorSelectOptions;
+        }
+    };
+</script>
+
+
+<script>
+
+const APP_VERSION = "2.01";
+window.addEventListener("DOMContentLoaded", () => {
+  const ver = document.getElementById("app-version");
+
+  if(ver){
+    ver.innerText = `Ver ${APP_VERSION}`;
+  }
+});
+
+/* Profile Phone Display Patch START */
+(function(){
+  function syncProfilePhoneDisplay(){
+    const phoneInput = document.getElementById('form-phone');
+    const phoneLabel = document.getElementById('hero-phone-label');
+    if(phoneInput && phoneLabel){
+      phoneLabel.innerText = phoneInput.value.trim() || "전화번호 미등록";
+    }
+  }
+
+  const oldSaveProfileDataPhonePatch = window.saveProfileData;
+  window.saveProfileData = function(){
+    if(typeof oldSaveProfileDataPhonePatch === "function"){
+      oldSaveProfileDataPhonePatch();
+    }
+    syncProfilePhoneDisplay();
+  };
+
+  document.addEventListener("DOMContentLoaded", syncProfilePhoneDisplay);
+})();
+/* Profile Phone Display Patch END */
+</script>
+
+
+<script>
+/* Mobile Double-Tap Zoom Prevention START */
+(function(){
+  let lastTouchEnd = 0;
+
+  document.addEventListener("touchend", function(event){
+    const now = Date.now();
+    if(now - lastTouchEnd <= 300){
+      event.preventDefault();
+    }
+    lastTouchEnd = now;
+  }, { passive:false });
+
+  document.addEventListener("gesturestart", function(event){
+    event.preventDefault();
+  });
+})();
+/* Mobile Double-Tap Zoom Prevention END */
+</script>
+
+<!-- Firebase Integration START -->
+<script type="module">
+alert("Firebase module 시작");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  arrayUnion
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
+
+/* ===== Firebase 설정만 채워 넣으세요 ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo",
+  authDomain: "youngmoohae-db.firebaseapp.com",
+  projectId: "youngmoohae-db",
+  storageBucket: "youngmoohae-db.firebasestorage.app",
+  messagingSenderId: "915987856288",
+  appId: "1:915987856288:web:90c8b50b61588c0550c2c5",
+  measurementId: "G-DM109XGYQ2"
+};
+
+
+const vapidKey="PUT_VAPID_KEY_HERE";
+alert("module script 실행 시작");
+const app=initializeApp(firebaseConfig);
+
+window.db=getFirestore(app);
+alert("Firestore 생성 성공");
+alert("Firebase 초기화 완료");
+window.storage=getStorage(app);
+window.messaging=getMessaging(app);
+
+window.collection = collection;
+window.onSnapshot = onSnapshot;
+
+let unsubscribeActiveRoom = null;
+
+function getCurrentUserName(){
+ try{
+   return currentLoggedInUser || "익명";
+ }catch(e){
+   return window.currentLoggedInUser || "익명";
+ }
+}
+
+/* ===== 전화번호 기반 회원 ID 함수 ===== */
+function normalizePhoneNumber(phone){
+ return String(phone || "").replace(/\D/g,"");
+}
+
+function makeMemberId(profile) {
+  const gisu = String(profile.gisu || "").replace(/[^0-9]/g, "");
+  const name = (profile.name || "").trim();
+  const phone = normalizePhoneNumber(profile.phone || "");
+
+  return `${gisu}_${name}_${phone}`;
+}
+
+function extractPhoneFromText(text){
+ const match = String(text || "").match(/\(([^)]+)\)/);
+ return match ? normalizePhoneNumber(match[1]) : "";
+}
+
+function formatPhoneDisplay(phone){
+ const p = normalizePhoneNumber(phone);
+ if(p.length === 11){
+   return `${p.slice(0,3)}-${p.slice(3,7)}-${p.slice(7)}`;
+ }
+ return phone || "";
+}
+
+function getCurrentMemberId(){
+ const phoneInput = document.getElementById("form-phone");
+ const phoneFromInput = phoneInput ? normalizePhoneNumber(phoneInput.value) : "";
+
+ if(phoneFromInput){
+   return phoneFromInput;
+ }
+
+ const currentName = getCurrentUserName();
+
+ try{
+   const matched = alumniDb.find(p => p.name === currentName);
+   if(matched){
+     const phoneFromComp = extractPhoneFromText(matched.comp);
+     if(phoneFromComp) return phoneFromComp;
+   }
+ }catch(e){}
+
+ return currentName;
+}
+
+function getMemberIdByName(name){
+ if(!name) return "";
+
+ if(name === getCurrentUserName()){
+   return getCurrentMemberId();
+ }
+
+ try{
+   const matched = alumniDb.find(p => p.name === name);
+   if(matched){
+     const phoneFromComp = extractPhoneFromText(matched.comp);
+     if(phoneFromComp) return phoneFromComp;
+   }
+ }catch(e){}
+
+ return name;
+}
+
+function getCurrentPhoneDisplay(){
+ const id = getCurrentMemberId();
+ return formatPhoneDisplay(id);
+}
+
+
+
+function getActiveRoomName(){
+ try{
+   if(typeof activeChatPartner !== "undefined" && activeChatPartner){
+     return activeChatPartner;
+   }
+ }catch(e){}
+
+ if(window.activeChatPartner){
+   return window.activeChatPartner;
+ }
+
+ const header = document.getElementById("header-text")?.innerText?.trim() || "";
+
+ const nonRoomTitles = [
+   "영무회 동문",
+   "채팅",
+   "AI 라운지",
+   "내 정보"
+ ];
+
+ if(header && !nonRoomTitles.includes(header)){
+   return header;
+ }
+
+ return "";
+}
+
+function debugFirebaseChatState(label){
+ const roomName = getActiveRoomName();
+ const state = {
+   label,
+   firebaseConfigured: isFirebaseConfigured(),
+   currentUser: getCurrentUserName(),
+   activeRoom: roomName,
+   roomId: roomName ? makeRoomId(roomName) : "",
+   members: roomName ? getRoomMembers(roomName) : []
+ };
+ console.log("[YM CHAT DEBUG]", state);
+ return state;
+}
+
+window.debugFirebaseChatState = debugFirebaseChatState;
+
+function getAlumniNames(){
+  try{
+    const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+    return list.map(p => p.name).filter(Boolean);
+  }catch(e){
+    return [];
+  }
+}
+
+function getRoomMembers(roomName){
+ const me=getCurrentUserName();
+
+ if(window.chatRoomMembersMap && Array.isArray(window.chatRoomMembersMap[roomName])){
+   return [...new Set(window.chatRoomMembersMap[roomName])];
+ }
+
+ if(
+   roomName === "영무회 라운지" ||
+   roomName === "영무회 라운지" ||
+   roomName === "영무회 공식 채팅방"
+){
+   return [...new Set(getAlumniNames())];
+}
+
+ if(!roomName){
+   return [me];
+ }
+
+ return [...new Set([me, roomName])];
+}
+
+function getRoomMemberIds(roomName){
+ const members = getRoomMembers(roomName);
+ return members.map(name => getMemberIdByName(name));
+}
+
+
+function makeRoomId(roomName){
+ const meId = getCurrentMemberId();
+
+ if(
+  roomName === "영무회 라운지" ||
+  roomName === "영무회 라운지" ||
+  roomName === "영무회 공식 채팅방"
+){
+  return "youngmoo_lounge";
+}
+
+ const partnerId = getMemberIdByName(roomName);
+
+ return [meId, partnerId].sort().join("__");
+}
+
+function getLocalStorageKey(roomName){
+ return "ymh_chat_local_" + makeRoomId(roomName);
+}
+
+function loadLocalMessages(roomName){
+  try{
+    const raw = localStorage.getItem(getLocalStorageKey(roomName));
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){
+    return [];
+  }
+}
+
+function saveLocalMessage(roomName, messageData){
+ const list = loadLocalMessages(roomName);
+ list.push({
+   ...messageData,
+   localCreatedAt: Date.now()
+ });
+ localStorage.setItem(getLocalStorageKey(roomName), JSON.stringify(list));
+}
+
+function getUnreadCount(messageData, roomName){
+ const memberIds = Array.isArray(messageData.memberIds) ? messageData.memberIds : getRoomMemberIds(roomName);
+ const senderId = messageData.senderId || getMemberIdByName(messageData.sender);
+ const readByIds = Array.isArray(messageData.readByIds)
+   ? messageData.readByIds
+   : (Array.isArray(messageData.readBy) ? messageData.readBy.map(name => getMemberIdByName(name)) : []);
+
+ return memberIds.filter(id => id !== senderId && !readByIds.includes(id)).length;
+}
+
+function isFirebaseConfigured(){
+ return firebaseConfig.apiKey &&
+        firebaseConfig.apiKey !== "PUT_API_KEY_HERE" &&
+        firebaseConfig.projectId &&
+        firebaseConfig.projectId !== "PUT_PROJECT_ID_HERE";
+}
+
+function escapeHtml(text){
+ return String(text || "")
+   .replaceAll("&","&amp;")
+   .replaceAll("<","&lt;")
+   .replaceAll(">","&gt;")
+   .replaceAll('"',"&quot;")
+   .replaceAll("'","&#039;");
+}
+
+function renderMessageBubble(messageData, roomName){
+ const sender=messageData.sender || "익명";
+ const isMe = sender === getCurrentUserName();
+ const unreadCount = getUnreadCount(messageData, roomName);
+
+ const unreadHtml =
+   isMe && unreadCount > 0
+   ? `<span class="unread-counter-num">${unreadCount}</span>`
+   : "";
+
+ const senderProfile = alumniDb.find(p => p.name === sender) || {};
+ const senderGisu = senderProfile.gisu || "";
+ const senderImg = senderProfile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80";
+ const senderDisplayName = `${senderGisu ? senderGisu.replace("회", "기") + " " : ""}${sender}`;
+
+ const senderLabel =
+   !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
+   ? `
+     <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+       <img src="${senderImg}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+       <div style="font-size:11px; font-weight:800; color:#475569;">
+         ${escapeHtml(senderDisplayName)}
+       </div>
+     </div>
+   `
+   : "";
+
+ return `
+<div class="msg-wrapper ${isMe?'me':'other'}">
+  <div class="msg-container-row">
+    ${isMe ? unreadHtml : ""}
+    <div class="msg-bubble ${isMe?'me':'other'}">
+      ${senderLabel}
+      ${escapeHtml(messageData.message)}
+    </div>
+  </div>
+</div>`;
+}
+
+function renderLocalRoomMessages(roomName){
+ const box=document.getElementById("chat-messages-box");
+ if(!box) return;
+
+ const localMessages = loadLocalMessages(roomName);
+
+ if(localMessages.length === 0) return;
+
+ box.innerHTML = "";
+
+ localMessages.forEach((m)=>{
+   box.innerHTML += renderMessageBubble(m, roomName);
+ });
+
+ box.scrollTop=box.scrollHeight;
+}
+
+function appendLocalMessage(sender,message,roomName, shouldSave=true){
+ const box=document.getElementById("chat-messages-box");
+ if(!box) return;
+
+ const data = {
+   roomName,
+   roomId: makeRoomId(roomName),
+   members: getRoomMembers(roomName),
+   memberIds: getRoomMemberIds(roomName),
+   sender,
+   senderId: getMemberIdByName(sender),
+   message,
+   readBy:[sender],
+   readByIds:[getMemberIdByName(sender)],
+   localCreatedAt: Date.now()
+ };
+
+ if(shouldSave){
+   saveLocalMessage(roomName, data);
+ }
+
+ box.innerHTML += renderMessageBubble(data, roomName);
+ box.scrollTop=box.scrollHeight;
+}
+
+window.saveChatRealtime=async(roomName,sender,message)=>{
+
+   if (!String(message || "").trim()) {
+    return;
+  }
+
+ const roomId=makeRoomId(roomName);
+
+ await setDoc(
+  doc(db, "chat_rooms", roomId),
+  {
+    roomName,
+    roomId,
+    members,
+    memberIds,
+    lastMessage: message,
+    lastSender: sender,
+    lastSenderId: getMemberIdByName(sender),
+    updatedAt: serverTimestamp()
+  },
+  { merge:true }
+);
+
+ return await addDoc(
+  collection(db,"chat_rooms",roomId,"messages"),
+  {
+   roomName,
+   roomId,
+   members:getRoomMembers(roomName),
+   memberIds:getRoomMemberIds(roomName),
+   sender,
+   senderId:getMemberIdByName(sender),
+   message,
+   readBy:[sender],
+   readByIds:[getMemberIdByName(sender)],
+   createdAt:serverTimestamp(),
+   clientCreatedAt: Date.now()
+  }
+ );
+};
+
+async function markRoomAsRead(roomName, docs){
+ const me=getCurrentUserName();
+ const roomId=makeRoomId(roomName);
+
+ docs.forEach(async(d)=>{
+   const v=d.data();
+   if(v.sender !== me){
+     const readBy=Array.isArray(v.readBy) ? v.readBy : [];
+     if(!readBy.includes(me)){
+       try{
+         await updateDoc(
+           doc(db,"chat_rooms",roomId,"messages",d.id),
+           { 
+             readBy: arrayUnion(me),
+             readByIds: arrayUnion(getCurrentMemberId())
+           }
+         );
+       }catch(e){
+         console.error("readBy update failed", e);
+       }
+     }
+   }
+ });
+}
+
+window.subscribeRealtimeChat=(roomName)=>{
+
+ if(unsubscribeActiveRoom){
+   try{ unsubscribeActiveRoom(); }catch(e){}
+   unsubscribeActiveRoom=null;
+ }
+
+ const roomId=makeRoomId(roomName);
+
+ const q=query(
+  collection(db,"chat_rooms",roomId,"messages"),
+  orderBy("createdAt"),
+  limit(300)
+ );
+
+ unsubscribeActiveRoom = onSnapshot(q,(snap)=>{
+
+   const box=document.getElementById("chat-messages-box");
+   if(!box) return;
+
+   box.innerHTML="";
+
+   snap.forEach((d)=>{
+      const v=d.data();
+      box.innerHTML += renderMessageBubble(v, roomName);
+   });
+
+   box.scrollTop=box.scrollHeight;
+
+   markRoomAsRead(roomName, snap.docs);
+
+ }, (error)=>{
+   console.error("Realtime chat subscription failed", error);
+   renderLocalRoomMessages(roomName);
+ });
+
+ return unsubscribeActiveRoom;
+};
+
+
+/* ===== 신규 회원 등록 / 동문 명단 Firebase 연동 ===== */
+
+function normalizeGisu(value){
+ const raw = String(value || "").trim();
+ if(!raw) return "";
+ return raw.includes("회") ? raw : `${raw}회`;
+}
+
+function buildProfileFromForm(){
+ const name = document.getElementById("form-name")?.value?.trim() || "";
+ const gisu = normalizeGisu(document.getElementById("form-gisu")?.value);
+ const company = document.getElementById("form-company")?.value?.trim() || "";
+ const job = document.getElementById("form-job")?.value?.trim() || "";
+ const field = document.getElementById("form-field")?.value?.trim() || "";
+ const phone = document.getElementById("form-phone")?.value?.trim() || "";
+ const assets = document.getElementById("form-assets")?.value?.trim() || "";
+ const target = document.getElementById("form-target")?.value?.trim() || "";
+ const intro = document.getElementById("form-intro")?.value?.trim() || "";
+ const avatar = document.getElementById("display-avatar-img")?.src || "";
+
+ return {
+   memberId: currentMemberId,
+   name,
+   gisu,
+   comp: job ? `${company} · ${job}` : company,
+   company,
+   job,
+   phone,
+   field,
+   assets,
+   target,
+   intro,
+   img: avatar,
+   approved: true,
+   updatedAt: serverTimestamp(),
+   createdAt: serverTimestamp()
+ };
+}
+
+function mergeAlumniIntoLocal(profile){
+  if(!profile || !profile.memberId) return;
+
+  try{
+    const idx = alumniDb.findIndex(p => p.memberId === profile.memberId);
+
+    if(idx < 0){
+      console.warn("등록되지 않은 memberId라 로컬 회원 목록에 추가하지 않음:", profile.memberId);
+      return;
+    }
+
+    const localProfile = {
+      ...alumniDb[idx],
+      memberId: profile.memberId,
+      name: profile.name || alumniDb[idx].name,
+      gisu: profile.gisu || alumniDb[idx].gisu,
+      comp: profile.comp || profile.company || alumniDb[idx].comp || "",
+      field: profile.field || alumniDb[idx].field || "",
+      phone: profile.phone || alumniDb[idx].phone || "",
+      img: profile.img || alumniDb[idx].img
+    };
+
+    alumniDb[idx] = localProfile;
+
+    renderCoreLayout();
+    populateSupervisorSelectOptions();
+
+  }catch(e){
+    console.error("mergeAlumniIntoLocal failed", e);
+  }
+}
+
+window.registerOrUpdateMember=async()=>{
+
+ const profile = buildProfileFromForm();
+
+alert("currentMemberId = " + currentMemberId);
+alert("profile = " + JSON.stringify(profile));
+
+ if(!profile.name){
+   alert("이름은 반드시 입력해야 합니다.");
+   return;
+ }
+
+ /*
+   Firebase 설정 전에는 로컬 명단에만 반영합니다.
+   Firebase 설정 후에는 Firestore users에도 저장합니다.
+ */
+
+ if(!isFirebaseConfigured()){
+  alert("Firebase 연결 전입니다. 저장하지 않았습니다. 앱을 새로고침하거나 업데이트 후 다시 시도해 주세요.");
+  return;
+}
+
+ try{
+
+    if (!profile.gisu || !profile.name || !profile.phone) {
+       alert("기수, 이름, 전화번호는 반드시 입력해야 합니다.");
+       return;
+    }
+
+ const memberId = profile.memberId || ymhMakeMemberId(profile.name, profile.gisu, profile.phone);
+
+if(!memberId){
+  alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+  return;
+}
+
+profile.memberId = memberId;
+
+  if(!memberId){
+  alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+  return;
+}
+profile.phoneId = ymhNormalizePhone(profile.phone || "");
+
+  const usersSnap = await getDocs(collection(window.db || db, "users"));
+
+  const duplicated = usersSnap.docs.find(docItem => {
+  const data = docItem.data();
+  const savedPhoneId = data.phoneId || ymhNormalizePhone(data.phone || "");
+
+  return savedPhoneId === profile.phoneId &&
+ 
+});
+
+if(duplicated){
+  alert("이미 등록된 전화번호입니다. 기존 회원 정보를 확인해 주세요.");
+  return;
+}
+
+  await setDoc(
+    doc(db,"users", memberId),
+    profile,
+    { merge:true }
+  );
+
+   mergeAlumniIntoLocal(profile);
+
+   alert(`${profile.name} 동문 정보가 Firebase users에 저장되었습니다.`);
+
+ }catch(e){
+   console.error(e);
+   alert("Firebase 저장 실패: 현재 화면에는 임시 반영했습니다. Firestore Rules를 확인해 주세요.");
+ }
+};
+
+window.subscribeMembers=()=>{
+     
+ if(!isFirebaseConfigured()){
+   renderCoreLayout();
+   return;
+ }
+
+ const q=query(
+   collection(db,"users"),
+   orderBy("gisu")
+ );
+
+ onSnapshot(q,(snap)=>{
+
+   const firebaseMembers=[];
+
+   snap.forEach((d)=>{
+     const v=d.data();
+     if(v && v.name && v.approved !== false){
+      firebaseMembers.push({
+         memberId: v.memberId || d.id,
+         name: v.name,
+         gisu: v.gisu || "",
+         gisuNumber: v.gisuNumber || "",
+         phone: v.phone || "",
+         phoneId: v.phoneId || "",
+         company: v.company || "",
+         job: v.job || "",
+         comp: v.comp || (v.job ? `${v.company || ""} · ${v.job} (${v.phone || ""})` : `${v.company || ""} (${v.phone || ""})`),
+         field: v.field || "",
+         assets: v.assets || "",
+         target: v.target || "",
+         intro: v.intro || "",
+         img: v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+         approved: v.approved !== false
+       });
+     }
+   });
+
+   /*
+     기존 데모 동문은 보존하고,
+     Firebase 신규/수정 회원을 병합합니다.
+   */
+   firebaseMembers.forEach(m => mergeAlumniIntoLocal(m));
+
+   alumniDb = firebaseMembers;
+   localStorage.setItem("ymh_alumni_db", JSON.stringify(firebaseMembers));
+
+   renderCoreLayout();
+
+ },(error)=>{
+   console.error("members subscription failed", error);
+   renderCoreLayout();
+ });
+};
+
+/*
+  기존 프로필 저장 버튼 함수가 있으면 보존하되,
+  저장 후 회원 등록/수정도 함께 실행합니다.
+*/
+if(window.saveProfileData){
+ const oldSaveProfileData = window.saveProfileData;
+
+ window.saveProfileData = async function(){
+   await registerOrUpdateMember();
+ };
+}else{
+ window.saveProfileData = registerOrUpdateMember;
+}
+
+/*
+  페이지 로딩 후 Firebase users 동문 명단 구독 시작
+*/
+setTimeout(()=>{
+ try{
+   subscribeMembers();
+ }catch(e){
+   console.error("subscribeMembers init failed", e);
+ }
+},500);
+
+
+if(window.executeSendMsg){
+
+ const oldSend=window.executeSendMsg;
+
+ window.executeSendMsg=async()=>{
+
+   const input=document.getElementById("live-chat-input");
+
+   if(!input) return oldSend();
+
+   const text=input.value.trim();
+
+   if(!text) return;
+
+   const roomName = getActiveRoomName();
+
+   debugFirebaseChatState("before-send");
+
+   if(!roomName){
+     alert("채팅방 이름을 찾지 못했습니다. 동문을 다시 눌러 채팅방에 들어가 주세요.");
+     return;
+   }
+
+   const senderName=getCurrentUserName();
+
+   if(!isFirebaseConfigured()){
+      appendLocalMessage(senderName,text,roomName,true);
+      input.value="";
+      console.warn("[YM CHAT] Firebase 설정값이 부족하여 localStorage에만 저장했습니다.");
+      return;
+   }
+
+   try{
+      await saveChatRealtime(roomName,senderName,text);
+      input.value="";
+      console.log("[YM CHAT] Firestore 저장 성공", { roomName, senderName, text });
+   }catch(e){
+  console.error("[YMH CHAT] Firestore 저장 실패 상세", {
+    error: e,
+    code: e.code,
+    message: e.message,
+    roomName,
+    senderName,
+    text
+  });
+
+  appendLocalMessage(senderName,text,roomName,true);
+  input.value="";
+  alert("Firebase 채팅 저장 실패: " + (e.message || e.code || e));
+  }
+ };
+
+}
+
+if(window.openChatRoom){
+
+ const oldOpen=window.openChatRoom;
+
+ window.openChatRoom=function(name,letter){
+
+   window.activeChatPartner = name;
+
+   oldOpen(name,letter);
+
+   debugFirebaseChatState("open-room");
+
+   if(isFirebaseConfigured()){
+      subscribeRealtimeChat(name);
+   }else{
+      renderLocalRoomMessages(name);
+   }
+
+ };
+
+}
+
+window.initPush=async()=>{
+
+ try{
+
+ const token=
+ await getToken(
+  messaging,
+  {vapidKey}
+ );
+
+ console.log("FCM",token);
+
+ }catch(e){
+
+ console.error(e);
+
+ }
+
+};
+
+onMessage(
+ messaging,
+ (payload)=>{
+
+ if(window.processIncomingMessageNotification){
+   processIncomingMessageNotification(
+    payload?.data?.sender || "새 메시지"
+   );
+ }
+
+});
+
+window.archiveChat=async(roomName,blob)=>{
+
+ const roomId=makeRoomId(roomName);
+
+ const path=
+ `archive/${roomId}/${Date.now()}.json`;
+
+ const r=
+ ref(storage,path);
+
+ await uploadBytes(r,blob);
+
+ return await getDownloadURL(r);
+
+};
+
+window.isFirebaseConfiguredForTest = isFirebaseConfigured;
+window.getActiveRoomNameForTest = getActiveRoomName;
+window.normalizePhoneNumberForTest = normalizePhoneNumber;
+window.getCurrentMemberIdForTest = getCurrentMemberId;
+window.getMemberIdByNameForTest = getMemberIdByName;
+console.log("Firebase Integrated - v9 phone memberId functions");
+
+</script>
+<!-- Firebase Integration END -->
+
+<!-- YM Member + Chat Stability Patch START -->
+<script type="module">
+import {
+  collection, doc, setDoc, addDoc, query, orderBy, limit,
+  onSnapshot, updateDoc, arrayUnion, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+let ymhUnsubscribeRoom = null;
+let ymhUnsubscribeMembers = null;
+
+function ymhNormalizePhone(phone){
+  return String(phone || "").replace(/[^\d+]/g, "");
+}
+
+function ymhFormatPhone(phone){
+  const raw = String(phone || "").replace(/[^\d+]/g, "");
+
+  // 한국 휴대폰
+  if(/^010\d{8}$/.test(raw)){
+    return raw.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  }
+
+  // 해외번호
+  return raw;
+}
+
+function ymhNormalizeGisu(gisu){
+  return String(gisu || "").replace(/\D/g, "");
+}
+
+function ymhMakeMemberId(name, gisu, phone){
+  const n = String(name || "").trim();
+  const g = ymhNormalizeGisu(gisu);
+  const p = ymhNormalizePhone(phone);
+  if(!n || !g || !p) return "";
+  return `${g}_${n}_${p}`;
+}
+
+function ymhExtractPhoneFromComp(comp){
+  const m = String(comp || "").match(/\(([^)]+)\)/);
+  return m ? ymhNormalizePhone(m[1]) : "";
+}
+
+function ymhGetFormProfile(){
+  const name = document.getElementById("form-name")?.value?.trim() || "";
+  const gisuRaw = document.getElementById("form-gisu")?.value?.trim() || "";
+  const gisuNumber = ymhNormalizeGisu(gisuRaw);
+  const gisu = gisuNumber ? `${gisuNumber}회` : "";
+  const phone = document.getElementById("form-phone")?.value?.trim() || "";
+  const phoneId = ymhNormalizePhone(phone);
+  const company = document.getElementById("form-company")?.value?.trim() || "";
+  const job = document.getElementById("form-job")?.value?.trim() || "";
+  const field = document.getElementById("form-field")?.value?.trim() || "";
+  const assets = document.getElementById("form-assets")?.value?.trim() || "";
+  const target = document.getElementById("form-target")?.value?.trim() || "";
+  const intro = document.getElementById("form-intro")?.value?.trim() || "";
+  const img = document.getElementById("display-avatar-img")?.src || "";
+  const memberId = ymhMakeMemberId(name, gisu, phone);
+
+  return {
+    memberId, name, gisu, gisuNumber,
+    phone: ymhFormatPhone(phone),
+    phoneId, company, job, field, assets, target, intro, img,
+    comp: job ? `${company} · ${job} (${ymhFormatPhone(phone)})` : `${company} (${ymhFormatPhone(phone)})`,
+    approved: true
+  };
+}
+
+function ymhSaveCurrentProfileLocal(profile){
+  if(!profile?.memberId) return;
+
+  localStorage.setItem("ymh_current_member_id", profile.memberId);
+  localStorage.setItem("ymh_current_profile", JSON.stringify(profile));
+  localStorage.setItem("currentMemberId", profile.memberId);
+
+  window.ymhCurrentProfile = profile;
+
+  const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+  const idx = list.findIndex(p => p.memberId === profile.memberId);
+
+  if(idx >= 0){
+    list[idx] = { ...list[idx], ...profile };
+  }else{
+    list.push(profile);
+  }
+
+  localStorage.setItem("ymh_alumni_db", JSON.stringify(list));
+  alumniDb = list;
+}
+
+function ymhLoadCurrentProfileLocal(){
+  try{
+    const raw = localStorage.getItem("ymh_current_profile");
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function ymhGetCurrentProfile(){
+  const saved = ymhLoadCurrentProfileLocal();
+  if(saved?.memberId) return saved;
+
+  const form = ymhGetFormProfile();
+  if(form.memberId) return form;
+
+  return { memberId:"", name:"익명", gisu:"", phone:"", phoneId:"" };
+}
+
+function ymhApplyProfileToScreen(profile){
+  if(!profile) return;
+
+  const setValue = (id, value)=>{
+    const el = document.getElementById(id);
+    if(el) el.value = value || "";
+  };
+
+  setValue("form-name", profile.name);
+  setValue("form-gisu", ymhNormalizeGisu(profile.gisu || profile.gisuNumber));
+  setValue("form-phone", profile.phone);
+  setValue("form-company", profile.company);
+  setValue("form-job", profile.job);
+  setValue("form-field", profile.field);
+  setValue("form-assets", profile.assets);
+  setValue("form-target", profile.target);
+  setValue("form-intro", profile.intro);
+
+  const nameLabel = document.getElementById("hero-name-label");
+  const metaLabel = document.getElementById("hero-meta-label");
+  const phoneLabel = document.getElementById("hero-phone-label");
+  const avatar = document.getElementById("display-avatar-img");
+
+  if(nameLabel) nameLabel.innerText = profile.name || "";
+  if(metaLabel) metaLabel.innerText = `${profile.gisu || ""} · ${profile.field || ""}`;
+  if(phoneLabel) phoneLabel.innerText = profile.phone || "전화번호 미등록";
+  if(avatar && profile.img) avatar.src = profile.img;
+}
+
+function ymhSeedLocalMembers(){
+  window.ymhMembersById = window.ymhMembersById || {};
+  window.ymhMembersByName = window.ymhMembersByName || {};
+
+  try{
+    if(Array.isArray(alumniDb)){
+      alumniDb.forEach(p=>{
+        const phoneId = p.phone ? ymhNormalizePhone(p.phone) : ymhExtractPhoneFromComp(p.comp);
+        const memberId = p.memberId || ymhMakeMemberId(p.name, p.gisu, phoneId);
+        if(!memberId) return;
+
+        const profile = {
+          memberId, name:p.name, gisu:p.gisu,
+          phone:ymhFormatPhone(phoneId), phoneId,
+          comp:p.comp, field:p.field, img:p.img, approved:true
+        };
+
+        p.memberId = memberId;
+        p.phone = profile.phone;
+        window.ymhMembersById[memberId] = profile;
+        window.ymhMembersByName[p.name] = profile;
+      });
+    }
+  }catch(e){
+    console.warn("[YMH] seed members skipped", e);
+  }
+}
+
+function ymhUpsertAlumni(profile){
+  if(!profile?.memberId) return;
+
+  window.ymhMembersById = window.ymhMembersById || {};
+  window.ymhMembersByName = window.ymhMembersByName || {};
+  window.ymhMembersById[profile.memberId] = profile;
+  window.ymhMembersByName[profile.name] = profile;
+
+  try{
+    if(Array.isArray(alumniDb)){
+    if(!profile.memberId) {
+       console.warn("[YMH] memberId 없는 profile 병합 차단:", profile);
+       return;
+    }
+
+    const idx = alumniDb.findIndex(p =>
+      p.memberId && profile.memberId && p.memberId === profile.memberId
+    );
+
+      const item = {
+        memberId:profile.memberId,
+        name:profile.name,
+        gisu:profile.gisu,
+        comp:profile.comp || `${profile.company || ""} (${profile.phone || ""})`,
+        field:profile.field || "",
+        img:profile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+        phone:profile.phone
+      };
+
+      if(idx >= 0) alumniDb[idx] = { ...alumniDb[idx], ...item };
+      else {
+        console.warn("[YMH] 등록되지 않은 회원이라 alumniDb에 추가하지 않음:", item);
+      }
+      if(typeof renderCoreLayout === "function") renderCoreLayout();
+      if(typeof populateSupervisorSelectOptions === "function") populateSupervisorSelectOptions();
+    }
+  }catch(e){
+    console.warn("[YMH] alumni merge skipped", e);
+  }
+}
+
+function ymhGetMemberByName(name){
+  ymhSeedLocalMembers();
+
+  if(window.ymhMembersByName?.[name]) return window.ymhMembersByName[name];
+
+  try{
+    const p = alumniDb.find(x => x.name === name);
+    if(p){
+      const phoneId = p.phone ? ymhNormalizePhone(p.phone) : ymhExtractPhoneFromComp(p.comp);
+      const memberId = p.memberId || ymhMakeMemberId(p.name, p.gisu, phoneId);
+      return { memberId, name:p.name, gisu:p.gisu, phone:ymhFormatPhone(phoneId), phoneId, comp:p.comp, field:p.field, img:p.img };
+    }
+  }catch(e){}
+
+  return { memberId:name, name, gisu:"", phone:"", phoneId:"" };
+}
+
+function ymhGetActiveRoomName(){
+  try{
+    if(typeof activeChatPartner !== "undefined" && activeChatPartner) return activeChatPartner;
+  }catch(e){}
+
+  if(window.activeChatPartner) return window.activeChatPartner;
+
+  const header = document.getElementById("header-text")?.innerText?.trim() || "";
+  const nonRooms = ["영무회 동문", "채팅", "AI 라운지", "내 정보"];
+  if(header && !nonRooms.includes(header)) return header;
+
+  return "";
+}
+
+function ymhGetRoomMembers(roomName){
+  ymhSeedLocalMembers();
+
+  if(roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방"){
+    try{
+      return alumniDb.map(p => ymhGetMemberByName(p.name)).filter(p => p.memberId);
+    }catch(e){
+      return Object.values(window.ymhMembersById || {});
+    }
+  }
+
+  const me = ymhGetCurrentProfile();
+  const partner = ymhGetMemberByName(roomName);
+
+  const map = {};
+  [me, partner].forEach(p=>{
+    if(p?.memberId) map[p.memberId] = p;
+  });
+
+  return Object.values(map);
+}
+
+function ymhMakeRoomId(roomName){
+  if(
+     roomName === "영무회 라운지" ||
+     roomName === "영무회 라운지" ||
+     roomName === "영무회 공식 채팅방"
+    ){
+    return "youngmoo_lounge";
+  }
+
+  return ymhGetRoomMembers(roomName)
+    .map(p => p.memberId)
+    .filter(Boolean)
+    .sort()
+    .join("__");
+}
+
+function ymhEscapeHtml(text){
+  return String(text || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function ymhUnreadCount(data, roomName){
+  const memberIds = Array.isArray(data.memberIds)
+    ? data.memberIds
+    : ymhGetRoomMembers(roomName).map(p => p.memberId);
+
+  const readByIds = Array.isArray(data.readByIds) ? data.readByIds : [];
+  const senderId = data.senderId || "";
+
+  return memberIds.filter(id => id !== senderId && !readByIds.includes(id)).length;
+}
+
+function ymhRenderMessage(data, roomName){
+  const me = ymhGetCurrentProfile();
+  const isMe = data.senderId === me.memberId || data.sender === me.name;
+  const unread = ymhUnreadCount(data, roomName);
+
+  const unreadHtml = isMe && unread > 0
+    ? `<span class="unread-counter-num">${unread}</span>`
+    : "";
+
+  const senderLabel = !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
+    ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${ymhEscapeHtml(data.sender)}</div>`
+    : "";
+
+  return `
+<div class="msg-wrapper ${isMe ? "me" : "other"}">
+  <div class="msg-container-row">
+    ${isMe ? unreadHtml : ""}
+    <div class="msg-bubble ${isMe ? "me" : "other"}">
+      ${senderLabel}
+      ${ymhEscapeHtml(data.message)}
+    </div>
+  </div>
+</div>`;
+}
+
+function ymhIsFirebaseReady(){
+  return !!window.db;
+}
+
+async function ymhSaveChatRealtime(roomName, message){
+  if(!ymhIsFirebaseReady()) throw new Error("Firestore db is not ready");
+
+  const me = ymhGetCurrentProfile();
+  if(!me.memberId) throw new Error("현재 회원 ID가 없습니다. 내 정보에서 이름/기수/전화번호를 저장해 주세요.");
+
+  const members = ymhGetRoomMembers(roomName);
+  const roomId = ymhMakeRoomId(roomName);
+
+  if (!activeChatRooms.includes(roomName)) {
+  activeChatRooms.push(roomName);
+  renderChatList();
+ }
+
+await setDoc(
+  doc(window.db, "chat_rooms", roomId),
+  {
+    roomName,
+    roomId,
+    members: members.map(p => p.name),
+    memberIds: members.map(p => p.memberId),
+    lastMessage: String(message || "").slice(0,80),
+    lastSender: me.name,
+    lastSenderId: me.memberId,
+    updatedAt: serverTimestamp()
+  },
+  { merge: true }
+);
+
+  return await addDoc(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    {
+      roomName,
+      roomId,
+      members:members.map(p => p.name),
+      memberIds:members.map(p => p.memberId),
+      sender:me.name,
+      senderId:me.memberId,
+      message,
+      readBy:[me.name],
+      readByIds:[me.memberId],
+      createdAt:serverTimestamp()
+    }
+  );
+}
+
+function ymhSubscribeChat(roomName){
+  if(!ymhIsFirebaseReady()) return;
+
+  if(ymhUnsubscribeRoom){
+    try{ ymhUnsubscribeRoom(); }catch(e){}
+    ymhUnsubscribeRoom = null;
+  }
+
+  const roomId = ymhMakeRoomId(roomName);
+  if(!roomId) return;
+
+  const q = query(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    orderBy("createdAt"),
+    limit(300)
+  );
+
+  ymhUnsubscribeRoom = onSnapshot(q, (snap)=>{
+    const box = document.getElementById("chat-messages-box");
+    if(!box) return;
+
+    box.innerHTML = "";
+
+    snap.forEach(d=>{
+      box.innerHTML += ymhRenderMessage(d.data(), roomName);
+    });
+
+    box.scrollTop = box.scrollHeight;
+
+    const me = ymhGetCurrentProfile();
+
+    snap.forEach(async d=>{
+      const data = d.data();
+      if(data.senderId !== me.memberId && !(data.readByIds || []).includes(me.memberId)){
+        try{
+          await updateDoc(
+            doc(window.db, "chat_rooms", roomId, "messages", d.id),
+            {
+              readBy:arrayUnion(me.name),
+              readByIds:arrayUnion(me.memberId)
+            }
+          );
+        }catch(e){
+          console.error("[YMH] read update failed", e);
+        }
+      }
+    });
+  }, (error)=>{
+    console.error("[YMH] subscribe chat failed", error);
+  });
+}
+
+async function ymhRegisterOrUpdateMember(){
+  const profile = ymhGetFormProfile();
+
+  if(!profile.name || !profile.gisuNumber || !profile.phoneId){
+    alert("이름, 기수, 전화번호를 모두 입력해야 회원 저장이 됩니다.");
+    return;
+  }
+
+  ymhSaveCurrentProfileLocal(profile);
+  ymhApplyProfileToScreen(profile);
+  ymhUpsertAlumni(profile);
+  
+ alert("window.db = " + !!window.db);
+
+ if(!window.db){
+  alert("Firebase 연결 준비 중입니다. 2초 후 다시 저장해 주세요.");
+  return;
+}
+
+  if(!ymhIsFirebaseReady()){
+    alert("현재 브라우저에는 저장했습니다. Firebase 연결 후 다시 저장하면 서버에도 저장됩니다.");
+    return;
+  }
+
+  try{
+    alert("회원저장 경로 B 진입");
+    if(!profile.memberId){
+      profile.memberId = ymhMakeMemberId(
+        profile.name,
+        profile.gisu,
+        profile.phone
+      );
+    }
+
+    if(!profile.memberId){
+      alert("회원 ID 생성 실패: 이름, 기수, 전화번호를 확인해 주세요.");
+      return;
+    }
+
+    const usersSnap = await getDocs(collection(window.db, "users"));
+
+    const duplicated = usersSnap.docs.find(docItem => {
+      const data = docItem.data();
+      return data.phoneId === profile.phoneId &&
+             docItem.id !== profile.memberId;
+    });
+
+    if(duplicated){
+      alert("이미 등록된 전화번호입니다. 기존 회원 정보를 확인해 주세요.");
+      return;
+    }
+
+    await setDoc(
+      doc(window.db, "users", profile.memberId),
+      { ...profile, updatedAt:serverTimestamp() },
+      { merge:true }
+    );
+
+    console.log("[YMH] member saved", profile);
+    alert(`${profile.name} 동문 정보가 저장되었습니다.`);
+  }catch(e){
+    console.error("[YMH] member save failed", e);
+    alert("회원 저장 실패: Firestore Rules 또는 네트워크를 확인해 주세요.");
+  }
+}
+
+function ymhSubscribeMembers(){
+  if(!ymhIsFirebaseReady()) return;
+
+  if(ymhUnsubscribeMembers){
+    try{ ymhUnsubscribeMembers(); }catch(e){}
+  }
+
+  ymhUnsubscribeMembers = onSnapshot(
+    collection(window.db, "users"),
+    (snap)=>{
+      snap.forEach(d=>{
+        const data = d.data();
+        if(data?.memberId && data.approved !== false){
+          ymhUpsertAlumni(data);
+        }
+      });
+
+      const saved = ymhLoadCurrentProfileLocal();
+      if(saved?.memberId) ymhApplyProfileToScreen(saved);
+    },
+    (error)=>console.error("[YMH] subscribe members failed", error)
+  );
+}
+
+const ymhOldSaveProfileData = window.saveProfileData;
+window.saveProfileData = async function(){
+  try{
+    if(typeof ymhOldSaveProfileData === "function") ymhOldSaveProfileData();
+  }catch(e){
+    console.warn("[YMH] old saveProfileData skipped", e);
+  }
+
+  await ymhRegisterOrUpdateMember();
+};
+
+const ymhOldOpenChatRoom = window.openChatRoom;
+window.openChatRoom = function(name, letter){
+  window.activeChatPartner = name;
+
+  if(typeof ymhOldOpenChatRoom === "function"){
+    ymhOldOpenChatRoom(name, letter);
+  }
+
+  ymhSubscribeChat(name);
+
+  console.log("[YMH] open room", {
+    roomName:name,
+    roomId:ymhMakeRoomId(name),
+    current:ymhGetCurrentProfile(),
+    members:ymhGetRoomMembers(name)
+  });
+};
+
+window.executeSendMsg = async function(){
+  const input = document.getElementById("live-chat-input");
+  if(!input) return;
+
+  const text = input.value.trim();
+  if(!text) return;
+
+  const roomName = ymhGetActiveRoomName();
+
+  if(!roomName){
+    alert("채팅방을 먼저 선택해 주세요.");
+    return;
+  }
+
+  try{
+    await ymhSaveChatRealtime(roomName, text);
+    input.value = "";
+    console.log("[YMH] message saved", { roomName, text });
+  }catch(e){
+    console.error("[YMH] message save failed", e);
+    alert(e.message || "메시지 저장 실패");
+  }
+};
+
+window.ymhDebugState = function(){
+  const roomName = ymhGetActiveRoomName();
+  const state = {
+    firebaseReady:ymhIsFirebaseReady(),
+    currentProfile:ymhGetCurrentProfile(),
+    activeRoom:roomName,
+    roomId:roomName ? ymhMakeRoomId(roomName) : "",
+    members:roomName ? ymhGetRoomMembers(roomName) : [],
+    localStorageCurrent:localStorage.getItem("ymh_current_member_id")
+  };
+  console.log("[YMH DEBUG]", state);
+  return state;
+};
+
+window.ymhMakeMemberIdForTest = ymhMakeMemberId;
+window.ymhNormalizePhoneForTest = ymhNormalizePhone;
+
+setTimeout(()=>{
+  ymhSeedLocalMembers();
+
+  const saved = ymhLoadCurrentProfileLocal();
+  if(saved?.memberId) ymhApplyProfileToScreen(saved);
+
+  ymhSubscribeMembers();
+
+  console.log("[YMH] member/chat stability patch ready");
+}, 700);
+</script>
+<!-- YM Member + Chat Stability Patch END -->
+
+<!-- YM Lounge Name + Video Alert Patch START -->
+<script type="module">
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+/*
+  목적:
+  1) "영무회 라운지" 표시명을 "영무회 라운지"로 변경
+  2) 새 메시지 도착 시 애후배_알림.mp4 팝업 표시
+  3) "새 메시지 보기" 클릭 시 해당 채팅방으로 이동
+
+  주의:
+  - 내부 Firestore roomId는 youngmoo_lounge 그대로 유지
+  - Firebase / 회원 저장 / 기존 채팅 구조는 변경하지 않음
+*/
+
+let ymhVideoAlertTargetRoom = "";
+let ymhVideoAlertLastKey = {};
+let ymhVideoAlertStarted = false;
+let ymhVideoAlertUnsubs = [];
+
+function ymhAlertNormalizeGisu(gisu){
+  return String(gisu || "").replace(/\D/g, "");
+}
+
+function ymhAlertExtractPhone(comp){
+  const m = String(comp || "").match(/\(([^)]+)\)/);
+  return m ? ymhAlertNormalizePhone(m[1]) : "";
+}
+
+function ymhAlertMakeMemberId(name,gisu,phone){
+  const n = String(name || "").trim();
+  const g = ymhAlertNormalizeGisu(gisu);
+  const p = ymhAlertNormalizePhone(phone);
+  if(!n || !g || !p) return "";
+  return `${g}_${n}_${p}`;
+}
+
+function ymhAlertCurrentProfile(){
+  try{
+    const raw = localStorage.getItem("ymh_current_profile");
+    if(raw){
+      const p = JSON.parse(raw);
+      if(p && p.memberId) return p;
+    }
+  }catch(e){}
+
+  try{
+    const name = typeof currentLoggedInUser !== "undefined" ? currentLoggedInUser : "제갈훈";
+    const matched = Array.isArray(alumniDb) ? alumniDb.find(p => p.name === name) : null;
+    if(matched){
+      const phone = matched.phone || ymhAlertExtractPhone(matched.comp);
+      const memberId = matched.memberId || ymhAlertMakeMemberId(matched.name, matched.gisu, phone);
+      return {
+        memberId,
+        name: matched.name
+      };
+    }
+  }catch(e){}
+
+  return { memberId:"", name:"" };
+}
+
+function ymhAlertAllMembers(){
+  const list = [];
+
+  try{
+    if(Array.isArray(alumniDb)){
+      alumniDb.forEach(p=>{
+        const phone = p.phone || ymhAlertExtractPhone(p.comp);
+        const memberId = p.memberId || ymhAlertMakeMemberId(p.name, p.gisu, phone);
+        if(memberId){
+          list.push({
+            memberId,
+            name:p.name,
+            gisu:p.gisu,
+            phone
+          });
+        }
+      });
+    }
+  }catch(e){}
+
+  return list;
+}
+
+function ymhAlertPrivateRoomId(a,b){
+  return [a,b].filter(Boolean).sort().join("__");
+}
+
+function ymhGetCurrentRoomNameForAlert(){
+  try{
+    if(typeof activeChatPartner !== "undefined" && activeChatPartner) return activeChatPartner;
+  }catch(e){}
+
+  if(window.activeChatPartner) return window.activeChatPartner;
+
+  const header = document.getElementById("header-text")?.innerText?.trim() || "";
+  if(header && !["영무회 동문","채팅","AI 라운지","내 정보"].includes(header)){
+    return header;
+  }
+
+  return "";
+}
+
+/* 1. 표시명 변경 */
+function ymhRenameOfficialRoomToLounge(){
+  document.querySelectorAll("*").forEach(el=>{
+    if(el.childNodes && el.childNodes.length){
+      el.childNodes.forEach(node=>{
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 라운지")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 라운지","영무회 라운지");
+        }
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 라운지")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 공식 채팅방","영무회 라운지");
+        }
+      });
+    }
+  });
+
+  const header = document.getElementById("header-text");
+  if(header && (header.innerText === "영무회 라운지" || header.innerText === "영무회 라운지")){
+    header.innerText = "영무회 라운지";
+  }
+}
+
+/* 기존 openChatRoom이 옛 이름을 기준으로 움직이므로 표시만 라운지로 바꿈 */
+const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
+window.openChatRoom = function(name, letter){
+  const internalName = name === "영무회 라운지" ? "영무회 라운지" : name;
+
+  if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
+    ymhOldOpenChatRoomForLoungeAlert(internalName, letter);
+  }
+
+  if(name === "영무회 라운지" || internalName === "영무회 라운지" || internalName === "영무회 공식 채팅방"){
+    window.activeChatPartner = "영무회 라운지";
+    const header = document.getElementById("header-text");
+    if(header) header.innerText = "영무회 라운지";
+  }
+
+  setTimeout(ymhRenameOfficialRoomToLounge, 50);
+};
+
+/* 2. 영상 알림 팝업 UI 생성 */
+function ymhEnsureVideoAlertModal(){
+  if(document.getElementById("ymh-video-alert-modal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "ymh-video-alert-modal";
+  modal.style.cssText = `
+    position:absolute;
+    inset:0;
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(15,23,42,0.45);
+    backdrop-filter:blur(5px);
+  `;
+
+  modal.innerHTML = `
+    <div style="
+      width:88%;
+      max-width:360px;
+      background:#ffffff;
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 30px 60px rgba(0,0,0,0.28);
+      border:2px solid #D4AF37;
+    ">
+      <div style="
+        background:linear-gradient(135deg,#0F172A,#1E293B);
+        color:white;
+        padding:16px 18px;
+        font-weight:900;
+        font-size:15px;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        border-bottom:3px solid #D4AF37;
+      ">
+        <span>🔔</span>
+        <span>영무회 신규 메시지 알림</span>
+      </div>
+
+      <div style="background:#000; height:210px; overflow:hidden;">
+        <video
+          id="ymh-video-alert-player"
+          src="/assets/notification/애후배_알림.mp4"
+          style="width:100%; height:100%; object-fit:cover;"
+          playsinline
+          muted
+          preload="metadata">
+        </video>
+      </div>
+
+      <div style="padding:16px 18px; background:#FFFDF7;">
+        <div id="ymh-video-alert-title" style="
+          display:inline-block;
+          font-size:12px;
+          font-weight:900;
+          color:#B45309;
+          background:#FEF3C7;
+          padding:4px 8px;
+          border-radius:6px;
+          margin-bottom:8px;
+        ">신규 메시지</div>
+
+        <p id="ymh-video-alert-text" style="
+          font-size:14px;
+          font-weight:800;
+          line-height:1.5;
+          color:#0F172A;
+          margin:0;
+        ">영무회에 신규 메시지가 있습니다.</p>
+      </div>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:13px 16px;
+        background:#F8FAFC;
+        border-top:1px solid #E2E8F0;
+      ">
+        <button id="ymh-video-alert-close" style="
+          border:none;
+          background:#64748B;
+          color:white;
+          font-weight:800;
+          padding:9px 16px;
+          border-radius:9px;
+          cursor:pointer;
+        ">닫기</button>
+
+        <button id="ymh-video-alert-open" style="
+          border:none;
+          background:linear-gradient(135deg,#F59E0B,#D97706);
+          color:white;
+          font-weight:900;
+          padding:9px 18px;
+          border-radius:9px;
+          cursor:pointer;
+          box-shadow:0 6px 14px rgba(217,119,6,0.28);
+        ">새 메시지 보기</button>
+      </div>
+    </div>
+  `;
+
+  const phone = document.querySelector(".phone-container") || document.body;
+  phone.appendChild(modal);
+
+  document.getElementById("ymh-video-alert-close").onclick = ymhCloseVideoAlert;
+  document.getElementById("ymh-video-alert-open").onclick = ymhOpenVideoAlertTargetRoom;
+}
+
+function ymhShowVideoAlert(roomName, senderName, message){
+  ymhEnsureVideoAlertModal();
+
+  ymhVideoAlertTargetRoom = roomName;
+
+  const modal = document.getElementById("ymh-video-alert-modal");
+  const player = document.getElementById("ymh-video-alert-player");
+  const title = document.getElementById("ymh-video-alert-title");
+  const text = document.getElementById("ymh-video-alert-text");
+
+  const displayRoom = roomName === "영무회 라운지" ? "영무회 라운지" : roomName;
+
+  if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
+  if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
+
+  if(modal) modal.style.display = "flex";
+
+  if(player){
+    try{
+      player.currentTime = 0;
+      player.muted = true;
+      player.play().catch(()=>{});
+    }catch(e){}
+  }
+}
+
+function ymhCloseVideoAlert(){
+  const modal = document.getElementById("ymh-video-alert-modal");
+  const player = document.getElementById("ymh-video-alert-player");
+
+  if(player){
+    try{
+      player.pause();
+      player.currentTime = 0;
+    }catch(e){}
+  }
+
+  if(modal) modal.style.display = "none";
+}
+
+function ymhOpenVideoAlertTargetRoom(){
+  const room = ymhVideoAlertTargetRoom || "영무회 라운지";
+  ymhCloseVideoAlert();
+
+  try{
+    const navChat = document.getElementById("nav-chat");
+    if(typeof navigateTab === "function"){
+      navigateTab("chat", "채팅", navChat);
+    }
+
+    setTimeout(()=>{
+      if(room === "영무회 라운지" || room === "영무회 공식 채팅방"){
+        window.openChatRoom("영무회 라운지", "공");
+      }else{
+        window.openChatRoom(room, room[0]);
+      }
+    }, 80);
+  }catch(e){
+    console.error("[YMH ALERT] open target failed", e);
+  }
+}
+
+function ymhShowBadgesForAlert(roomName){
+  const bottomBadge = document.getElementById("bottom-nav-chat-badge");
+  if(bottomBadge){
+    bottomBadge.style.display = "block";
+    bottomBadge.innerText = "1";
+  }
+
+  if(roomName === "영무회 라운지"){
+    const officialBadge = document.getElementById("official-group-badge");
+    if(officialBadge){
+      officialBadge.style.display = "inline-block";
+      officialBadge.innerText = "1";
+    }
+  }
+}
+
+function ymhHandleIncomingForVideoAlert(roomName, data, docId){
+  const me = ymhAlertCurrentProfile();
+  if(!me.memberId) return;
+
+  const key = `${roomName}_${docId}`;
+  if(ymhVideoAlertLastKey[key]) return;
+  ymhVideoAlertLastKey[key] = true;
+
+  const senderId = data.senderId || "";
+  const senderName = data.sender || "동문";
+
+  if(senderId === me.memberId || senderName === me.name) return;
+
+  if(Array.isArray(data.readByIds) && data.readByIds.includes(me.memberId)) return;
+
+  const currentRoom = ymhGetCurrentRoomNameForAlert();
+
+  /* 현재 보고 있는 방이면 팝업 생략 */
+  if(currentRoom === roomName || (roomName === "영무회 라운지" && currentRoom === "영무회 라운지")){
+    return;
+  }
+
+  ymhShowBadgesForAlert(roomName);
+  ymhShowVideoAlert(roomName, senderName, data.message || "");
+
+  console.log("[YMH ALERT] video alert", {
+    roomName,
+    sender:senderName,
+    message:data.message
+  });
+}
+
+function ymhSubscribeAlertRoom(roomName, roomId){
+  if(!window.db || !roomId) return;
+
+  const q = query(
+    collection(window.db, "chat_rooms", roomId, "messages"),
+    orderBy("createdAt"),
+    limit(1)
+  );
+
+  const unsub = onSnapshot(q, (snap)=>{
+    snap.forEach(d=>{
+      ymhHandleIncomingForVideoAlert(roomName, d.data(), d.id);
+    });
+  }, (error)=>{
+    console.warn("[YMH ALERT] listen failed", roomName, roomId, error);
+  });
+
+  ymhVideoAlertUnsubs.push(unsub);
+}
+
+function ymhStartVideoAlertListener(){
+  if(ymhVideoAlertStarted) return;
+  if(!window.db) return;
+
+  const me = ymhAlertCurrentProfile();
+  if(!me.memberId){
+    console.warn("[YMH ALERT] current memberId 없음. 내 정보 저장 후 새로고침 필요.");
+    return;
+  }
+
+  ymhVideoAlertStarted = true;
+
+  ymhVideoAlertUnsubs.forEach(fn=>{
+    try{ fn(); }catch(e){}
+  });
+  ymhVideoAlertUnsubs = [];
+
+  ymhSubscribeAlertRoom("영무회 라운지", "youngmoo_lounge");
+
+  ymhAlertAllMembers().forEach(member=>{
+    if(member.memberId && member.memberId !== me.memberId){
+      const roomId = ymhAlertPrivateRoomId(me.memberId, member.memberId);
+      ymhSubscribeAlertRoom(member.name, roomId);
+    }
+  });
+
+  console.log("[YMH ALERT] video alert listener started", {
+    current:me,
+    rooms:ymhVideoAlertUnsubs.length
+  });
+}
+
+window.ymhStartVideoAlertListener = ymhStartVideoAlertListener;
+window.ymhShowVideoAlertForTest = ymhShowVideoAlert;
+
+setTimeout(()=>{
+  ymhRenameOfficialRoomToLounge();
+  ymhEnsureVideoAlertModal();
+  ymhStartVideoAlertListener();
+}, 1400);
+
+window.addEventListener("focus", ()=>{
+  setTimeout(()=>{
+    ymhRenameOfficialRoomToLounge();
+    ymhStartVideoAlertListener();
+  }, 300);
+});
+</script>
+<!-- YM Lounge Name + Video Alert Patch END -->
+
+
+</body>
+</html>
 
     <title>영무회 비즈니스 네트워킹 플랫폼</title>
 </head>
