@@ -2087,11 +2087,6 @@ if(window.saveProfileData){
  const oldSaveProfileData = window.saveProfileData;
 
  window.saveProfileData = async function(){
-   try{
-     oldSaveProfileData();
-   }catch(e){
-     console.error("old saveProfileData failed", e);
-   }
    await registerOrUpdateMember();
  };
 }else{
