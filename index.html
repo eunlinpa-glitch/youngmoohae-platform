@@ -543,7 +543,9 @@
 </div>
 
 <script>
-   let alumniDb = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
+   let alumniDb = [];
+
+   localStorage.removeItem("ymh_alumni_db");
 
     let aiFeeds = [
         { title: "비즈니스 지능 매칭 스캐너 가동 가능", time: "상시", body: "[나의 매칭 요청] 메뉴에 원하시는 키워드나 협업 제안을 적고 분석을 실행해 주십시오. 선배님의 상세 프로필 및 채팅 기록을 해독하여 동역자를 실시간 발굴합니다.", pct: "100%" }
@@ -2024,6 +2026,7 @@ if(duplicated){
 };
 
 window.subscribeMembers=()=>{
+       alert("subscribeMembers 실행됨");
 
  if(!isFirebaseConfigured()){
    renderCoreLayout();
@@ -2036,6 +2039,7 @@ window.subscribeMembers=()=>{
  );
 
  onSnapshot(q,(snap)=>{
+    alert("Firebase 회원 수신: " + snap.size);
 
    const firebaseMembers=[];
 
