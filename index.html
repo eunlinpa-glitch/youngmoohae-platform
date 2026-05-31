@@ -264,11 +264,10 @@
 
         <div id="panel-chat" class="tab-panel" style="padding: 0;">
             <div id="chat-list-view">
-
-                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 라운지', '공')">
+                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 공식 마케팅룸', '공')">
                     <div class="chat-avatar" style="background: #FEF3C7; color: #D97706; font-size:18px;"><i class="fa-solid fa-users"></i></div>
                     <div class="chat-info">
-                        <div class="chat-top-row"><span class="chat-name">영무회 라운지</span><span class="chat-time">상시 가동</span></div>
+                        <div class="chat-top-row"><span class="chat-name">영무회 공식 마케팅룸</span><span class="chat-time">상시 가동</span></div>
                         <p class="chat-preview">2026 연말 글로벌 무역 총회 공지방입니다.</p>
                     </div>
                     <span class="chat-badge" id="official-group-badge">2</span>
@@ -992,15 +991,9 @@
  }
 
     function renderChatList() {
-
         const chatContainer = document.getElementById('chat-list-anchor');
         chatContainer.innerHTML = '';
         activeChatRooms.forEach(name => {
-
-            if(name === "영무회 라운지"){
-              return;
-            }
-
             chatContainer.innerHTML += `
                 <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
                     <div class="chat-avatar">${name[0]}</div>
@@ -1040,8 +1033,8 @@
         const msgBox = document.getElementById('chat-messages-box');
         msgBox.innerHTML = '';
         
-        if(partnerName === '영무회 라운지' || partnerName === '영무회 공식 채팅방') {
-            document.getElementById('header-text').innerText = '영무회 라운지';
+        if(partnerName === '영무회 공식 마케팅룸' || partnerName === '영무회 공식 채팅방') {
+            document.getElementById('header-text').innerText = '영무회 공식 마케팅룸';
             msgBox.innerHTML += `<div class="msg-wrapper other"><div class="msg-container-row"><div class="msg-bubble other"><strong>[전체 공지]</strong> 2026 영무회 연말 글로벌 무역 총회 일정이 다음 주 확정 고지됩니다. 니즈가 있으신 동문들은 상시 기재 바랍니다.</div></div></div>`;
             document.getElementById('official-group-badge').style.display = 'none';
         } else {
@@ -1611,7 +1604,7 @@ function getRoomMembers(roomName){
    return [...new Set(window.chatRoomMembersMap[roomName])];
  }
 
- if( roomName === "영무회 라운지" || roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방"){
+ if( roomName === "영무회 라운지" || roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
    return [...new Set(getAlumniNames())];
  }
 
@@ -1698,21 +1691,9 @@ function renderMessageBubble(messageData, roomName){
    ? `<span class="unread-counter-num">${unreadCount}</span>`
    : "";
 
- const senderProfile = alumniDb.find(p => p.name === sender) || {};
- const senderGisu = senderProfile.gisu || "";
- const senderImg = senderProfile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80";
- const senderDisplayName = `${senderGisu ? senderGisu.replace("회", "기") + " " : ""}${sender}`;
-
  const senderLabel =
-   !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
-   ? `
-     <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-       <img src="${senderImg}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-       <div style="font-size:11px; font-weight:800; color:#475569;">
-         ${escapeHtml(senderDisplayName)}
-       </div>
-     </div>
-   `
+   !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
+   ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${escapeHtml(sender)}</div>`
    : "";
 
  return `
@@ -1950,6 +1931,9 @@ window.registerOrUpdateMember=async()=>{
 
  const profile = buildProfileFromForm();
 
+alert("currentMemberId = " + currentMemberId);
+alert("profile = " + JSON.stringify(profile));
+
  console.log("현재 currentMemberId =", currentMemberId);
  console.log("저장 profile =", profile);
 
@@ -2014,21 +1998,11 @@ window.subscribeMembers=()=>{
      const v=d.data();
      if(v && v.name && v.approved !== false){
        firebaseMembers.push({
-         memberId: v.memberId || d.id,
-         name: v.name,
-         gisu: v.gisu || "",
-         gisuNumber: v.gisuNumber || "",
-         phone: v.phone || "",
-         phoneId: v.phoneId || "",
-         company: v.company || "",
-         job: v.job || "",
-         comp: v.comp || (v.job ? `${v.company || ""} · ${v.job} (${v.phone || ""})` : `${v.company || ""} (${v.phone || ""})`),
-         field: v.field || "",
-         assets: v.assets || "",
-         target: v.target || "",
-         intro: v.intro || "",
-         img: v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-         approved: v.approved !== false
+         name:v.name,
+         gisu:v.gisu || "",
+         comp:v.comp || (v.job ? `${v.company || ""} · ${v.job}` : v.company || ""),
+         field:v.field || "",
+         img:v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
        });
      }
    });
@@ -2497,7 +2471,7 @@ function ymhRenderMessage(data, roomName){
     ? `<span class="unread-counter-num">${unread}</span>`
     : "";
 
-  const senderLabel = !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
+  const senderLabel = !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
     ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${ymhEscapeHtml(data.sender)}</div>`
     : "";
 
@@ -2728,10 +2702,6 @@ window.executeSendMsg = async function(){
     await ymhSaveChatRealtime(roomName, text);
     input.value = "";
     console.log("[YMH] message saved", { roomName, text });
-
-    if(typeof openChatRoom === "function") openChatRoom(roomName, roomName[0] || "영");
-    if(typeof renderCoreLayout === "function") renderCoreLayout();
-  
   }catch(e){
     console.error("[YMH] message save failed", e);
     alert(e.message || "메시지 저장 실패");
@@ -2780,8 +2750,9 @@ import {
 
 /*
   목적:
-  1) 새 메시지 도착 시 애후배_알림.mp4 팝업 표시
-  2) "새 메시지 보기" 클릭 시 해당 채팅방으로 이동
+  1) "영무회 공식 마케팅룸" 표시명을 "영무회 라운지"로 변경
+  2) 새 메시지 도착 시 애후배_알림.mp4 팝업 표시
+  3) "새 메시지 보기" 클릭 시 해당 채팅방으로 이동
 
   주의:
   - 내부 Firestore roomId는 youngmoo_lounge 그대로 유지
@@ -2886,8 +2857,8 @@ function ymhRenameOfficialRoomToLounge(){
   document.querySelectorAll("*").forEach(el=>{
     if(el.childNodes && el.childNodes.length){
       el.childNodes.forEach(node=>{
-        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 라운지")){
-          node.nodeValue = node.nodeValue.replaceAll("영무회 라운지","영무회 라운지");
+        if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 마케팅룸")){
+          node.nodeValue = node.nodeValue.replaceAll("영무회 공식 마케팅룸","영무회 라운지");
         }
         if(node.nodeType === Node.TEXT_NODE && node.nodeValue.includes("영무회 공식 채팅방")){
           node.nodeValue = node.nodeValue.replaceAll("영무회 공식 채팅방","영무회 라운지");
@@ -2897,7 +2868,7 @@ function ymhRenameOfficialRoomToLounge(){
   });
 
   const header = document.getElementById("header-text");
-  if(header && (header.innerText === "영무회 라운지" || header.innerText === "영무회 공식 채팅방")){
+  if(header && (header.innerText === "영무회 공식 마케팅룸" || header.innerText === "영무회 공식 채팅방")){
     header.innerText = "영무회 라운지";
   }
 }
@@ -2905,14 +2876,14 @@ function ymhRenameOfficialRoomToLounge(){
 /* 기존 openChatRoom이 옛 이름을 기준으로 움직이므로 표시만 라운지로 바꿈 */
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
 window.openChatRoom = function(name, letter){
-  const internalName = name === "영무회 라운지" ? "영무회 라운지" : name;
+  const internalName = name === "영무회 라운지" ? "영무회 공식 마케팅룸" : name;
 
   if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
     ymhOldOpenChatRoomForLoungeAlert(internalName, letter);
   }
 
-  if(name === "영무회 라운지" || internalName === "영무회 라운지" || internalName === "영무회 공식 채팅방"){
-    window.activeChatPartner = "영무회 라운지";
+  if(name === "영무회 라운지" || internalName === "영무회 공식 마케팅룸" || internalName === "영무회 공식 채팅방"){
+    window.activeChatPartner = "영무회 공식 마케팅룸";
     const header = document.getElementById("header-text");
     if(header) header.innerText = "영무회 라운지";
   }
@@ -3043,7 +3014,7 @@ function ymhShowVideoAlert(roomName, senderName, message){
   const title = document.getElementById("ymh-video-alert-title");
   const text = document.getElementById("ymh-video-alert-text");
 
-  const displayRoom = roomName = roomName;
+  const displayRoom = roomName === "영무회 공식 마케팅룸" ? "영무회 라운지" : roomName;
 
   if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
   if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
@@ -3074,7 +3045,7 @@ function ymhCloseVideoAlert(){
 }
 
 function ymhOpenVideoAlertTargetRoom(){
-  const room = ymhVideoAlertTargetRoom || "영무회 라운지";
+  const room = ymhVideoAlertTargetRoom || "영무회 공식 마케팅룸";
   ymhCloseVideoAlert();
 
   try{
@@ -3084,28 +3055,15 @@ function ymhOpenVideoAlertTargetRoom(){
     }
 
     setTimeout(()=>{
-      if(room === "영무회 라운지" || room === "영무회 공식 채팅방"){
+      if(room === "영무회 공식 마케팅룸" || room === "영무회 공식 채팅방"){
         window.openChatRoom("영무회 라운지", "공");
       }else{
         window.openChatRoom(room, room[0]);
       }
     }, 80);
-
   }catch(e){
-
-   console.error("[YMH CHAT] Firestore 저장 실패 상세", {
-    error: e,
-    code: e.code,
-    message: e.message,
-    roomName,
-    senderName,
-    text
-  });
-
-  appendLocalMessage(senderName,text,roomName,true);
-  input.value="";
-
-  alert("Firebase 채팅 저장 실패: " + (e.message || e.code || e));
+    console.error("[YMH ALERT] open target failed", e);
+  }
 }
 
 function ymhShowBadgesForAlert(roomName){
@@ -3142,7 +3100,7 @@ function ymhHandleIncomingForVideoAlert(roomName, data, docId){
   const currentRoom = ymhGetCurrentRoomNameForAlert();
 
   /* 현재 보고 있는 방이면 팝업 생략 */
-  if(currentRoom === roomName || (roomName === "영무회 라운지" && currentRoom === "영무회 라운지")){
+  if(currentRoom === roomName || (roomName === "영무회 공식 마케팅룸" && currentRoom === "영무회 라운지")){
     return;
   }
 
@@ -3193,7 +3151,7 @@ function ymhStartVideoAlertListener(){
   });
   ymhVideoAlertUnsubs = [];
 
-  ymhSubscribeAlertRoom("영무회 라운지", "youngmoo_lounge");
+  ymhSubscribeAlertRoom("영무회 공식 마케팅룸", "youngmoo_lounge");
 
   ymhAlertAllMembers().forEach(member=>{
     if(member.memberId && member.memberId !== me.memberId){
