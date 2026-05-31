@@ -2371,6 +2371,9 @@ function ymhSeedLocalMembers(){
 }
 
 function ymhUpsertAlumni(profile){
+
+  console.log("UPSERT PROFILE=", profile);
+  
   if(!profile?.memberId) return;
 
   window.ymhMembersById = window.ymhMembersById || {};
@@ -2395,7 +2398,12 @@ function ymhUpsertAlumni(profile){
         gisu:profile.gisu,
         comp:profile.comp || `${profile.company || ""} (${profile.phone || ""})`,
         field:profile.field || "",
-        img:profile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+        img: profile.img ||
+             profile.avatar ||
+             profile.photo ||
+             profile.photoURL ||
+             profile.profileImage ||
+             "",
         phone:profile.phone
       };
 
