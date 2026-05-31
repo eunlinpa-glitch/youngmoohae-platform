@@ -1688,9 +1688,14 @@ function escapeHtml(text){
 function renderMessageBubble(messageData, roomName){
  const sender=messageData.sender || "익명";
  const senderInfo = 
-   alumniDb.find(p => p.name === sender) 
+   alumniDb.find(p => p.name === sender && p.img) 
+   || alumniDb.find(p => p.memberId === messageData.senderId && p.img)
+   || alumniDb.find(p => p.name === sender)
    || alumniDb.find(p => p.memberId === messageData.senderId)
    || {};
+ const senderImg = 
+    senderInfo.img || ""; 
+    console.log("IMG=", senderImg);
  const senderGisu = senderInfo.gisu || "";
  const senderTime = messageData.createdAt?.toDate
   ? messageData.createdAt.toDate().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
@@ -1719,14 +1724,22 @@ function renderMessageBubble(messageData, roomName){
 
 return `
  <div class="msg-wrapper ${isMe ? 'me' : 'other'}">
-   ${senderLabel}
-   <div class="msg-container-row">
-     ${isMe ? unreadHtml : ""}
-     <div class="msg-bubble ${isMe ? 'me' : 'other'}">
-       ${escapeHtml(messageData.message)}
-     </div>
-   </div>
- </div>`;
+  <div style="display:flex; align-items:flex-start; gap:8px; ${isMe ? "justify-content:flex-end;" : "justify-content:flex-start;"}">
+    
+    ${senderImg ? `<img src="${senderImg}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid #E2E8F0;">` : ""}
+
+    <div>
+      ${senderLabel}
+      <div class="msg-container-row">
+        ${isMe ? unreadHtml : ""}
+        <div class="msg-bubble ${isMe ? 'me' : 'other'}">
+          ${escapeHtml(messageData.message)}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>`;
 }
 
 function renderLocalRoomMessages(roomName){
