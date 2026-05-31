@@ -1687,11 +1687,16 @@ function escapeHtml(text){
 
 function renderMessageBubble(messageData, roomName){
  const sender=messageData.sender || "익명";
- const senderInfo = alumniDb.find(p => p.name === sender) || {};
+ const senderInfo = 
+   alumniDb.find(p => p.name === sender) 
+   || alumniDb.find(p => p.memberId === messageData.senderId)
+   || {};
  const senderGisu = senderInfo.gisu || "";
  const senderTime = messageData.createdAt?.toDate
-   ? messageData.createdAt.toDate().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
-   : "";
+  ? messageData.createdAt.toDate().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
+  : (messageData.clientCreatedAt
+      ? new Date(messageData.clientCreatedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
+      : "");
 
  const myName = (typeof currentLoggedInUser !== "undefined" && currentLoggedInUser)
   ? currentLoggedInUser
@@ -1706,26 +1711,22 @@ function renderMessageBubble(messageData, roomName){
    : "";
 
  const senderLabel =
-   !isMe 
-   
-    ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">
-        ${ymhEscapeHtml(sender)} ${senderGisu ? `<span style="font-size:10px; color:#94A3B8;">${senderGisu}</span>` : ""}
-        ${senderTime ? `<span style="font-size:10px; color:#94A3B8; margin-left:6px;">${senderTime}</span>` : ""}
-      </div>`
-    : `<div style="font-size:10px; color:#94A3B8; margin-bottom:3px; text-align:right;">
-        ${senderTime}
-      </div>`;
+  `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px; ${isMe ? "text-align:right;" : ""}">
+    ${escapeHtml(sender)}
+    ${senderGisu ? `<span style="font-size:10px; color:#94A3B8;"> ${senderGisu}</span>` : ""}
+    ${senderTime ? `<span style="font-size:10px; color:#94A3B8; margin-left:6px;">${senderTime}</span>` : ""}
+  </div>`;
 
- return `
-<div class="msg-wrapper ${isMe?'me':'other'}">
-  <div class="msg-container-row">
-    ${isMe ? unreadHtml : ""}
-    <div class="msg-bubble ${isMe?'me':'other'}">
-      ${senderLabel}
-      ${escapeHtml(messageData.message)}
-    </div>
-  </div>
-</div>`;
+return `
+ <div class="msg-wrapper ${isMe ? 'me' : 'other'}">
+   ${senderLabel}
+   <div class="msg-container-row">
+     ${isMe ? unreadHtml : ""}
+     <div class="msg-bubble ${isMe ? 'me' : 'other'}">
+       ${escapeHtml(messageData.message)}
+     </div>
+   </div>
+ </div>`;
 }
 
 function renderLocalRoomMessages(roomName){
