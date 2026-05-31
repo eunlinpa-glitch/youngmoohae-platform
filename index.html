@@ -1604,8 +1604,12 @@ function getRoomMembers(roomName){
    return [...new Set(window.chatRoomMembersMap[roomName])];
  }
 
- if( roomName === "영무회 라운지" || roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
-   return [...new Set(getAlumniNames())];
+ if( 
+   roomName === "영무회 라운지" || 
+   roomName === "영무회 공식 마케팅룸" || 
+   roomName === "영무회 공식 채팅방"
+  ){
+     return [...new Set(getAlumniNames())];
  }
 
  if(!roomName){
@@ -2411,7 +2415,7 @@ function ymhGetActiveRoomName(){
 function ymhGetRoomMembers(roomName){
   ymhSeedLocalMembers();
 
-  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+  if(roomName === "영무회 라운지" || roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
     try{
       return alumniDb.map(p => ymhGetMemberByName(p.name)).filter(p => p.memberId);
     }catch(e){
@@ -2431,7 +2435,7 @@ function ymhGetRoomMembers(roomName){
 }
 
 function ymhMakeRoomId(roomName){
-  if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
+ if(roomName === "영무회 라운지" || roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
     return "youngmoo_lounge";
   }
 
@@ -3151,7 +3155,7 @@ function ymhStartVideoAlertListener(){
   });
   ymhVideoAlertUnsubs = [];
 
-  ymhSubscribeAlertRoom("영무회 공식 마케팅룸", "youngmoo_lounge");
+  ymhSubscribeAlertRoom("영무회 라운지", "youngmoo_lounge");
 
   ymhAlertAllMembers().forEach(member=>{
     if(member.memberId && member.memberId !== me.memberId){
