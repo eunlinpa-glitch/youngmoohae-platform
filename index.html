@@ -1698,9 +1698,21 @@ function renderMessageBubble(messageData, roomName){
    ? `<span class="unread-counter-num">${unreadCount}</span>`
    : "";
 
+ const senderProfile = alumniDb.find(p => p.name === sender) || {};
+ const senderGisu = senderProfile.gisu || "";
+ const senderImg = senderProfile.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80";
+ const senderDisplayName = `${senderGisu ? senderGisu.replace("회", "기") + " " : ""}${sender}`;
+
  const senderLabel =
    !isMe && (roomName === "영무회 라운지" || roomName === "영무회 공식 채팅방")
-   ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${escapeHtml(sender)}</div>`
+   ? `
+     <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+       <img src="${senderImg}" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+       <div style="font-size:11px; font-weight:800; color:#475569;">
+         ${escapeHtml(senderDisplayName)}
+       </div>
+     </div>
+   `
    : "";
 
  return `
@@ -1938,9 +1950,6 @@ window.registerOrUpdateMember=async()=>{
 
  const profile = buildProfileFromForm();
 
-alert("currentMemberId = " + currentMemberId);
-alert("profile = " + JSON.stringify(profile));
-
  console.log("현재 currentMemberId =", currentMemberId);
  console.log("저장 profile =", profile);
 
@@ -2005,11 +2014,21 @@ window.subscribeMembers=()=>{
      const v=d.data();
      if(v && v.name && v.approved !== false){
        firebaseMembers.push({
-         name:v.name,
-         gisu:v.gisu || "",
-         comp:v.comp || (v.job ? `${v.company || ""} · ${v.job}` : v.company || ""),
-         field:v.field || "",
-         img:v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+         memberId: v.memberId || d.id,
+         name: v.name,
+         gisu: v.gisu || "",
+         gisuNumber: v.gisuNumber || "",
+         phone: v.phone || "",
+         phoneId: v.phoneId || "",
+         company: v.company || "",
+         job: v.job || "",
+         comp: v.comp || (v.job ? `${v.company || ""} · ${v.job} (${v.phone || ""})` : `${v.company || ""} (${v.phone || ""})`),
+         field: v.field || "",
+         assets: v.assets || "",
+         target: v.target || "",
+         intro: v.intro || "",
+         img: v.img || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+         approved: v.approved !== false
        });
      }
    });
@@ -3071,9 +3090,22 @@ function ymhOpenVideoAlertTargetRoom(){
         window.openChatRoom(room, room[0]);
       }
     }, 80);
+
   }catch(e){
-    console.error("[YMH ALERT] open target failed", e);
-  }
+
+   console.error("[YMH CHAT] Firestore 저장 실패 상세", {
+    error: e,
+    code: e.code,
+    message: e.message,
+    roomName,
+    senderName,
+    text
+  });
+
+  appendLocalMessage(senderName,text,roomName,true);
+  input.value="";
+
+  alert("Firebase 채팅 저장 실패: " + (e.message || e.code || e));
 }
 
 function ymhShowBadgesForAlert(roomName){
