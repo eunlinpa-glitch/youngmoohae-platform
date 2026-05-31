@@ -2411,6 +2411,10 @@ function ymhUpsertAlumni(profile){
       else {
           alumniDb.push(item);
       }
+      
+      console.log("ITEM=", JSON.stringify(item));
+      localStorage.setItem("ymh_alumni_db", JSON.stringify(alumniDb));
+
       if(typeof renderCoreLayout === "function") renderCoreLayout();
       if(typeof populateSupervisorSelectOptions === "function") populateSupervisorSelectOptions();
     }
