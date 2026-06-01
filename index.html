@@ -98,6 +98,21 @@
         
         .chat-view-container { display: none; flex-direction: column; height: 100%; background: #E8EBF0; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-messages.lounge-bg-main {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.82), rgba(255,255,255,0.82)),
+                url("./assets/notification/lounge-main.png");
+            background-size: cover;
+            background-position: center;
+         }
+
+        .chat-messages.lounge-bg-vip {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.82), rgba(255,255,255,0.82)),
+                url("./assets/notification/lounge-vip.png");
+            background-size: cover;
+            background-position: center;
+         }
         
         .msg-wrapper { display: flex; flex-direction: column; margin-bottom: 2px; width: 100%; }
         .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
@@ -1048,7 +1063,21 @@
         document.getElementById('global-nav-bar').style.opacity = "";
 
         const msgBox = document.getElementById('chat-messages-box');
+
+        msgBox.classList.remove("lounge-bg-main", "lounge-bg-vip");
+
+        if(
+           partnerName === "영무회 라운지" ||
+           partnerName === "영무회 공식 마케팅룸" ||
+           partnerName === "영무회 공식 채팅방"
+         ){
+           msgBox.classList.add("lounge-bg-main");
+         }else{
+           msgBox.classList.add("lounge-bg-vip");
+         }
         msgBox.innerHTML = '';
+
+
         
         if(partnerName === '영무회 공식 마케팅룸' || partnerName === '영무회 공식 채팅방') {
             document.getElementById('header-text').innerText = '영무회 공식 마케팅룸';
