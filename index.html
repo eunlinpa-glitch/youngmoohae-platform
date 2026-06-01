@@ -264,14 +264,16 @@
 
         <div id="panel-chat" class="tab-panel" style="padding: 0;">
             <div id="chat-list-view">
-                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 공식 마케팅룸', '공')">
+
+                <div class="chat-item" style="background: #F8FAFC;" onclick="openChatRoom('영무회 라운지', '공')">
                     <div class="chat-avatar" style="background: #FEF3C7; color: #D97706; font-size:18px;"><i class="fa-solid fa-users"></i></div>
                     <div class="chat-info">
-                        <div class="chat-top-row"><span class="chat-name">영무회 공식 마케팅룸</span><span class="chat-time">상시 가동</span></div>
-                        <p class="chat-preview">2026 연말 글로벌 무역 총회 공지방입니다.</p>
+                        <div class="chat-top-row"><span class="chat-name">영무회 라운지</span><span class="chat-time">상시 가동</span></div>
+                        <p class="chat-preview">영무회 전체 동문 공식 채팅방입니다.</p>
                     </div>
-                    <span class="chat-badge" id="official-group-badge">2</span>
+                    <span class="chat-badge" id="official-group-badge" style="display:none;">2</span>
                 </div>
+                
                 <div id="chat-list-anchor"></div>
             </div>
             
@@ -608,7 +610,14 @@
         const gisuLabel = targetAlumnus ? targetAlumnus.gisu : "동문";
         
         chatHistoryLog.push({ room: senderName, sender: senderName, msg: "선배님, 제 제어 콘솔 프로필 보시고 수계아연 2차전지 스펙 매칭 건으로 긴급 연락 올렸습니다. 시간 나실 때 채팅 부탁드립니다." });
-        if(!activeChatRooms.includes(senderName)) { activeChatRooms.push(senderName); }
+        const normalizedRoomName =
+          room.roomName === "영무회 공식 마케팅룸" || room.roomName === "영무회 공식 채팅방"
+            ? "영무회 라운지"
+            : room.roomName;
+
+          if(!activeChatRooms.includes(normalizedRoomName)) {
+          activeChatRooms.push(normalizedRoomName);
+          }
 
         if (isVideoAlertEnabled) {
             document.getElementById('alert-sender-title').innerText = `${senderName} 선배님 (${gisuLabel}) 신규 메시지`;
@@ -994,6 +1003,14 @@
         const chatContainer = document.getElementById('chat-list-anchor');
         chatContainer.innerHTML = '';
         activeChatRooms.forEach(name => {
+          if(
+             name === "영무회 라운지" ||
+             name === "영무회 공식 마케팅룸" ||
+             name === "영무회 공식 채팅방"
+            ){
+             return;
+            }
+            
             chatContainer.innerHTML += `
                 <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
                     <div class="chat-avatar">${name[0]}</div>
@@ -1641,8 +1658,11 @@ function getRoomMemberIds(roomName){
 function makeRoomId(roomName){
  const meId = getCurrentMemberId();
 
- if(roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방"){
-   return "youngmoo_lounge";
+ if( roomName === "영무회 라운지" ||
+     roomName === "영무회 공식 마케팅룸" || 
+     roomName === "영무회 공식 채팅방"
+  ){
+     return "youngmoo_lounge";
  }
 
  const partnerId = getMemberIdByName(roomName);
@@ -3021,15 +3041,21 @@ function ymhRenameOfficialRoomToLounge(){
 
 /* 기존 openChatRoom이 옛 이름을 기준으로 움직이므로 표시만 라운지로 바꿈 */
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
+
 window.openChatRoom = function(name, letter){
-  const internalName = name === "영무회 라운지" ? "영무회 공식 마케팅룸" : name;
+  const displayName =
+    name === "영무회 공식 마케팅룸" || name === "영무회 공식 채팅방"
+      ? "영무회 라운지"
+      : name;
 
   if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
-    ymhOldOpenChatRoomForLoungeAlert(internalName, letter);
+    ymhOldOpenChatRoomForLoungeAlert(displayName, letter);
   }
 
-  if(name === "영무회 라운지" || internalName === "영무회 공식 마케팅룸" || internalName === "영무회 공식 채팅방"){
-    window.activeChatPartner = "영무회 공식 마케팅룸";
+  if(displayName === "영무회 라운지"){
+    window.activeChatPartner = "영무회 라운지";
+    try { activeChatPartner = "영무회 라운지"; } catch(e) {}
+
     const header = document.getElementById("header-text");
     if(header) header.innerText = "영무회 라운지";
   }
