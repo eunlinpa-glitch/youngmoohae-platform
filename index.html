@@ -1056,17 +1056,30 @@
                  <div class="msg-wrapper me">
                    <div class="msg-container-row">
                     <span class="unread-counter-num">1</span>
-                    <div class="msg-bubble me">${log.msg}</div>
+                   <div class="msg-bubble me">${log.msg}</div>
                   </div>
                 </div>`;
-           } else {
-             msgBox.innerHTML += `
+        } else {
+            const senderImg =
+               (alumniDb.find(p => p.name === log.sender) || {}).img || "";
+
+            msgBox.innerHTML += `
                <div class="msg-wrapper other">
-                <div class="msg-container-row">
-                 <div class="msg-bubble other">${log.msg}</div>
-               </div>
-             </div>`;
-          }
+                 <div class="msg-container-row">
+                  <div style="display:flex; gap:8px; align-items:flex-start;">
+                   ${senderImg ? `<img src="${senderImg}" style="width:34px;height:34px;min-width:34px;border-radius:50%;object-fit:cover;border:1px solid #E2E8F0;">` : ""}
+                    <div>
+                     <div style="font-size:11px;font-weight:800;color:#64748B;margin-bottom:3px;">
+                      ${log.sender}
+                     </div>
+                    <div class="msg-bubble other">
+                    ${log.msg}
+                    </div>
+                   </div>
+                  </div>
+                 </div>
+               </div>`;
+               }
         }
       });
 
@@ -1695,7 +1708,7 @@ function renderMessageBubble(messageData, roomName){
    || {};
  const senderImg = 
     senderInfo.img || ""; 
-    console.log("IMG=", senderImg);
+
  const senderGisu = senderInfo.gisu || "";
  const senderTime = messageData.createdAt?.toDate
   ? messageData.createdAt.toDate().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
@@ -1726,10 +1739,11 @@ return `
  <div class="msg-wrapper ${isMe ? 'me' : 'other'}">
   <div style="display:flex; align-items:flex-start; gap:8px; ${isMe ? "justify-content:flex-end;" : "justify-content:flex-start;"}">
     
-    ${senderImg ? `<img src="${senderImg}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:1px solid #E2E8F0;">` : ""}
+    ${!isMe && senderImg ? `<img src="${senderImg}" style="width:34px; height:34px; min-width:34px; border-radius:50%; object-fit:cover; border:1px solid #E2E8F0;">` : ""}
 
-    <div>
-      ${senderLabel}
+  <div>
+    ${senderLabel}
+
       <div class="msg-container-row">
         ${isMe ? unreadHtml : ""}
         <div class="msg-bubble ${isMe ? 'me' : 'other'}">
@@ -2509,28 +2523,114 @@ function ymhUnreadCount(data, roomName){
 }
 
 function ymhRenderMessage(data, roomName){
+
   const me = ymhGetCurrentProfile();
-  const isMe = data.senderId === me.memberId || data.sender === me.name;
+  const sender = data.sender || "익명";
+
+  const isMe =
+    data.senderId === me.memberId ||
+    sender === me.name;
+
   const unread = ymhUnreadCount(data, roomName);
 
-  const unreadHtml = isMe && unread > 0
-    ? `<span class="unread-counter-num">${unread}</span>`
-    : "";
+  const senderInfo =
+    alumniDb.find(p =>
+      p.memberId &&
+      data.senderId &&
+      p.memberId === data.senderId
+    ) ||
+    alumniDb.find(p => p.name === sender) ||
+    {};
 
-  const senderLabel = !isMe && (roomName === "영무회 공식 마케팅룸" || roomName === "영무회 공식 채팅방")
-    ? `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px;">${ymhEscapeHtml(data.sender)}</div>`
-    : "";
+  const senderImg = senderInfo.img || "";
+  const senderGisu = senderInfo.gisu || "";
+
+  const unreadHtml =
+    isMe && unread > 0
+      ? `<span class="unread-counter-num">${unread}</span>`
+      : "";
+
+  if (isMe) {
+    return `
+      <div class="msg-wrapper me">
+        <div class="msg-container-row">
+          ${unreadHtml}
+          <div class="msg-bubble me">
+            ${ymhEscapeHtml(data.message)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   return `
-<div class="msg-wrapper ${isMe ? "me" : "other"}">
-  <div class="msg-container-row">
-    ${isMe ? unreadHtml : ""}
-    <div class="msg-bubble ${isMe ? "me" : "other"}">
-      ${senderLabel}
-      ${ymhEscapeHtml(data.message)}
+    <div class="msg-wrapper other">
+
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin-bottom:4px;
+        margin-left:2px;
+      ">
+
+        ${
+          senderImg
+          ? `<img
+               src="${senderImg}"
+               style="
+                 width:32px;
+                 height:32px;
+                 border-radius:50%;
+                 object-fit:cover;
+                 border:1px solid #E2E8F0;
+               "
+             >`
+          : `<div
+               style="
+                 width:32px;
+                 height:32px;
+                 border-radius:50%;
+                 background:#E2E8F0;
+                 display:flex;
+                 align-items:center;
+                 justify-content:center;
+                 font-size:12px;
+                 font-weight:900;
+                 color:#64748B;
+               "
+             >
+               ${ymhEscapeHtml(sender[0] || "?")}
+             </div>`
+        }
+
+        <div
+          style="
+            font-size:12px;
+            font-weight:800;
+            color:#64748B;
+          "
+        >
+          ${ymhEscapeHtml(sender)}
+          ${
+            senderGisu
+            ? `<span style="margin-left:4px;color:#94A3B8;">
+                 ${ymhEscapeHtml(senderGisu)}
+               </span>`
+            : ""
+          }
+        </div>
+
+      </div>
+
+      <div class="msg-container-row">
+        <div class="msg-bubble other">
+          ${ymhEscapeHtml(data.message)}
+        </div>
+      </div>
+
     </div>
-  </div>
-</div>`;
+  `;
 }
 
 function ymhIsFirebaseReady(){
