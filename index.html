@@ -386,7 +386,7 @@
                     <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> [시뮬레이터용] 현재 접속 회원 계정 변경</label>
                     <select class="form-select" style="background:#EBF2FF; border-color:#93C5FD; font-weight:700;" onchange="switchDemoLoginAccount(this.value)">
                         <option value="제갈훈">제갈훈 (13회 최고 임원 - 관리 권한 및 모든 탭 왕관 표출)</option>
-                        <option value="정희훈">정희훈 (20회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
+                        <option value="">정희훈 (20회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
                         <option value="이준호">이준호 (12회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
                     </select>
                 </div>
@@ -3219,8 +3219,8 @@ function ymhShowVideoAlert(roomName, senderName, message){
 
   const displayRoom = roomName === "영무회 공식 마케팅룸" ? "영무회 라운지" : roomName;
 
-  if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
-  if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
+if(title) title.innerText = "애후배 비서 알림";
+if(text) text.innerText = "선배님, 확인하지 않은 메시지가 있습니다.";
 
   if(modal) modal.style.display = "flex";
 
