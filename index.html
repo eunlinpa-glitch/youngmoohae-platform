@@ -3143,7 +3143,9 @@ function ymhEnsureVideoAlertModal(){
           style="width:100%; height:100%; object-fit:cover;"
           playsinline
           muted
-          preload="metadata">
+          autoplay
+          loop
+          preload="auto">
         </video>
       </div>
 
@@ -3227,7 +3229,7 @@ if(text) text.innerText = "선배님, 확인하지 않은 메시지가 있습니
   if(player){
     try{
       player.currentTime = 0;
-      player.muted = false;
+      player.muted = true;
       player.volume = 1;
       player.play().catch(()=>{});
     }catch(e){}
