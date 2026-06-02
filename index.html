@@ -3227,7 +3227,8 @@ if(text) text.innerText = "선배님, 확인하지 않은 메시지가 있습니
   if(player){
     try{
       player.currentTime = 0;
-      player.muted = true;
+      player.muted = false;
+      player.volume = 1;
       player.play().catch(()=>{});
     }catch(e){}
   }
