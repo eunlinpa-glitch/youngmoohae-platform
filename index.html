@@ -3289,9 +3289,23 @@ function ymhHandleIncomingForVideoAlert(roomName, data, docId){
   const me = ymhAlertCurrentProfile();
   if(!me.memberId) return;
 
-  const key = `${roomName}_${docId}`;
-  if(ymhVideoAlertLastKey[key]) return;
-  ymhVideoAlertLastKey[key] = true;
+ const key = `${roomName}_${docId}`;
+
+ const createdAtMs =
+  data.createdAt && typeof data.createdAt.toMillis === "function"
+    ? data.createdAt.toMillis()
+    : 0;
+
+ const nowMs = Date.now();
+
+  /* 리스너 시작 전에 있던 오래된 메시지는 팝업 생략 */
+ if(createdAtMs && nowMs - createdAtMs > 1000 * 60 * 3) {
+   ymhVideoAlertLastKey[key] = true;
+   return;
+ }
+
+ if(ymhVideoAlertLastKey[key]) return;
+ ymhVideoAlertLastKey[key] = true;
 
   const senderId = data.senderId || "";
   const senderName = data.sender || "동문";
