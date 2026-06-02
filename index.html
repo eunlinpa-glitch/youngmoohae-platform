@@ -3336,7 +3336,7 @@ function ymhSubscribeAlertRoom(roomName, roomId){
 
   const q = query(
     collection(window.db, "chat_rooms", roomId, "messages"),
-    orderBy("createdAt"),
+    orderBy("createdAt", "desc"),
     limit(1)
   );
 
