@@ -548,7 +548,9 @@
                 </div>
             </div>
             <div class="modal-notice-footer">
-                <button class="modal-close-btn" style="background:#64748B;" onclick="closeSupervisorConsole(null)">콘솔 닫기</button>
+                <button class="modal-close-btn" 
+                        style="background:#64748B;" 
+                        onclick="closeSupervisorConsole(null)">콘솔 닫기</button>
             </div>
         </div>
     </div>
@@ -3142,8 +3144,8 @@ function ymhEnsureVideoAlertModal(){
           src="/assets/notification/애후배_알림.mp4"
           style="width:100%; height:100%; object-fit:cover;"
           playsinline
+          muted
           autoplay
-          loop
           preload="auto">
         </video>
       </div>
@@ -3197,6 +3199,18 @@ function ymhEnsureVideoAlertModal(){
           cursor:pointer;
           box-shadow:0 6px 14px rgba(217,119,6,0.28);
         ">새 메시지 보기</button>
+
+         <button id="ymh-video-alert-voice"
+           style="
+           background:#D97706;
+           color:white;
+           border:none;
+           padding:10px 14px;
+           border-radius:10px;
+           font-weight:900;
+         ">
+         🔊 음성 듣기
+        </button>
       </div>
     </div>
   `;
@@ -3205,6 +3219,7 @@ function ymhEnsureVideoAlertModal(){
   phone.appendChild(modal);
 
   document.getElementById("ymh-video-alert-close").onclick = ymhCloseVideoAlert;
+  document.getElementById("ymh-video-alert-voice").onclick = ymhPlayAehubaeVoice;
   document.getElementById("ymh-video-alert-open").onclick = ymhOpenVideoAlertTargetRoom;
 }
 
@@ -3234,6 +3249,25 @@ if(text) text.innerText = "선배님, 확인하지 않은 메시지가 있습니
     }catch(e){}
   }
 }
+
+function ymhPlayAehubaeVoice(){
+  const player = document.getElementById("ymh-video-alert-player");
+  if(!player) return;
+
+  try{
+    player.pause();
+    player.currentTime = 0;
+    player.muted = false;
+    player.volume = 1;
+    player.play().catch((err)=>{
+      alert("아이폰에서 음성 재생이 차단되었습니다. 다시 한 번 눌러주세요.");
+      console.log("Aehubae voice play blocked:", err);
+    });
+  }catch(e){
+    console.log("Aehubae voice error:", e);
+  }
+}
+
 
 function ymhCloseVideoAlert(){
   const modal = document.getElementById("ymh-video-alert-modal");
