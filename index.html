@@ -290,7 +290,22 @@
         body.general-user #supervisor-hub-wrapper{
               display:none !important;
         }
+         
+        #loungeIntroOverlay {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          background: #000;
+          display: none;
+          align-items: center;
+          justify-content: center;
+        }
 
+        #loungeIntroOverlay video {
+          width: 80%;
+          height: 80%;
+          object-fit: cover;
+        }
 
     </style>
 
@@ -1696,6 +1711,9 @@ window.db=getFirestore(app);
 alert("Firestore 생성 성공");
 alert("Firebase 초기화 완료");
 window.storage=getStorage(app);
+window.storageRef = ref;
+window.uploadBytes = uploadBytes;
+window.getDownloadURL = getDownloadURL;
 window.messaging=getMessaging(app);
 
 window.collection = collection;
@@ -2896,6 +2914,27 @@ await setDoc(
   { merge: true }
 );
 
+let attachmentUrl = "";
+
+if(window.selectedChatFile){
+
+    const storageRef = window.storageRef(
+        window.storage,
+        "attachments/" +
+        Date.now() + "_" +
+        window.selectedChatFile.name
+    );
+
+    await window.uploadBytes(
+        storageRef,
+        window.selectedChatFile
+    );
+
+    attachmentUrl = await getDownloadURL(storageRef);
+
+    console.log("업로드완료", attachmentUrl);
+}
+
   return await addDoc(
     collection(window.db, "chat_rooms", roomId, "messages"),
     {
@@ -2907,6 +2946,7 @@ await setDoc(
       senderId:me.memberId,
       message,
       attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
+       attachmentUrl: attachmentUrl,
       readBy:[me.name],
       readByIds:[me.memberId],
       createdAt:serverTimestamp()
@@ -3254,6 +3294,8 @@ function ymhRenameOfficialRoomToLounge(){
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
 
 window.openChatRoom = function(name, letter){
+   playLoungeIntroIfNeeded();
+
   const displayName =
     name === "영무회 공식 마케팅룸" || name === "영무회 공식 채팅방"
       ? "영무회 라운지"
@@ -3626,9 +3668,59 @@ window.addEventListener("focus", ()=>{
     ymhStartVideoAlertListener();
   }, 300);
 });
+
+function shouldShowLoungeIntro() {
+  const key = "youngmoo_lounge_intro_last";
+  const last = localStorage.getItem(key);
+  const now = Date.now();
+
+  if (!last) {
+    localStorage.setItem(key, String(now));
+    return true;
+  }
+
+  const days = (now - Number(last)) / (1000 * 60 * 60 * 24);
+
+  if (days >= 7) {
+    localStorage.setItem(key, String(now));
+    return true;
+  }
+
+  return false;
+}
+
+function playLoungeIntroIfNeeded() {
+  if (!shouldShowLoungeIntro()) return;
+
+  const overlay = document.getElementById("loungeIntroOverlay");
+  const video = document.getElementById("loungeIntroVideo");
+
+  if (!overlay || !video) return;
+
+  overlay.style.display = "flex";
+  video.currentTime = 0;
+
+  video.play().catch(() => {
+    overlay.style.display = "none";
+  });
+
+  video.onended = function () {
+    overlay.style.display = "none";
+  };
+
+  setTimeout(function () {
+    overlay.style.display = "none";
+  }, 6000);
+}
+
 </script>
 <!-- YM Lounge Name + Video Alert Patch END -->
 
+<div id="loungeIntroOverlay">
+  <video id="loungeIntroVideo" playsinline muted preload="auto">
+    <source src="./assets/notification/lounge-main.mp4" type="video/mp4">
+  </video>
+</div>
 
 </body>
 </html>
