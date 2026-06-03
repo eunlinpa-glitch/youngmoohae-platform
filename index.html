@@ -1278,6 +1278,7 @@
     }
 
     function executeSendMsg() {
+        console.log("executeSendMsg 실행됨");
         const input = document.getElementById('live-chat-input');
         const msgBox = document.getElementById('chat-messages-box');
         if(!input.value.trim()) return;
@@ -1311,7 +1312,8 @@
        const file = event.target.files && event.target.files[0];
        if(!file) return;
 
-       selectedChatFile = file;
+       window.selectedChatFile = file;
+       console.log("파일선택", window.selectedChatFile);
        showAttachmentCard(file);
 
        event.target.value = "";
@@ -1328,7 +1330,7 @@
        const card = document.createElement("div");
        card.style.position = "fixed";
        card.style.left = "70px";
-       card.style.bottom = "170px";
+       card.style.bottom = "120px";
        card.style.pointerEvents = "none";
        card.style.zIndex = "10";
        card.style.background = "#ffffff";
@@ -2057,7 +2059,7 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
    sender,
    senderId:getMemberIdByName(sender),
    message,
-   attachmentName: selectedChatFile ? selectedChatFile.name : "",
+   attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
    readBy:[sender],
    readByIds:[getMemberIdByName(sender)],
    createdAt:serverTimestamp(),
@@ -2337,7 +2339,7 @@ if(window.executeSendMsg){
 
    const text=input.value.trim();
 
-   if(!text) return;
+   if(!text && !window.selectedChatFile) return;
 
    const roomName = getActiveRoomName();
 
@@ -2865,6 +2867,7 @@ function ymhIsFirebaseReady(){
 }
 
 async function ymhSaveChatRealtime(roomName, message){
+  console.log("전송시작", message, window.selectedChatFile);
   if(!ymhIsFirebaseReady()) throw new Error("Firestore db is not ready");
 
   const me = ymhGetCurrentProfile();
@@ -2903,6 +2906,7 @@ await setDoc(
       sender:me.name,
       senderId:me.memberId,
       message,
+      attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
       readBy:[me.name],
       readByIds:[me.memberId],
       createdAt:serverTimestamp()
@@ -3062,8 +3066,7 @@ window.executeSendMsg = async function(){
   if(!input) return;
 
   const text = input.value.trim();
-  if(!text) return;
-
+  if(!text && !window.selectedChatFile) return;
   const roomName = ymhGetActiveRoomName();
 
   if(!roomName){
@@ -3072,6 +3075,7 @@ window.executeSendMsg = async function(){
   }
 
   try{
+    alert("저장 직전: " + roomName + " / " + text);
     await ymhSaveChatRealtime(roomName, text);
     input.value = "";
     console.log("[YMH] message saved", { roomName, text });
