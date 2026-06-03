@@ -3294,12 +3294,18 @@ function ymhRenameOfficialRoomToLounge(){
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
 
 window.openChatRoom = function(name, letter){
-   playLoungeIntroIfNeeded();
 
-  const displayName =
-    name === "영무회 공식 마케팅룸" || name === "영무회 공식 채팅방"
-      ? "영무회 라운지"
-      : name;
+    if (
+        name === "영무회 라운지" ||
+        name === "영무회 공식 마케팅룸" ||
+        name === "영무회 공식 채팅방"
+    ) {
+        playLoungeIntroIfNeeded("main");
+    } else {
+        playLoungeIntroIfNeeded("vip");
+    }
+
+    const displayName =
 
   if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
     ymhOldOpenChatRoomForLoungeAlert(displayName, letter);
@@ -3689,13 +3695,21 @@ function shouldShowLoungeIntro() {
   return false;
 }
 
-function playLoungeIntroIfNeeded() {
+function playLoungeIntroIfNeeded(videoType = "main") {
   if (!shouldShowLoungeIntro()) return;
 
   const overlay = document.getElementById("loungeIntroOverlay");
   const video = document.getElementById("loungeIntroVideo");
 
   if (!overlay || !video) return;
+
+  const videoSrc =
+    videoType === "vip"
+      ? "./assets/notification/lounge-vip.mp4"
+      : "./assets/notification/lounge-main.mp4";
+
+  video.src = videoSrc;
+  video.load();
 
   overlay.style.display = "flex";
   video.currentTime = 0;
