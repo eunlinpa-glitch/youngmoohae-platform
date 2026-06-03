@@ -97,52 +97,23 @@
         .chat-badge { background: #EF4444; color: white; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 5px rgba(239,68,68,0.3); }
         
         .chat-view-container { display: none; flex-direction: column; height: 100%; background: #E8EBF0; }
-        .chat-messages {
-             flex:1;
-             overflow-y:auto;
-             padding:18px;
-             display:flex;
-             flex-direction:column;
-             gap:12px;
-             position:relative;
-             z-index:1;
-             background:transparent;
-         }
-        .chat-bg-fixed.lounge-bg-main {
+        .chat-messages { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-messages.lounge-bg-main {
             background-image:
                 linear-gradient(rgba(255,255,255,0.32), rgba(255,255,255,0.32)),
                 url("/assets/notification/lounge-main.png");
             background-size: 120% auto;
-            background-position: center center;
-            background-repeat:  repeat-y;
-            background-attachment: local;
+            background-position: center top;
+            background-repeat: repeat-y;
          }
 
-        .chat-bg-fixed.lounge-bg-vip {
+        .chat-messages.lounge-bg-vip {
             background-image:
                 linear-gradient(rgba(255,255,255,0.32), rgba(255,255,255,0.32)),
                 url("/assets/notification/lounge-vip.png");
             background-size: 120% auto;
-            background-position: center center;
-            background-repeat:  repeat-y;
-            background-attachment: local;
-         }
-
-        .chat-messages-wrap{
-            position:relative;
-            flex:1;
-            overflow:hidden;
-            min-height:0;
-         }
-
-        .chat-bg-fixed{
-            position:absolute;
-            inset:0;
-            background-size:120% auto;
-            background-position:center top;
-            background-repeat:no-repeat;
-            z-index:0;
-            pointer-events:none;
+            background-position: center top;
+            background-repeat: repeat-y;
          }
         
         .msg-wrapper { display: flex; flex-direction: column; margin-bottom: 2px; width: 100%; }
@@ -155,28 +126,7 @@
         .msg-bubble { max-width: 78%; padding: 11px 15px; border-radius: 16px; font-size: 14px; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: inline-block; text-align: left; word-break: break-all; }
         .msg-bubble.me { background: var(--gold-gradient); color: white; font-weight: 600; border-top-right-radius: 4px; box-shadow: var(--shadow-gold); }
         .msg-bubble.other { background: white; color: var(--text-dark); border: 1px solid var(--border-soft); border-top-left-radius: 4px; }
-        .chat-input-row { 
-               padding: 14px; 
-               background: white; 
-               border-top: 1px solid var(--border-soft); 
-               display: flex; 
-               gap: 10px; 
-               align-items: center; 
-          }
-
-        .chat-attach-btn{
-               width:30px;
-               height:30px;
-               border:none;
-               border-radius:14px;
-               background:#F59E0B;
-               color:white;
-               font-size:26px;
-               font-weight:900;
-               cursor:pointer;
-               flex-shrink:0;
-               box-shadow:0 6px 14px rgba(245,158,11,0.25);
-          }
+        .chat-input-row { padding: 14px; background: white; border-top: 1px solid var(--border-soft); display: flex; gap: 10px; align-items: center; }
         
         /* [3번 탭: AI 라운지] */
         .sub-tab-container { display: flex; gap: 8px; margin-bottom: 18px; background: #E2E8F0; padding: 4px; border-radius: 12px; }
@@ -290,22 +240,7 @@
         body.general-user #supervisor-hub-wrapper{
               display:none !important;
         }
-         
-        #loungeIntroOverlay {
-          position: fixed;
-          inset: 0;
-          z-index: 99999;
-          background: #000;
-          display: none;
-          align-items: center;
-          justify-content: center;
-        }
 
-        #loungeIntroOverlay video {
-          width: 80%;
-          height: 80%;
-          object-fit: cover;
-        }
 
     </style>
 
@@ -360,43 +295,10 @@
             </div>
             
             <div id="chat-room-view" class="chat-view-container">
-                  <<div class="chat-messages-wrap">
-                      <div class="chat-bg-fixed" id="chat-bg-fixed"></div>
-                      <div class="chat-messages" id="chat-messages-box"></div>
-                  </div>
+                <div class="chat-messages" id="chat-messages-box"></div>
                 <div class="chat-input-row">
-                    
-                    <button
-                        id="chat-attach-btn"
-                        type="button"
-                        class="chat-attach-btn"
-                        onclick="openChatAttachMenu()"
-                    >
-                        <i class="fa-solid fa-paperclip"></i>
-                    </button> 
-                    
-                    <input
-                       type="file"
-                       id="chat-file-input"
-                       style="display:none;"
-                       accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.mp4,.mov"
-                       onchange="handleChatFileSelected(event)"
-                    >
-
-                    <input 
-                       type="text" 
-                       id="live-chat-input" 
-                       class="search-box" 
-                       style="margin-bottom:0; flex:1;" 
-                       placeholder="비즈니스 메시지 협의 전송..." 
-                       onkeydown="handleChatKeyDown(event)"
-                    >
-                    <button 
-                        class="submit-btn" 
-                        style="width:auto; padding:12px 22px;" 
-                        onclick="executeSendMsg()"
-                    >전송</button>
-
+                    <input type="text" id="live-chat-input" class="search-box" style="margin-bottom:0; flex:1;" placeholder="비즈니스 메시지 협의 전송..." onkeydown="handleChatKeyDown(event)">
+                    <button class="submit-btn" style="width:auto; padding:12px 22px;" onclick="executeSendMsg()">전송</button>
                 </div>
             </div>
         </div>
@@ -646,9 +548,7 @@
                 </div>
             </div>
             <div class="modal-notice-footer">
-                <button class="modal-close-btn" 
-                        style="background:#64748B;" 
-                        onclick="closeSupervisorConsole(null)">콘솔 닫기</button>
+                <button class="modal-close-btn" style="background:#64748B;" onclick="closeSupervisorConsole(null)">콘솔 닫기</button>
             </div>
         </div>
     </div>
@@ -915,37 +815,14 @@
     }
 
     function renderNoticePageContent() {
-    if (!Array.isArray(globalNoticeArray) || globalNoticeArray.length === 0) {
-        document.getElementById('modal-notice-main-title').innerText = "공지사항";
-        document.getElementById('notice-page-indicator').innerText = "0 / 0";
+        const currentData = globalNoticeArray[currentNoticePageIndex];
+        document.getElementById('modal-notice-main-title').innerText = currentData.badge;
+        document.getElementById('notice-page-indicator').innerText = `${currentNoticePageIndex + 1} / ${globalNoticeArray.length}`;
         document.getElementById('modal-notice-main-body').innerHTML = `
-            <p style="font-size:14px; color:#64748B; line-height:1.6;">
-                현재 등록된 공지사항이 없습니다.
-            </p>
+            <p style="font-weight: 700; font-size: 15px; color: #1E3A8A; margin-bottom: 10px;">${currentData.title}</p>
+            <p style="font-size: 13.5px; color: var(--text-dark); line-height: 1.65; white-space: pre-wrap; text-align:justify;">${currentData.body}</p>
         `;
-        return;
     }
-
-    if (currentNoticePageIndex < 0) currentNoticePageIndex = 0;
-    if (currentNoticePageIndex >= globalNoticeArray.length) currentNoticePageIndex = 0;
-
-       const currentData = globalNoticeArray[currentNoticePageIndex];
-
-        document.getElementById('modal-notice-main-title').innerText =
-            currentData.badge || "공지사항";
-
-        document.getElementById('notice-page-indicator').innerText =
-            `${currentNoticePageIndex + 1} / ${globalNoticeArray.length}`;
-
-        document.getElementById('modal-notice-main-body').innerHTML = `
-           <p style="font-weight:700; font-size:15px; color:#1E3A8A; margin-bottom:10px;">
-                ${currentData.title || "공지 제목 없음"}
-           </p>
-           <p style="font-size:13.5px; color:var(--text-dark); line-height:1.65; white-space:pre-wrap; text-align:justify;">
-                ${currentData.body || "공지 내용이 없습니다."}
-           </p>
-         `;
-        }
 
     function navigateNoticePage(direction) {
         let targetIndex = currentNoticePageIndex + direction;
@@ -993,16 +870,6 @@
         
         const redDot = document.getElementById('global-notice-dot');
         if(redDot) redDot.style.display = 'block';
-
-        try{
-          ymhShowVideoAlert(
-            "__NOTICE__",
-            "공지사항",
-            titleInput
-          );
-        }catch(e){
-          console.log("notice alert failed", e);
-        }
         
         document.getElementById('sup-notice-title').value = '';
         document.getElementById('sup-notice-text').value = '';
@@ -1198,26 +1065,18 @@
         document.getElementById('global-nav-bar').style.opacity = "";
 
         const msgBox = document.getElementById('chat-messages-box');
-        const bgBox = document.getElementById('chat-bg-fixed');
-
-        console.log("bgBox=", bgBox);
-        console.log("bgBox class=", bgBox?.className);
-
-        if(bgBox){
-           bgBox.classList.remove("lounge-bg-main", "lounge-bg-vip");
-
-           if(
-             partnerName === "영무회 라운지" ||
-             partnerName === "영무회 공식 마케팅룸" ||
-             partnerName === "영무회 공식 채팅방"
-           ){
-            bgBox.classList.add("lounge-bg-main");
-           }else{
-             bgBox.classList.add("lounge-bg-vip");
-           }
-         }
 
         msgBox.classList.remove("lounge-bg-main", "lounge-bg-vip");
+
+        if(
+           partnerName === "영무회 라운지" ||
+           partnerName === "영무회 공식 마케팅룸" ||
+           partnerName === "영무회 공식 채팅방"
+         ){
+           msgBox.classList.add("lounge-bg-main");
+         }else{
+           msgBox.classList.add("lounge-bg-vip");
+         }
         msgBox.innerHTML = '';
 
 
@@ -1293,7 +1152,6 @@
     }
 
     function executeSendMsg() {
-        console.log("executeSendMsg 실행됨");
         const input = document.getElementById('live-chat-input');
         const msgBox = document.getElementById('chat-messages-box');
         if(!input.value.trim()) return;
@@ -1316,54 +1174,6 @@
         msgBox.scrollTop = msgBox.scrollHeight;
     }
 
-    let selectedChatFile = null;
-
-    function openChatAttachMenu(){
-       const fileInput = document.getElementById("chat-file-input");
-       if(fileInput) fileInput.click();
-    }
-
-    function handleChatFileSelected(event){
-       const file = event.target.files && event.target.files[0];
-       if(!file) return;
-
-       window.selectedChatFile = file;
-       console.log("파일선택", window.selectedChatFile);
-       showAttachmentCard(file);
-
-       event.target.value = "";
-    }
-
-    function showAttachmentCard(file){
-
-       const chatBody = document.getElementById("chat-bg-fixed");
-       if(!chatBody){
-           alert("chat-bg-fixed 없음");
-           return;
-       }
-
-       const card = document.createElement("div");
-       card.style.position = "fixed";
-       card.style.left = "70px";
-       card.style.bottom = "120px";
-       card.style.pointerEvents = "none";
-       card.style.zIndex = "10";
-       card.style.background = "#ffffff";
-       card.style.color = "#222";
-       card.style.padding = "10px 14px";
-       card.style.borderRadius = "14px";
-       card.style.boxShadow = "0 2px 10px rgba(0,0,0,0.25)";
-       card.style.fontSize = "14px";
-       card.style.maxWidth = "280px";
-
-       card.innerHTML = `
-           <div>📎 첨부파일</div>
-           <div style="font-weight:600; word-break:break-all;">${file.name}</div>
-       `;
-
-       document.body.appendChild(card);
-   }
-
     function switchAiSubTab(subMode) {
         document.querySelectorAll('.sub-tab').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.ai-sub-panel').forEach(pn => pn.classList.remove('active'));
@@ -1384,8 +1194,6 @@
             event.preventDefault();
         }
     }
-
-
 
     function analyzeAiRequest() {
         const text = document.getElementById('ai-request-input').value.trim();
@@ -1615,7 +1423,7 @@ if (voices.length > 0) {
 
 <script>
 
-const APP_VERSION = "3.01";
+const APP_VERSION = "3.00";
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
@@ -1711,9 +1519,6 @@ window.db=getFirestore(app);
 alert("Firestore 생성 성공");
 alert("Firebase 초기화 완료");
 window.storage=getStorage(app);
-window.storageRef = ref;
-window.uploadBytes = uploadBytes;
-window.getDownloadURL = getDownloadURL;
 window.messaging=getMessaging(app);
 
 window.collection = collection;
@@ -2077,7 +1882,6 @@ window.saveChatRealtime=async(roomName,sender,message)=>{
    sender,
    senderId:getMemberIdByName(sender),
    message,
-   attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
    readBy:[sender],
    readByIds:[getMemberIdByName(sender)],
    createdAt:serverTimestamp(),
@@ -2357,7 +2161,7 @@ if(window.executeSendMsg){
 
    const text=input.value.trim();
 
-   if(!text && !window.selectedChatFile) return;
+   if(!text) return;
 
    const roomName = getActiveRoomName();
 
@@ -2885,7 +2689,6 @@ function ymhIsFirebaseReady(){
 }
 
 async function ymhSaveChatRealtime(roomName, message){
-  console.log("전송시작", message, window.selectedChatFile);
   if(!ymhIsFirebaseReady()) throw new Error("Firestore db is not ready");
 
   const me = ymhGetCurrentProfile();
@@ -2914,27 +2717,6 @@ await setDoc(
   { merge: true }
 );
 
-let attachmentUrl = "";
-
-if(window.selectedChatFile){
-
-    const storageRef = window.storageRef(
-        window.storage,
-        "attachments/" +
-        Date.now() + "_" +
-        window.selectedChatFile.name
-    );
-
-    await window.uploadBytes(
-        storageRef,
-        window.selectedChatFile
-    );
-
-    attachmentUrl = await getDownloadURL(storageRef);
-
-    console.log("업로드완료", attachmentUrl);
-}
-
   return await addDoc(
     collection(window.db, "chat_rooms", roomId, "messages"),
     {
@@ -2945,8 +2727,6 @@ if(window.selectedChatFile){
       sender:me.name,
       senderId:me.memberId,
       message,
-      attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
-       attachmentUrl: attachmentUrl,
       readBy:[me.name],
       readByIds:[me.memberId],
       createdAt:serverTimestamp()
@@ -3106,7 +2886,8 @@ window.executeSendMsg = async function(){
   if(!input) return;
 
   const text = input.value.trim();
-  if(!text && !window.selectedChatFile) return;
+  if(!text) return;
+
   const roomName = ymhGetActiveRoomName();
 
   if(!roomName){
@@ -3115,7 +2896,6 @@ window.executeSendMsg = async function(){
   }
 
   try{
-    alert("저장 직전: " + roomName + " / " + text);
     await ymhSaveChatRealtime(roomName, text);
     input.value = "";
     console.log("[YMH] message saved", { roomName, text });
@@ -3294,18 +3074,10 @@ function ymhRenameOfficialRoomToLounge(){
 const ymhOldOpenChatRoomForLoungeAlert = window.openChatRoom;
 
 window.openChatRoom = function(name, letter){
-
-    if (
-        name === "영무회 라운지" ||
-        name === "영무회 공식 마케팅룸" ||
-        name === "영무회 공식 채팅방"
-    ) {
-        window.playLoungeIntroIfNeeded("main");
-    } else {
-        window.playLoungeIntroIfNeeded("vip");
-    }
-
-    const displayName =
+  const displayName =
+    name === "영무회 공식 마케팅룸" || name === "영무회 공식 채팅방"
+      ? "영무회 라운지"
+      : name;
 
   if(typeof ymhOldOpenChatRoomForLoungeAlert === "function"){
     ymhOldOpenChatRoomForLoungeAlert(displayName, letter);
@@ -3371,8 +3143,7 @@ function ymhEnsureVideoAlertModal(){
           style="width:100%; height:100%; object-fit:cover;"
           playsinline
           muted
-          autoplay
-          preload="auto">
+          preload="metadata">
         </video>
       </div>
 
@@ -3398,63 +3169,41 @@ function ymhEnsureVideoAlertModal(){
       </div>
 
       <div style="
-        padding:18px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:13px 16px;
         background:#F8FAFC;
         border-top:1px solid #E2E8F0;
-        display:flex;
-        flex-direction:column;
-        gap:10px;
       ">
+        <button id="ymh-video-alert-close" style="
+          border:none;
+          background:#64748B;
+          color:white;
+          font-weight:800;
+          padding:9px 16px;
+          border-radius:9px;
+          cursor:pointer;
+        ">닫기</button>
 
-      <button id="ymh-video-alert-open" style="
-        width:100%;
-        background:linear-gradient(135deg,#F59E0B,#D97706);
-        color:white;
-        border:none;
-        padding:14px;
-        border-radius:14px;
-        font-size:16px;
-        font-weight:900;
-        box-shadow:0 8px 18px rgba(217,119,6,0.25);
-      ">
-       새 메시지 보기
-    </button>
-
-    <div style="display:flex; gap:10px;">
-      <button id="ymh-video-alert-close" style="
-      flex:1;
-      background:#64748B;
-      color:white;
-      border:none;
-      padding:12px;
-      border-radius:12px;
-      font-size:15px;
-      font-weight:900;
-     ">
-      닫기
-    </button>
-
-    <button id="ymh-video-alert-voice" style="
-      flex:1;
-      background:#0F172A;
-      color:white;
-      border:none;
-      padding:12px;
-      border-radius:12px;
-      font-size:15px;
-      font-weight:900;
-    ">
-      🔊 음성 듣기
-    </button>
-   </div>
- </div>
+        <button id="ymh-video-alert-open" style="
+          border:none;
+          background:linear-gradient(135deg,#F59E0B,#D97706);
+          color:white;
+          font-weight:900;
+          padding:9px 18px;
+          border-radius:9px;
+          cursor:pointer;
+          box-shadow:0 6px 14px rgba(217,119,6,0.28);
+        ">새 메시지 보기</button>
+      </div>
+    </div>
   `;
 
   const phone = document.querySelector(".phone-container") || document.body;
   phone.appendChild(modal);
 
   document.getElementById("ymh-video-alert-close").onclick = ymhCloseVideoAlert;
-  document.getElementById("ymh-video-alert-voice").onclick = ymhPlayAehubaeVoice;
   document.getElementById("ymh-video-alert-open").onclick = ymhOpenVideoAlertTargetRoom;
 }
 
@@ -3470,13 +3219,8 @@ function ymhShowVideoAlert(roomName, senderName, message){
 
   const displayRoom = roomName === "영무회 공식 마케팅룸" ? "영무회 라운지" : roomName;
 
-if(roomName === "__NOTICE__"){
-  if(title) title.innerText = "애후배 공지 알림";
-  if(text) text.innerText = "선배님, 새로운 공지사항이 등록되었습니다.";
-}else{
-  if(title) title.innerText = "애후배 비서 알림";
-  if(text) text.innerText = "선배님, 확인하지 않은 메시지가 있습니다.";
-}
+  if(title) title.innerText = `${senderName || "동문"}님의 새 메시지`;
+  if(text) text.innerText = `${displayRoom}에 신규 메시지가 있습니다.`;
 
   if(modal) modal.style.display = "flex";
 
@@ -3484,30 +3228,10 @@ if(roomName === "__NOTICE__"){
     try{
       player.currentTime = 0;
       player.muted = true;
-      player.volume = 1;
       player.play().catch(()=>{});
     }catch(e){}
   }
 }
-
-function ymhPlayAehubaeVoice(){
-  const player = document.getElementById("ymh-video-alert-player");
-  if(!player) return;
-
-  try{
-    player.pause();
-    player.currentTime = 0;
-    player.muted = false;
-    player.volume = 1;
-    player.play().catch((err)=>{
-      alert("아이폰에서 음성 재생이 차단되었습니다. 다시 한 번 눌러주세요.");
-      console.log("Aehubae voice play blocked:", err);
-    });
-  }catch(e){
-    console.log("Aehubae voice error:", e);
-  }
-}
-
 
 function ymhCloseVideoAlert(){
   const modal = document.getElementById("ymh-video-alert-modal");
@@ -3565,23 +3289,9 @@ function ymhHandleIncomingForVideoAlert(roomName, data, docId){
   const me = ymhAlertCurrentProfile();
   if(!me.memberId) return;
 
- const key = `${roomName}_${docId}`;
-
- const createdAtMs =
-  data.createdAt && typeof data.createdAt.toMillis === "function"
-    ? data.createdAt.toMillis()
-    : 0;
-
- const nowMs = Date.now();
-
-  /* 리스너 시작 전에 있던 오래된 메시지는 팝업 생략 */
- if(createdAtMs && nowMs - createdAtMs > 1000 * 60 * 3) {
-   ymhVideoAlertLastKey[key] = true;
-   return;
- }
-
- if(ymhVideoAlertLastKey[key]) return;
- ymhVideoAlertLastKey[key] = true;
+  const key = `${roomName}_${docId}`;
+  if(ymhVideoAlertLastKey[key]) return;
+  ymhVideoAlertLastKey[key] = true;
 
   const senderId = data.senderId || "";
   const senderName = data.sender || "동문";
@@ -3612,7 +3322,7 @@ function ymhSubscribeAlertRoom(roomName, roomId){
 
   const q = query(
     collection(window.db, "chat_rooms", roomId, "messages"),
-    orderBy("createdAt", "desc"),
+    orderBy("createdAt"),
     limit(1)
   );
 
@@ -3674,68 +3384,9 @@ window.addEventListener("focus", ()=>{
     ymhStartVideoAlertListener();
   }, 300);
 });
-
-function shouldShowLoungeIntro() {
-  const key = "youngmoo_lounge_intro_last";
-  const last = localStorage.getItem(key);
-  const now = Date.now();
-
-  if (!last) {
-    localStorage.setItem(key, String(now));
-    return true;
-  }
-
-  const days = (now - Number(last)) / (1000 * 60 * 60 * 24);
-
-  if (days >= 7) {
-    localStorage.setItem(key, String(now));
-    return true;
-  }
-
-  return false;
-}
-
-function playLoungeIntroIfNeeded(videoType = "main") {
-  // if (!shouldShowLoungeIntro()) return;
-
-  const overlay = document.getElementById("loungeIntroOverlay");
-  const video = document.getElementById("loungeIntroVideo");
-
-  if (!overlay || !video) return;
-
-  const videoSrc =
-    videoType === "vip"
-      ? "./assets/notification/lounge-vip.mp4"
-      : "./assets/notification/lounge-main.mp4";
-
-  video.src = videoSrc;
-  video.load();
-
-  overlay.style.display = "flex";
-  video.currentTime = 0;
-
-  video.play().catch(() => {
-    overlay.style.display = "none";
-  });
-
-  video.onended = function () {
-    overlay.style.display = "none";
-  };
-
-  setTimeout(function () {
-    overlay.style.display = "none";
-  }, 6000);
-}
-window.playLoungeIntroIfNeeded = playLoungeIntroIfNeeded;
-
 </script>
 <!-- YM Lounge Name + Video Alert Patch END -->
 
-<div id="loungeIntroOverlay">
-  <video id="loungeIntroVideo" playsinline muted preload="auto">
-    <source src="./assets/notification/lounge-main.mp4" type="video/mp4">
-  </video>
-</div>
 
 </body>
 </html>
