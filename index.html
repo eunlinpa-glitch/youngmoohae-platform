@@ -72,13 +72,19 @@
         .summary-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 180px; height: 180px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; filter: blur(30px); }
         .search-box { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; margin-bottom: 18px; font-size: 14px; background: white; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s; }
         .search-box:focus { border-color: #F59E0B; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
-        .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
+        .list-title { font-size: 12px; color: var(--text-muted); font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }        
         .alumni-item { background: white; border: 1px solid var(--border-soft); padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); cursor: pointer; transition: all 0.2s ease; }
         .alumni-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-premium); border-color: #CBD5E1; }
         .avatar-img { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 0 0 2px var(--border-soft); }
-        .alumni-details { flex: 1; }
-        .name-row { display: flex; align-items: center; gap: 6px; }
+        .alumni-details { flex: 1; }      
+        .name-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+       .name-row strong{
+          color:#1c0fd1;
+        }
         .tag-gisu { font-size: 11px; color: var(--text-muted); font-weight: 700; background: #F1F5F9; padding: 2px 6px; border-radius: 6px; }
         .tag-status { font-size: 11px; background: #FFF9E6; color: #D97706; font-weight: 800; padding: 2px 6px; border-radius: 6px; margin-left: auto; border: 1px solid #FDE68A; }
         
@@ -110,7 +116,7 @@
          }
         .chat-bg-fixed.lounge-bg-main {
             background-image:
-                linear-gradient(rgba(255,255,255,0.32), rgba(255,255,255,0.32)),
+                linear-gradient(rgba(252, 255, 255, 0.32), rgba(255,255,255,0.32)),
                 url("/assets/notification/lounge-main.png");
             background-size: 120% auto;
             background-position: center center;
@@ -307,6 +313,28 @@
           object-fit: cover;
         }
 
+/* 채팅방 이름/기수 강조 */
+.chat-sender,
+.message-sender,
+.sender-name,
+.bubble-sender,
+.chat-user-name {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+.chat-gisu,
+.sender-gisu,
+.message-gisu,
+.bubble-gisu {
+    color: #FFD700 !important;
+    font-weight: 800 !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+</style>
+
     </style>
 
 </head>
@@ -484,8 +512,8 @@
                     <label class="form-label" style="color:#2563EB;"><i class="fa-solid fa-user-gear"></i> [시뮬레이터용] 현재 접속 회원 계정 변경</label>
                     <select class="form-select" style="background:#EBF2FF; border-color:#93C5FD; font-weight:700;" onchange="switchDemoLoginAccount(this.value)">
                         <option value="제갈훈">제갈훈 (13회 최고 임원 - 관리 권한 및 모든 탭 왕관 표출)</option>
-                        <option value="">정희훈 (20회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
-                        <option value="이준호">이준호 (12회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
+                        //<option value="">정희훈 (20회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
+                        //<option value="이준호">이준호 (12회 평회원 - 관리 권한 및 상단 왕관 없음)</option>
                     </select>
                 </div>
                 -->
@@ -624,8 +652,8 @@
                     <p style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:8px;">아래 동문을 선택하고 버튼을 누르면, 애후배 알림 영상이 팝업으로 구동됩니다.</p>
                     <div class="form-row-grid" style="margin-bottom:8px;">
                         <select id="demo-alert-sender" class="form-select" style="background:white;">
-                            <option value="정희훈">정희훈 선배님 (20회)</option>
-                            <option value="이준호">이준호 대표님 (12회)</option>
+                            //<option value="정희훈">정희훈 선배님 (20회)</option>
+                            //<option value="이준호">이준호 대표님 (12회)</option>
                         </select>
                     </div>
                     <button class="submit-btn" style="background:var(--primary-gradient);" onclick="triggerDemoVideoChatAlert()">⚡ 가상 영상 알림 팝업 즉시 가동</button>
@@ -1670,7 +1698,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 <!-- Firebase Integration START -->
 <script type="module">
-alert("Firebase module 시작");
+//alert("Firebase module 시작");
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import {
   getFirestore,
@@ -1704,12 +1732,12 @@ const firebaseConfig = {
 
 
 const vapidKey="PUT_VAPID_KEY_HERE";
-alert("module script 실행 시작");
+//alert("module script 실행 시작");
 const app=initializeApp(firebaseConfig);
 
 window.db=getFirestore(app);
-alert("Firestore 생성 성공");
-alert("Firebase 초기화 완료");
+//alert("Firestore 생성 성공");
+//alert("Firebase 초기화 완료");
 window.storage=getStorage(app);
 window.storageRef = ref;
 window.uploadBytes = uploadBytes;
@@ -1975,11 +2003,11 @@ function renderMessageBubble(messageData, roomName){
    : "";
 
  const senderLabel =
-  `<div style="font-size:11px; font-weight:800; color:#64748B; margin-bottom:3px; ${isMe ? "text-align:right;" : ""}">
-    ${escapeHtml(sender)}
-    ${senderGisu ? `<span style="font-size:10px; color:#94A3B8;"> ${senderGisu}</span>` : ""}
-    ${senderTime ? `<span style="font-size:10px; color:#94A3B8; margin-left:6px;">${senderTime}</span>` : ""}
-  </div>`;
+`<div style="font-size:12px; font-weight:900; color:#ffffff; margin-bottom:4px; text-shadow:0 2px 5px rgba(0,0,0,0.85); ${isMe ? "text-align:right;" : ""}">
+  ${escapeHtml(sender)}
+  ${senderGisu ? `<span style="font-size:11px; color:#FFD700; text-shadow:0 2px 5px rgba(0,0,0,0.85);"> ${senderGisu}</span>` : ""}
+  ${senderTime ? `<span style="font-size:10px; color:#ffffff; margin-left:6px; text-shadow:0 2px 5px rgba(0,0,0,0.85);">${senderTime}</span>` : ""}
+</div>`;
 
 return `
  <div class="msg-wrapper ${isMe ? 'me' : 'other'}">
@@ -2855,13 +2883,14 @@ function ymhRenderMessage(data, roomName){
           style="
             font-size:12px;
             font-weight:800;
-            color:#64748B;
+            color:#FFFFFF;
+            text-shadow:0 2px 4px rgba(0,0,0,0.8);
           "
         >
           ${ymhEscapeHtml(sender)}
           ${
             senderGisu
-            ? `<span style="margin-left:4px;color:#94A3B8;">
+            ? `<span style="margin-left:4px;color:#FFD700;">
                  ${ymhEscapeHtml(senderGisu)}
                </span>`
             : ""
@@ -3087,6 +3116,16 @@ const ymhOldOpenChatRoom = window.openChatRoom;
 window.openChatRoom = function(name, letter){
   window.activeChatPartner = name;
 
+    if (
+        name === "영무회 라운지" ||
+        name === "영무회 공식 마케팅룸" ||
+        name === "영무회 공식 채팅방"
+    ) {
+        window.playLoungeIntroIfNeeded("main");
+    } else {
+        window.playLoungeIntroIfNeeded("vip");
+    } 
+
   if(typeof ymhOldOpenChatRoom === "function"){
     ymhOldOpenChatRoom(name, letter);
   }
@@ -3115,7 +3154,7 @@ window.executeSendMsg = async function(){
   }
 
   try{
-    alert("저장 직전: " + roomName + " / " + text);
+    // alert("저장 직전: " + roomName + " / " + text);
     await ymhSaveChatRealtime(roomName, text);
     input.value = "";
     console.log("[YMH] message saved", { roomName, text });
@@ -3158,7 +3197,6 @@ setTimeout(()=>{
 <!-- YM Lounge Name + Video Alert Patch START -->
 <script type="module">
 
-window.playLoungeIntroIfNeeded = function(videoType = "main") {
   // if (!shouldShowLoungeIntro()) return;
 
   const overlay = document.getElementById("loungeIntroOverlay");
@@ -3736,6 +3774,39 @@ function shouldShowLoungeIntro() {
     <source src="./assets/notification/lounge-main.mp4" type="video/mp4">
   </video>
 </div>
+
+<div id="loungeIntroOverlay">
+  <video id="loungeIntroVideo" playsinline muted preload="auto">
+    <source src="./assets/notification/lounge-main.mp4" type="video/mp4">
+  </video>
+</div>
+
+<script>
+window.playLoungeIntroIfNeeded = function(videoType = "main") {
+  const overlay = document.getElementById("loungeIntroOverlay");
+  const video = document.getElementById("loungeIntroVideo");
+
+  const videoSrc =
+    videoType === "vip"
+      ? "./assets/notification/lounge-vip.mp4"
+      : "./assets/notification/lounge-main.mp4";
+
+  video.src = videoSrc;
+  video.load();
+
+  overlay.style.display = "flex";
+  video.currentTime = 0;
+  video.play();
+
+  video.onended = function () {
+    overlay.style.display = "none";
+  };
+
+  setTimeout(function () {
+    overlay.style.display = "none";
+  }, 6000);
+};
+</script>
 
 </body>
 </html>
