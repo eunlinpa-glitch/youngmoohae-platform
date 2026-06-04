@@ -3157,6 +3157,39 @@ setTimeout(()=>{
 
 <!-- YM Lounge Name + Video Alert Patch START -->
 <script type="module">
+
+window.playLoungeIntroIfNeeded = function(videoType = "main") {
+  // if (!shouldShowLoungeIntro()) return;
+
+  const overlay = document.getElementById("loungeIntroOverlay");
+  const video = document.getElementById("loungeIntroVideo");
+
+  if (!overlay || !video) return;
+
+  const videoSrc =
+    videoType === "vip"
+      ? "./assets/notification/lounge-vip.mp4"
+      : "./assets/notification/lounge-main.mp4";
+
+  video.src = videoSrc;
+  video.load();
+
+  overlay.style.display = "flex";
+  video.currentTime = 0;
+
+  video.play().catch(() => {
+    overlay.style.display = "none";
+  });
+
+  video.onended = function () {
+    overlay.style.display = "none";
+  };
+
+  setTimeout(function () {
+    overlay.style.display = "none";
+  }, 6000);
+}
+
 import {
   collection,
   query,
@@ -3693,38 +3726,6 @@ function shouldShowLoungeIntro() {
   }
 
   return false;
-}
-
-window.playLoungeIntroIfNeeded = function(videoType = "main") {
-  // if (!shouldShowLoungeIntro()) return;
-
-  const overlay = document.getElementById("loungeIntroOverlay");
-  const video = document.getElementById("loungeIntroVideo");
-
-  if (!overlay || !video) return;
-
-  const videoSrc =
-    videoType === "vip"
-      ? "./assets/notification/lounge-vip.mp4"
-      : "./assets/notification/lounge-main.mp4";
-
-  video.src = videoSrc;
-  video.load();
-
-  overlay.style.display = "flex";
-  video.currentTime = 0;
-
-  video.play().catch(() => {
-    overlay.style.display = "none";
-  });
-
-  video.onended = function () {
-    overlay.style.display = "none";
-  };
-
-  setTimeout(function () {
-    overlay.style.display = "none";
-  }, 6000);
 }
 
 </script>
