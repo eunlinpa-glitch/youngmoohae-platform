@@ -319,8 +319,8 @@
         }
 
         #loungeIntroOverlay video {
-          width: 80%;
-          height: 80%;
+          width: 100%;
+          height: 100%;
           object-fit: cover;
         }
 
@@ -1317,6 +1317,8 @@
       });
 
         msgBox.scrollTop = msgBox.scrollHeight;
+        scrollChatToBottom();
+        
         setTimeout(() => { document.getElementById('live-chat-input').focus(); }, 100);
     }
 
@@ -1327,6 +1329,23 @@
         document.getElementById('global-back-btn').style.display = 'none';
         document.getElementById('header-text').innerText = "채팅";
         renderChatList();
+    }
+
+    function scrollChatToBottom() {
+      const msgBox = document.getElementById("chat-messages-box");
+      if (!msgBox) return;
+
+      setTimeout(() => {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }, 50);
+
+      setTimeout(() => {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }, 300);
+
+      setTimeout(() => {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }, 800);
     }
 
     function handleChatKeyDown(event) {
@@ -1655,6 +1674,8 @@ if (voices.length > 0) {
             speechSynthesis.onvoiceschanged = populateSupervisorSelectOptions;
         }
     };
+
+
 </script>
 
 
