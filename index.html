@@ -3695,7 +3695,7 @@ function shouldShowLoungeIntro() {
   return false;
 }
 
-function playLoungeIntroIfNeeded(videoType = "main") {
+window.playLoungeIntroIfNeeded = function(videoType = "main") {
   // if (!shouldShowLoungeIntro()) return;
 
   const overlay = document.getElementById("loungeIntroOverlay");
@@ -3726,7 +3726,6 @@ function playLoungeIntroIfNeeded(videoType = "main") {
     overlay.style.display = "none";
   }, 6000);
 }
-window.playLoungeIntroIfNeeded = playLoungeIntroIfNeeded;
 
 </script>
 <!-- YM Lounge Name + Video Alert Patch END -->
