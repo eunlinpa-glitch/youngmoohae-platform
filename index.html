@@ -3064,7 +3064,6 @@ function ymhIsFirebaseReady(){
 }
 
 async function ymhSaveChatRealtime(roomName, message){
-  console.log("전송시작", message, window.selectedChatFile);
   if(!ymhIsFirebaseReady()) throw new Error("Firestore db is not ready");
 
   const me = ymhGetCurrentProfile();
@@ -3073,62 +3072,36 @@ async function ymhSaveChatRealtime(roomName, message){
   const members = ymhGetRoomMembers(roomName);
   const roomId = ymhMakeRoomId(roomName);
 
-  if (!activeChatRooms.includes(roomName)) {
-  activeChatRooms.push(roomName);
-  renderChatList();
- }
+  const partner = members.find(p => p.memberId !== me.memberId);
+  const displayRoomName = partner ? partner.name : roomName;
 
-await setDoc(
-  doc(window.db, "chat_rooms", roomId),
-  {
-    roomName,
-    roomId,
-    members: members.map(p => p.name),
-    memberIds: members.map(p => p.memberId),
-    lastMessage: String(message || "").slice(0,80),
-    lastSender: me.name,
-    lastSenderId: me.memberId,
-    updatedAt: serverTimestamp()
-  },
-  { merge: true }
-);
-
-let attachmentUrl = "";
-
-if(window.selectedChatFile){
-
-    const storageRef = window.storageRef(
-        window.storage,
-        "attachments/" +
-        Date.now() + "_" +
-        window.selectedChatFile.name
-    );
-
-    await window.uploadBytes(
-        storageRef,
-        window.selectedChatFile
-    );
-
-    attachmentUrl = await getDownloadURL(storageRef);
-
-    console.log("업로드완료", attachmentUrl);
-}
+  await setDoc(
+    doc(window.db, "chat_rooms", roomId),
+    {
+      roomId,
+      members: members.map(p => p.name),
+      memberIds: members.map(p => p.memberId),
+      lastMessage: message,
+      lastSender: me.name,
+      lastSenderId: me.memberId,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
 
   return await addDoc(
     collection(window.db, "chat_rooms", roomId, "messages"),
     {
-      roomName,
+      roomName: displayRoomName,
       roomId,
-      members:members.map(p => p.name),
-      memberIds:members.map(p => p.memberId),
-      sender:me.name,
-      senderId:me.memberId,
+      members: members.map(p => p.name),
+      memberIds: members.map(p => p.memberId),
+      sender: me.name,
+      senderId: me.memberId,
       message,
-      attachmentName: window.selectedChatFile ? window.selectedChatFile.name : "",
-       attachmentUrl: attachmentUrl,
-      readBy:[me.name],
-      readByIds:[me.memberId],
-      createdAt:serverTimestamp()
+      readBy: [me.name],
+      readByIds: [me.memberId],
+      createdAt: serverTimestamp()
     }
   );
 }
