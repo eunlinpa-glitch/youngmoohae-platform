@@ -1242,6 +1242,8 @@
         console.log("복원된 activeChatRooms:", activeChatRooms);
 
         activeChatRooms.forEach(name => {
+          if(!name) return;
+          
           if(
              name === "영무회 라운지" ||
              name === "영무회 공식 마케팅룸" ||
