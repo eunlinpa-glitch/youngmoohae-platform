@@ -412,23 +412,41 @@
                       <div class="chat-bg-fixed" id="chat-bg-fixed"></div>
                       <div class="chat-messages" id="chat-messages-box"></div>
                   </div>
+                
+                <div id="attachment-preview" style="display:none;padding:8px;background:#fff;"></div>
+
                 <div class="chat-input-row">
                     
-                    <button
-                        id="chat-attach-btn"
-                        type="button"
-                        class="chat-attach-btn"
-                        onclick="openChatAttachMenu()"
-                    >
-                        <i class="fa-solid fa-paperclip"></i>
-                    </button> 
+          <button
+             id="chat-attach-btn"
+             type="button"
+             onclick="document.getElementById('chat-file-input').click()"
+             style="
+               border:none;
+               background:linear-gradient(135deg,#F59E0B,#D97706);
+               color:white;
+               font-size:22px;
+               font-weight:250;
+               width:36px;
+               height:36px;
+               border-radius:50%;
+               cursor:pointer;
+               box-shadow:0 6px 14px rgba(217,119,6,0.28);
+               display:flex;
+               align-items:center;
+               justify-content:center;
+               flex-shrink:0;
+             "
+            >
+             +
+            </button>
                     
                     <input
                        type="file"
                        id="chat-file-input"
                        style="display:none;"
                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.mp4,.mov"
-                       onchange="handleChatFileSelected(event)"
+                       multiple
                     >
 
                     <input 
@@ -443,7 +461,9 @@
                         class="submit-btn" 
                         style="width:auto; padding:12px 22px;" 
                         onclick="executeSendMsg()"
-                    >전송</button>
+                    >
+                        전송
+                   </button>
 
                 </div>
             </div>
@@ -4064,6 +4084,111 @@ window.playLoungeIntroIfNeeded = function(videoType = "main") {
 
   video.load();
 };
+
+let selectedAttachment =  [];
+
+document.addEventListener("change", function(e){
+
+  if(e.target.id !== "chat-file-input") return;
+
+  const files = Array.from(e.target.files || []);
+  if(files.length === 0) return;
+
+  selectedAttachments = files.slice(0, 10);
+
+  const preview = document.getElementById("attachment-preview");
+  preview.style.display = "block";
+
+  preview.innerHTML = `
+    <div style="
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:8px 4px;
+      background:white;
+      border-top:1px solid #E2E8F0;
+    ">
+      ${selectedAttachments.map((file, index) => {
+
+        if(file.type.startsWith("image/")){
+          const url = URL.createObjectURL(file);
+
+          return `
+            <div style="position:relative;flex:0 0 auto;">
+              <img src="${url}"
+                style="
+                  width:72px;
+                  height:72px;
+                  object-fit:cover;
+                  border-radius:14px;
+                  border:1px solid #E2E8F0;
+                ">
+              <button onclick="removeAttachmentAt(${index})"
+                style="
+                  position:absolute;
+                  top:-7px;
+                  right:-7px;
+                  border:none;
+                  background:#EF4444;
+                  color:white;
+                  border-radius:50%;
+                  width:22px;
+                  height:22px;
+                  font-size:13px;
+                  font-weight:900;
+                ">×</button>
+            </div>
+          `;
+        }
+
+        return `
+          <div style="
+            position:relative;
+            min-width:86px;
+            max-width:110px;
+            padding:10px;
+            border-radius:14px;
+            background:#F8FAFC;
+            border:1px solid #E2E8F0;
+            font-size:11px;
+            font-weight:800;
+            color:#334155;
+            word-break:break-all;
+          ">
+            📎<br>${file.name}
+            <button onclick="removeAttachmentAt(${index})"
+              style="
+                position:absolute;
+                top:-7px;
+                right:-7px;
+                border:none;
+                background:#EF4444;
+                color:white;
+                border-radius:50%;
+                width:22px;
+                height:22px;
+              ">×</button>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+});
+
+function removeAttachmentAt(index){
+
+  selectedAttachments.splice(index, 1);
+
+  if(selectedAttachments.length === 0){
+    document.getElementById("chat-file-input").value = "";
+    document.getElementById("attachment-preview").style.display = "none";
+    document.getElementById("attachment-preview").innerHTML = "";
+    return;
+  }
+
+  const event = new Event("change");
+  document.getElementById("chat-file-input").dispatchEvent(event);
+}
 
 </script>
 
