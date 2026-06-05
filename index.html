@@ -3356,7 +3356,7 @@ window.executeSendMsg = async function(){
   if(!input) return;
 
   const text = input.value.trim();
-  const files = window.selectedAttachments || selectedAttachments || [];
+  const files = window.selectedAttachments || [];
 
   if(!text && files.length === 0) return;
 
@@ -3397,7 +3397,7 @@ window.executeSendMsg = async function(){
         await ymhSaveChatRealtime(roomName, fileMessage);
       }
 
-      selectedAttachments = [];
+      window.selectedAttachments = [];
       document.getElementById("chat-file-input").value = "";
       document.getElementById("attachment-preview").style.display = "none";
       document.getElementById("attachment-preview").innerHTML = "";
@@ -4133,7 +4133,7 @@ window.playLoungeIntroIfNeeded = function(videoType = "main") {
   video.load();
 };
 
-let selectedAttachment =  [];
+window.selectedAttachments = [];
 
 document.addEventListener("change", function(e){
 
@@ -4142,7 +4142,7 @@ document.addEventListener("change", function(e){
   const files = Array.from(e.target.files || []);
   if(files.length === 0) return;
 
-  selectedAttachments = files.slice(0, 10);
+  window.selectedAttachments = files.slice(0, 10);
 
   const preview = document.getElementById("attachment-preview");
   preview.style.display = "block";
