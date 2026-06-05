@@ -344,6 +344,16 @@
               text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
 
+          .date-divider{
+            text-align:center;
+            color:#ffffff;
+            font-size:13px;
+            font-weight:700;
+            margin:12px 0;
+            opacity:0.95;
+            text-shadow:0 1px 3px rgba(0,0,0,0.8);
+        }
+
         </style>
 
 </head>
@@ -1710,7 +1720,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("DOMContentLoaded", syncProfilePhoneDisplay);
 })();
+
 /* Profile Phone Display Patch END */
+
 </script>
 
 
@@ -2066,6 +2078,46 @@ return `
 }
 
 function renderLocalRoomMessages(roomName){
+
+function toChatDate(value) {
+  if (!value) return new Date();
+
+  if (typeof value.toDate === "function") {
+    return value.toDate();
+  }
+
+  if (value.seconds) {
+    return new Date(value.seconds * 1000);
+  }
+
+  return new Date(value);
+}
+
+function formatChatDateDivider(timestamp) {
+  const date = toChatDate(timestamp);
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const day = days[date.getDay()];
+
+  return `${yyyy}-${mm}-${dd} (${day})`;
+}
+
+function isSameChatDate(a, b) {
+  if (!a || !b) return false;
+
+  const da = toChatDate(a);
+  const db = toChatDate(b);
+
+  return (
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+  );
+}
+
  const box=document.getElementById("chat-messages-box");
  if(!box) return;
 
@@ -2075,9 +2127,24 @@ function renderLocalRoomMessages(roomName){
 
  box.innerHTML = "";
 
- localMessages.forEach((m)=>{
-   box.innerHTML += renderMessageBubble(m, roomName);
- });
+ let previousDate = null;
+
+localMessages.forEach((m)=>{
+
+  const messageDate = m.createdAt || m.clientCreatedAt || m.localCreatedAt;
+
+  if (!isSameChatDate(previousDate, messageDate)) {
+    box.innerHTML += `
+      <div class="date-divider">
+        ──── ${formatChatDateDivider(messageDate)} ────
+      </div>
+    `;
+  }
+
+  box.innerHTML += renderMessageBubble(m, roomName);
+
+  previousDate = messageDate;
+});
 
  box.scrollTop=box.scrollHeight;
 }
@@ -2194,11 +2261,11 @@ window.subscribeRealtimeChat=(roomName)=>{
    const box=document.getElementById("chat-messages-box");
    if(!box) return;
 
-   box.innerHTML="";
+  box.innerHTML = "";
 
-   snap.forEach((d)=>{
-      const v=d.data();
-      box.innerHTML += renderMessageBubble(v, roomName);
+  snap.forEach((d)=>{
+     const v = d.data();
+     box.innerHTML += renderMessageBubble(v, roomName);
    });
 
    box.scrollTop=box.scrollHeight;
@@ -3015,6 +3082,45 @@ if(window.selectedChatFile){
   );
 }
 
+ function toChatDate(value) {
+  if (!value) return new Date();
+
+  if (typeof value.toDate === "function") {
+    return value.toDate();
+  }
+
+  if (value.seconds) {
+    return new Date(value.seconds * 1000);
+  }
+
+  return new Date(value);
+}
+
+function formatChatDateDivider(timestamp) {
+  const date = toChatDate(timestamp);
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const day = days[date.getDay()];
+
+  return `${yyyy}-${mm}-${dd} (${day})`;
+}
+
+function isSameChatDate(a, b) {
+  if (!a || !b) return false;
+
+  const da = toChatDate(a);
+  const db = toChatDate(b);
+
+  return (
+    da.getFullYear() === db.getFullYear() &&
+    da.getMonth() === db.getMonth() &&
+    da.getDate() === db.getDate()
+  );
+}
+
 function ymhSubscribeChat(roomName){
   if(!ymhIsFirebaseReady()) return;
 
@@ -3032,15 +3138,36 @@ function ymhSubscribeChat(roomName){
     limit(300)
   );
 
+ 
   ymhUnsubscribeRoom = onSnapshot(q, (snap)=>{
     const box = document.getElementById("chat-messages-box");
     if(!box) return;
 
-    box.innerHTML = "";
+  box.innerHTML = "";
 
-    snap.forEach(d=>{
-      box.innerHTML += ymhRenderMessage(d.data(), roomName);
-    });
+  box.innerHTML += `
+     <div class="date-divider">
+      ──── TEST DATE ────
+     </div>
+  `;
+   let previousDate = null;
+
+   snap.forEach(d=>{
+     const data = d.data();
+     const messageDate = data.createdAt || data.clientCreatedAt || data.localCreatedAt || Date.now();
+
+     if (!isSameChatDate(previousDate, messageDate)) {
+       box.innerHTML += `
+         <div class="date-divider">
+           ──── ${formatChatDateDivider(messageDate)} ────
+         </div>
+       `;
+     }
+
+     box.innerHTML += ymhRenderMessage(data, roomName);
+
+     previousDate = messageDate;
+   });
 
     box.scrollTop = box.scrollHeight;
 
@@ -3529,6 +3656,33 @@ if(roomName === "__NOTICE__"){
       player.play().catch(()=>{});
     }catch(e){}
   }
+
+  let skipBtn = document.getElementById("ymh-video-alert-skip");
+
+if (!skipBtn && modal) {
+  skipBtn = document.createElement("button");
+  skipBtn.id = "ymh-video-alert-skip";
+  skipBtn.innerText = "건너뛰기";
+  skipBtn.style.cssText = `
+    position:absolute;
+    right:18px;
+    bottom:22px;
+    z-index:99999;
+    padding:10px 16px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,0.7);
+    background:rgba(0,0,0,0.6);
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+  `;
+  modal.appendChild(skipBtn);
+}
+
+if (skipBtn) {
+  skipBtn.onclick = ymhCloseVideoAlert;
+}
+
 }
 
 function ymhPlayAehubaeVoice(){
