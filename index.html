@@ -824,7 +824,8 @@
         document.getElementById(`panel-${panelId}`).classList.add('active');
 
         if (panelId === 'chat') {
-           loadMyChatRoomsFromFirebase();
+          loadMyChatRoomsFromFirebase();
+          setTimeout(renderChatList, 500);
         }
         
         if(elem) {
@@ -1142,11 +1143,19 @@
     }
     
   async function loadMyChatRoomsFromFirebase() {
-  try {
 
-  const name = typeof currentLoggedInUser !== "undefined"
-    ? currentLoggedInUser
-    : "";
+    console.log("loadMyChatRoomsFromFirebase 시작");
+
+  try {
+  console.log("currentLoggedInUser =", currentLoggedInUser);
+  const name = 
+    currentLoggedInUser ||
+    localStorage.getItem("currentLoggedInUser") ||
+    localStorage.getItem("ymh_current_user_name") ||
+    localStorage.getItem("name") ||
+    "";
+
+  console.log("복원용 name =", name);   
 
    if (!name) return;
 
@@ -1181,7 +1190,7 @@
     snap.forEach((d) => {
       const room = d.data();
 
-      if ((room.memberIds || []).includes(me.memberId)) {
+        if ((room.memberIds || []).includes(me.memberId)) {
         if (!activeChatRooms.includes(room.roomName)) {
           activeChatRooms.push(room.roomName);
         }
@@ -1205,6 +1214,13 @@
     function renderChatList() {
         const chatContainer = document.getElementById('chat-list-anchor');
         chatContainer.innerHTML = '';
+
+        if (!activeChatRooms || activeChatRooms.length === 0) {
+          return;
+        }
+
+        console.log("복원된 activeChatRooms:", activeChatRooms);
+
         activeChatRooms.forEach(name => {
           if(
              name === "영무회 라운지" ||
@@ -1215,14 +1231,19 @@
             }
             
             chatContainer.innerHTML += `
-                <div class="chat-item" onclick="openChatRoom('${name}', '${name[0]}')">
-                    <div class="chat-avatar">${name[0]}</div>
-                    <div class="chat-info">
-                        <div class="chat-top-row"><span class="chat-name">${name}</span><span class="chat-time">실시간 연결됨</span></div>
-                        <p class="chat-preview">${name} 동문님과 안전한 비즈니스 협의방이 개설되었습니다.</p>
-                    </div>
-                </div>`;
+              <div class="chat-item" style="background:#ffffff;" onclick="openChatRoom('${name}', '${name[0]}')">
+                <div class="chat-avatar">${name[0]}</div>
+                <div class="chat-info">
+                 <div class="chat-top-row">
+                   <span class="chat-name">${name}</span>
+                 </div>
+                 <p class="chat-preview">${name} 동문과의 개인 채팅방입니다.</p>
+               </div>
+             </div>
+            `;
         });
+
+        console.log("chatContainer html:", chatContainer.innerHTML);
     }
 
        /* [채팅방 열기]  */
@@ -2666,6 +2687,10 @@ function ymhSaveCurrentProfileLocal(profile){
   localStorage.setItem("ymh_current_member_id", profile.memberId);
   localStorage.setItem("ymh_current_profile", JSON.stringify(profile));
   localStorage.setItem("currentMemberId", profile.memberId);
+  currentLoggedInUser = profile.name;
+  window.currentLoggedInUser = profile.name;
+  localStorage.setItem("currentLoggedInUser", profile.name);
+  localStorage.setItem("ymh_current_user_name", profile.name);
 
   window.ymhCurrentProfile = profile;
 
@@ -3202,6 +3227,8 @@ async function ymhRegisterOrUpdateMember(){
     return;
   }
 
+  console.log("저장 직전 profile =", profile);
+  
   ymhSaveCurrentProfileLocal(profile);
   ymhApplyProfileToScreen(profile);
   ymhUpsertAlumni(profile);
@@ -3544,6 +3571,30 @@ function ymhEnsureVideoAlertModal(){
         </video>
       </div>
 
+      <div style="
+          padding:12px;
+          display:flex;
+          justify-content:flex-end;
+          background:#fff;
+        ">
+       <button
+         id="ymh-video-alert-skip"
+         style="
+           width:90%;
+           padding:14px 18px;
+           border:none;
+           border-radius:999px;
+           background:#F59E0B;
+           color:#fff;
+           font-size:16px;
+           font-weight:900;
+           cursor:pointer;
+         "
+        >
+         건너뛰기
+       </button>
+      </div>
+
       <div style="padding:16px 18px; background:#FFFDF7;">
         <div id="ymh-video-alert-title" style="
           display:inline-block;
@@ -3648,6 +3699,47 @@ if(roomName === "__NOTICE__"){
 
   if(modal) modal.style.display = "flex";
 
+   setTimeout(() => {
+  const modal = document.getElementById("ymh-video-alert-modal");
+  const player = document.getElementById("ymh-video-alert-player");
+  if (!modal) return;
+
+  let skipBtn = document.getElementById("ymh-video-alert-skip-fixed");
+
+  if (!skipBtn) {
+    skipBtn = document.createElement("button");
+    skipBtn.id = "ymh-video-alert-skip-fixed";
+    skipBtn.innerText = "건너뛰기";
+    skipBtn.style.cssText = `
+      position:fixed;
+      right:20px;
+      bottom:30px;
+      z-index:2147483647;
+      padding:14px 22px;
+      border:none;
+      border-radius:999px;
+      background:#F59E0B;
+      color:#fff;
+      font-size:16px;
+      font-weight:900;
+      box-shadow:0 6px 18px rgba(0,0,0,0.35);
+    `;
+    document.body.appendChild(skipBtn);
+    console.log("SKIP BUTTON CREATED");
+  }
+
+  skipBtn.style.display = "block";
+
+  skipBtn.onclick = () => {
+    if (player) {
+      player.pause();
+      player.currentTime = 0;
+    }
+    modal.style.display = "none";
+    skipBtn.style.display = "none";
+  };
+}, 100);
+
   if(player){
     try{
       player.currentTime = 0;
@@ -3656,6 +3748,8 @@ if(roomName === "__NOTICE__"){
       player.play().catch(()=>{});
     }catch(e){}
   }
+
+console.log("MODAL", modal);
 
   let skipBtn = document.getElementById("ymh-video-alert-skip");
 
@@ -3676,7 +3770,8 @@ if (!skipBtn && modal) {
     font-size:14px;
     font-weight:800;
   `;
-  modal.appendChild(skipBtn);
+  //modal.appendChild(skipBtn);
+  document.body.appendChild(skipBtn);
 }
 
 if (skipBtn) {
@@ -3870,6 +3965,28 @@ window.addEventListener("focus", ()=>{
   }, 300);
 });
 
+function skipLoungeIntroVideo(){
+  const overlay = document.getElementById("loungeIntroOverlay");
+  const video = document.getElementById("loungeIntroVideo");
+
+  if (video) {
+    video.pause();
+    video.currentTime = 0;
+  }
+
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  const btn = document.getElementById("loungeIntroSkipBtn");
+
+  if (btn) {
+    btn.onclick = skipLoungeIntroVideo;
+  }
+});
+
 function shouldShowLoungeIntro() {
   const key = "youngmoo_lounge_intro_last";
   const last = localStorage.getItem(key);
@@ -3897,6 +4014,27 @@ function shouldShowLoungeIntro() {
   <video id="loungeIntroVideo" playsinline muted preload="auto">
     <source src="./assets/notification/lounge-main.mp4" type="video/mp4">
   </video>
+
+  <button 
+      id="loungeIntroSkipBtn"
+      onclick="skipLoungeIntroVideo()"
+      style="
+        position:fixed;
+        right:20px;
+        bottom:30px;
+        z-index:2147483647;
+        padding:12px 24px;
+        border:none;
+        border-radius:10px;
+        background:#0F172A;
+        color:#ffffff;
+        font-size:16px;
+        font-weight:900;
+        box-shadow:0 4px 12px rgba(0,0,0,0.35);
+     ">
+     건너뛰기
+   </button>
+
 </div>
 
 <script>
