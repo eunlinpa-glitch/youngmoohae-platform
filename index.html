@@ -1812,13 +1812,13 @@ import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/fireb
 
 /* ===== Firebase 설정만 채워 넣으세요 ===== */
 const firebaseConfig = {
-  apiKey: "AIzaSyCKiFoZ5H9YgsbyNeSrzrXZXTJ5UUZ9SDo",
-  authDomain: "youngmoohae-db.firebaseapp.com",
-  projectId: "youngmoohae-db",
-  storageBucket: "youngmoohae-db.firebasestorage.app",
-  messagingSenderId: "915987856288",
-  appId: "1:915987856288:web:90c8b50b61588c0550c2c5",
-  measurementId: "G-DM109XGYQ2"
+  apiKey: "AIzaSyAuv4cFoVWIPjI5NQiWLGtXr_9E25FzBoU",
+  authDomain: "youngmoo-hae-c44d8.firebaseapp.com",
+  projectId: "youngmoo-hae-c44d8",
+  storageBucket: "youngmoo-hae-c44d8.firebasestorage.app",
+  messagingSenderId: "526463556123",
+  appId: "1:526463556123:web:435da9a6a7b18e62cc76be",
+  measurementId: "G-YCR9NKEEV7"
 };
 
 
@@ -2646,6 +2646,12 @@ import {
   onSnapshot, updateDoc, arrayUnion, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
 let ymhUnsubscribeRoom = null;
 let ymhUnsubscribeMembers = null;
 
@@ -3345,11 +3351,15 @@ window.openChatRoom = function(name, letter){
 };
 
 window.executeSendMsg = async function(){
+
   const input = document.getElementById("live-chat-input");
   if(!input) return;
 
   const text = input.value.trim();
-  if(!text && !window.selectedChatFile) return;
+  const files = window.selectedAttachments || selectedAttachments || [];
+
+  if(!text && files.length === 0) return;
+
   const roomName = ymhGetActiveRoomName();
 
   if(!roomName){
@@ -3359,12 +3369,50 @@ window.executeSendMsg = async function(){
 
   try{
 
-    await ymhSaveChatRealtime(roomName, text);
-    input.value = "";
-    console.log("[YMH] message saved", { roomName, text });
+    if(files.length > 0){
+
+      for(const file of files){
+
+        const roomId = ymhMakeRoomId(roomName);
+        const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
+        const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
+
+        const storageRef = ref(window.storage, path);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+
+        const isImage = file.type.startsWith("image/");
+        const isVideo = file.type.startsWith("video/");
+
+        let fileMessage = "";
+
+        if(isImage){
+          fileMessage = `[이미지첨부] ${url}`;
+        }else if(isVideo){
+          fileMessage = `[영상첨부] ${url}`;
+        }else{
+          fileMessage = `[파일첨부] ${file.name} ${url}`;
+        }
+
+        await ymhSaveChatRealtime(roomName, fileMessage);
+      }
+
+      selectedAttachments = [];
+      document.getElementById("chat-file-input").value = "";
+      document.getElementById("attachment-preview").style.display = "none";
+      document.getElementById("attachment-preview").innerHTML = "";
+    }
+
+    if(text){
+      await ymhSaveChatRealtime(roomName, text);
+      input.value = "";
+    }
+
+    console.log("[YMH] message/file saved", { roomName, text, fileCount:files.length });
+
   }catch(e){
-    console.error("[YMH] message save failed", e);
-    alert(e.message || "메시지 저장 실패");
+    console.error("[YMH] file/message save failed", e);
+    alert(e.message || "첨부파일 전송 실패");
   }
 };
 
