@@ -2153,25 +2153,45 @@ window.convertChatImages = function(){
 
   document.querySelectorAll(".msg-bubble").forEach(b=>{
 
+    if(b.dataset.converted === "1") return;
+
     const t = b.innerText || "";
 
-    if(t.includes("firebasestorage.googleapis.com")){
+    if(t.includes("<video") && t.includes("firebasestorage.googleapis.com")){
 
-      const url =
-        "https://" +
-        t.split("https://")[1]
-         .split('"')[0]
-         .trim();
+      const url = "https://" + t.split("https://")[1].split('"')[0].trim();
 
-      b.innerHTML =
-        `<img src="${url}"
-              style="max-width:220px;
-                     border-radius:12px;
-                     display:block;">`;
+      b.innerHTML = `
+        <video
+          src="${url}"
+          controls
+          playsinline
+          preload="metadata"
+          style="max-width:220px;border-radius:12px;display:block;">
+        </video>
+      `;
 
       b.style.background = "transparent";
       b.style.padding = "0";
       b.style.boxShadow = "none";
+      b.dataset.converted = "1";
+      return;
+    }
+
+    if(t.includes("firebasestorage.googleapis.com")){
+
+      const url = "https://" + t.split("https://")[1].split('"')[0].trim();
+
+      b.innerHTML = `
+        <img
+          src="${url}"
+          style="max-width:220px;border-radius:12px;display:block;">
+      `;
+
+      b.style.background = "transparent";
+      b.style.padding = "0";
+      b.style.boxShadow = "none";
+      b.dataset.converted = "1";
     }
 
   });
@@ -2213,8 +2233,6 @@ window.optimizeChatVideos = function(){
   });
 
 };
-
-setInterval(window.convertChatImages, 500);
 
 function renderLocalRoomMessages(roomName){
 
@@ -3313,6 +3331,7 @@ function ymhSubscribeChat(roomName){
    });
 
     box.scrollTop = box.scrollHeight;
+    setTimeout(window.convertChatImages, 100);
 
     const me = ymhGetCurrentProfile();
 
