@@ -2124,8 +2124,13 @@ return `
 
       <div class="msg-container-row">
         ${isMe ? unreadHtml : ""}
-        <div class="msg-bubble ${isMe ? 'me' : 'other'}">
-          ${escapeHtml(messageData.message)}
+      <div class="msg-bubble ${isMe ? 'me' : 'other'}">
+           ${
+             messageData.message?.startsWith("[이미지첨부]")
+             ? `<img src="${messageData.message.replace("[이미지첨부] ","")}"
+                     style="max-width:220px;border-radius:12px;">`
+             : escapeHtml(messageData.message)
+            }
         </div>
       </div>
     </div>
