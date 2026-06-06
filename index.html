@@ -3122,6 +3122,27 @@ async function ymhSaveChatRealtime(roomName, message){
   );
 }
 
+async function ymhUploadChatFile(roomName, file){
+  if(!window.storage) throw new Error("Storage가 준비되지 않았습니다.");
+
+  const roomId = ymhMakeRoomId(roomName);
+  const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
+  const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
+
+  const fileRef = ref(window.storage, path);
+
+  await uploadBytes(fileRef, file);
+
+  const url = await getDownloadURL(fileRef);
+
+  return {
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    url
+  };
+}
+
  function toChatDate(value) {
   if (!value) return new Date();
 
@@ -3358,49 +3379,46 @@ window.executeSendMsg = async function(){
 
   try{
 
-    if(files.length > 0){
+    for(const file of files){
+      const uploaded = await ymhUploadChatFile(roomName, file);
 
-      for(const file of files){
+      let message = "";
 
-        const roomId = ymhMakeRoomId(roomName);
-        const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
-        const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
-
-        const storageRef = ref(window.storage, path);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-
-        const isImage = file.type.startsWith("image/");
-        const isVideo = file.type.startsWith("video/");
-
-        let fileMessage = "";
-
-        if(isImage){
-          fileMessage = `[이미지첨부] ${url}`;
-        }else if(isVideo){
-          fileMessage = `[영상첨부] ${url}`;
-        }else{
-          fileMessage = `[파일첨부] ${file.name} ${url}`;
-        }
-
-        await ymhSaveChatRealtime(roomName, fileMessage);
+      if(uploaded.type.startsWith("image/")){
+        message = `[이미지첨부] ${uploaded.url}`;
+      }else if(uploaded.type.startsWith("video/")){
+        message = `[영상첨부] ${uploaded.url}`;
+      }else{
+        message = `[파일첨부] ${uploaded.name} ${uploaded.url}`;
       }
 
-      window.selectedAttachments = [];
-      document.getElementById("chat-file-input").value = "";
-      document.getElementById("attachment-preview").style.display = "none";
-      document.getElementById("attachment-preview").innerHTML = "";
+      await ymhSaveChatRealtime(roomName, message);
     }
 
     if(text){
       await ymhSaveChatRealtime(roomName, text);
-      input.value = "";
     }
 
-    console.log("[YMH] message/file saved", { roomName, text, fileCount:files.length });
+    input.value = "";
+    window.selectedAttachments = [];
+
+    const fileInput = document.getElementById("chat-file-input");
+    const preview = document.getElementById("attachment-preview");
+
+    if(fileInput) fileInput.value = "";
+    if(preview){
+      preview.style.display = "none";
+      preview.innerHTML = "";
+    }
+
+    console.log("[YMH] message/file uploaded", {
+      roomName,
+      text,
+      fileCount: files.length
+    });
 
   }catch(e){
-    console.error("[YMH] file/message save failed", e);
+    console.error("[YMH] upload/send failed", e);
     alert(e.message || "첨부파일 전송 실패");
   }
 };
