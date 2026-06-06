@@ -3235,12 +3235,49 @@ async function ymhSaveChatRealtime(roomName, message){
   );
 }
 
+async function ymhCreateVideoThumbnail(file){
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    const canvas = document.createElement("canvas");
+    const url = URL.createObjectURL(file);
+
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
+    video.src = url;
+
+    video.onloadeddata = () => {
+      video.currentTime = Math.min(0.5, video.duration || 0.5);
+    };
+
+    video.onseeked = () => {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 360;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url);
+        if (!blob) reject(new Error("썸네일 생성 실패"));
+        else resolve(blob);
+      }, "image/jpeg", 0.8);
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("영상 썸네일을 만들 수 없습니다."));
+    };
+  });
+}
+
 async function ymhUploadChatFile(roomName, file){
   if(!window.storage) throw new Error("Storage가 준비되지 않았습니다.");
 
   const roomId = ymhMakeRoomId(roomName);
   const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
-  const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
+  const baseTime = Date.now();
+  const path = `chat_uploads/${roomId}/${baseTime}_${safeName}`;
 
   const fileRef = ref(window.storage, path);
 
@@ -3248,11 +3285,25 @@ async function ymhUploadChatFile(roomName, file){
 
   const url = await getDownloadURL(fileRef);
 
+  let thumbUrl = "";
+
+  if(file.type && file.type.startsWith("video/")){
+    try{
+      const thumbBlob = await ymhCreateVideoThumbnail(file);
+      const thumbRef = ref(window.storage, `chat_uploads/${roomId}/${baseTime}_thumb.jpg`);
+      await uploadBytes(thumbRef, thumbBlob);
+      thumbUrl = await getDownloadURL(thumbRef);
+    }catch(e){
+      console.warn("[YMH] video thumbnail failed", e);
+    }
+  }
+
   return {
     name: file.name,
     type: file.type,
     size: file.size,
-    url
+    url,
+    thumbUrl
   };
 }
 
@@ -3501,7 +3552,19 @@ window.executeSendMsg = async function(){
       if(uploaded.type.startsWith("image/")){
          message = `<img src="${uploaded.url}" style="max-width:220px;border-radius:12px;display:block;">`;
       }else if(uploaded.type.startsWith("video/")){
-        message = `<video src="${uploaded.url}" controls playsinline preload="metadata" style="max-width:220px;border-radius:12px;display:block;"></video>`;
+       message = `
+          <div style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;">
+            <video
+               src="${uploaded.url}"
+               ${uploaded.thumbUrl ? `poster="${uploaded.thumbUrl}"` : ""}
+               controls
+               playsinline
+               preload="metadata"
+               style="width:100%;display:block;border-radius:14px;background:#000;">
+             </video>
+           </div>
+         `;
+
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
       }
