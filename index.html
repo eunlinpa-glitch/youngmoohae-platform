@@ -3433,7 +3433,7 @@ window.executeSendMsg = async function(){
       if(uploaded.type.startsWith("image/")){
          message = `<img src="${uploaded.url}" style="max-width:220px;border-radius:12px;display:block;">`;
       }else if(uploaded.type.startsWith("video/")){
-        message = `<video src="${uploaded.url}" controls playsinline style="max-width:220px;border-radius:12px;display:block;"></video>`;
+        message = `<video src="${uploaded.url}" controls playsinline preload="metadata" style="max-width:220px;border-radius:12px;display:block;"></video>`;
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
       }
