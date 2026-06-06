@@ -3276,8 +3276,7 @@ async function ymhUploadChatFile(roomName, file){
 
   const roomId = ymhMakeRoomId(roomName);
   const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
-  const baseTime = Date.now();
-  const path = `chat_uploads/${roomId}/${baseTime}_${safeName}`;
+  const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
 
   const fileRef = ref(window.storage, path);
 
@@ -3285,8 +3284,7 @@ async function ymhUploadChatFile(roomName, file){
 
   const url = await getDownloadURL(fileRef);
 
-  let thumbUrl = "";
-
+  /*
   if(file.type && file.type.startsWith("video/")){
     try{
       const thumbBlob = await ymhCreateVideoThumbnail(file);
@@ -3297,7 +3295,7 @@ async function ymhUploadChatFile(roomName, file){
       console.warn("[YMH] video thumbnail failed", e);
     }
   }
-
+   */
   return {
     name: file.name,
     type: file.type,
