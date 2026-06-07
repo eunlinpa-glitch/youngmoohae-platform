@@ -2154,7 +2154,7 @@ return `
       <div class="msg-bubble ${isMe ? 'me' : 'other'}">
 
     ${
-      String(messageData.message || "").includes("_thumb.jpg")
+      String(messageData.message || "").includes("window.open")
       ? String(messageData.message)
       : String(messageData.message || "").includes("<video")
       ? String(messageData.message)
