@@ -54,7 +54,10 @@
         .global-notice-trigger { font-size: 17px; color: #D97706; cursor: pointer; position: relative; transition: all 0.2s; }
         .global-notice-trigger:hover { transform: scale(1.1); }
         .supervisor-trigger { font-size: 17px; color: #CBD5E1; cursor: pointer; display: none; transition: all 0.2s; }
-        .supervisor-trigger.active-crown { color: #2563EB; display: block; }
+        .supervisor-trigger.active-crown { display:block;
+                                           color:#FFD700;
+                                           text-shadow:0 0 8px rgba(255,215,0,0.7);
+                                         }
         .supervisor-trigger.active-crown:hover { transform: scale(1.1); }
         .notice-dot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 8px #EF4444; }
 
@@ -887,10 +890,28 @@
         if(panelId === 'chat') { renderChatList(); }
     }
 
+    function isMasterSupervisor(){
+      let name = currentLoggedInUser || "";
+
+      if(!name){
+        try{
+          const savedProfile = JSON.parse(localStorage.getItem("ymh_current_profile") || "{}");
+          name = savedProfile.name || "";
+        }catch(e){}
+      }
+
+      if(!name && currentMemberId && Array.isArray(alumniDb)){
+        const me = alumniDb.find(p => p.memberId === currentMemberId);
+        if(me) name = me.name || "";
+      }
+
+      return name === "제갈훈" || supervisorWhiteList.includes(name);
+    } 
+
     function syncHeaderCrownVisibility() {
         const crownBtn = document.getElementById('master-crown-btn');
         if(!crownBtn) return;
-        if (supervisorWhiteList.includes(currentLoggedInUser)) { 
+        if (isMasterSupervisor()) { 
             crownBtn.className = "supervisor-trigger active-crown"; 
         } else { 
             crownBtn.className = "supervisor-trigger"; 
@@ -901,7 +922,7 @@
         const targetHub = document.getElementById('supervisor-hub-wrapper');
         if(!targetHub) return;
         
-        if (supervisorWhiteList.includes(currentLoggedInUser)) {
+        if (isMasterSupervisor()) {
             targetHub.style.display = "block";
         } else {
             targetHub.style.display = "none";
@@ -1754,7 +1775,11 @@ if (voices.length > 0) {
 
 <script>
 
+<<<<<<< HEAD
 const APP_VERSION = "3.20";
+=======
+const APP_VERSION = "3.30";
+>>>>>>> 00aedd9 (before thumbnail functions)
 window.addEventListener("DOMContentLoaded", () => {
   const ver = document.getElementById("app-version");
 
