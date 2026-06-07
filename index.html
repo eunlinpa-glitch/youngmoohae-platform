@@ -2152,16 +2152,16 @@ return `
       <div class="msg-container-row">
         ${isMe ? unreadHtml : ""}
       <div class="msg-bubble ${isMe ? 'me' : 'other'}">
-          ${
-           String(messageData.message || "").includes("<video")
-           ? String(messageData.message)
 
-           : String(messageData.message || "").includes("firebasestorage.googleapis.com")
-           ? `<img src="${"https://" + String(messageData.message || "").split("https://")[1].split('"')[0].trim()}"
-                style="max-width:220px;border-radius:12px;display:block;">`
-
-           : escapeHtml(messageData.message)
-          }
+    ${
+      String(messageData.message || "").includes("_thumb.jpg")
+      ? String(messageData.message)
+      : String(messageData.message || "").includes("<video")
+      ? String(messageData.message)
+      : String(messageData.message || "").includes("firebasestorage.googleapis.com")
+      ? `<img src="${"https://" + String(messageData.message || "").split("https://")[1].split('"')[0]}" style="max-width:220px;border-radius:12px;display:block;">`
+      : escapeHtml(messageData.message)
+    }
              
          </div>
       </div>
@@ -2211,8 +2211,9 @@ window.convertChatImages = function(){
       b.dataset.converted = "1";
       return;
     }*/
-
+     
     if(t.includes("firebasestorage.googleapis.com")){
+       if(t.includes("_thumb.jpg")) return;
 
       const url = "https://" + t.split("https://")[1].split('"')[0].trim();
 
