@@ -2178,7 +2178,7 @@ window.convertChatImages = function(){
 
     const t = b.innerText || "";
 
-    if(t.includes("<video") && t.includes("firebasestorage.googleapis.com")){
+    /*if(t.includes("<video") && t.includes("firebasestorage.googleapis.com")){
 
       const url = "https://" + t.split("https://")[1].split('"')[0].trim();
 
@@ -2210,7 +2210,7 @@ window.convertChatImages = function(){
       b.style.boxShadow = "none";
       b.dataset.converted = "1";
       return;
-    }
+    }*/
 
     if(t.includes("firebasestorage.googleapis.com")){
 
