@@ -3321,13 +3321,19 @@ async function ymhUploadChatFile(roomName, file){
     }
   }
    */
-  return {
-    name: file.name,
-    type: file.type,
-    size: file.size,
-    url,
-  };
-}
+ 
+   const thumbUrl = file.type && file.type.startsWith("video/")
+     ? url.replace(/(\.[^/.]+)(\?alt=media.*)?$/, "_thumb.jpg$2")
+     : "";
+
+   return {
+     name: file.name,
+     type: file.type,
+     size: file.size,
+     url,
+     thumbUrl
+   };
+ }
 
  function toChatDate(value) {
   if (!value) return new Date();
@@ -3574,18 +3580,15 @@ window.executeSendMsg = async function(){
       if(uploaded.type.startsWith("image/")){
          message = `<img src="${uploaded.url}" style="max-width:220px;border-radius:12px;display:block;">`;
       }else if(uploaded.type.startsWith("video/")){
-       message = `
-          <div style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;">
-            <video
-               src="${uploaded.url}"
-               ${uploaded.thumbUrl ? `poster="${uploaded.thumbUrl}"` : ""}
-               controls
-               playsinline
-               preload="metadata"
-               style="width:100%;display:block;border-radius:14px;background:#000;">
-             </video>
-           </div>
-         `;
+        message = `
+           <div onclick="window.open('${uploaded.url}', '_blank')" style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
+            <img src="${uploaded.thumbUrl}" style="width:100%;display:block;border-radius:14px;">
+            <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:white;font-size:24px;">
+              ▶
+            </div>
+          </div>
+        `;
+      
 
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;

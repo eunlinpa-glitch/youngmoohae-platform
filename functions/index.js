@@ -7,6 +7,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
+const {randomUUID} = require("crypto");
 const {setGlobalOptions} = require("firebase-functions");
 const {onRequest} = require("firebase-functions/https");
 const logger = require("firebase-functions/logger");
@@ -30,3 +31,70 @@ setGlobalOptions({ maxInstances: 10 });
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
+const {onObjectFinalized} = require("firebase-functions/v2/storage");
+const admin = require("firebase-admin");
+const path = require("path");
+const os = require("os");
+const fs = require("fs");
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("ffmpeg-static");
+
+admin.initializeApp();
+ffmpeg.setFfmpegPath(ffmpegPath);
+
+exports.createVideoThumbnail = onObjectFinalized(
+  {
+    bucket: "youngmoo-hae-c44d8.firebasestorage.app",
+    region: "asia-northeast3",
+    memory: "1GiB",
+    timeoutSeconds: 120,
+  },
+  async (event) => {
+    const object = event.data;
+    const filePath = object.name || "";
+    const contentType = object.contentType || "";
+
+    if (!filePath.startsWith("chat_uploads/")) return;
+    if (!contentType.startsWith("video/")) return;
+    if (filePath.includes("_thumb")) return;
+
+    const bucket = admin.storage().bucket(object.bucket);
+
+    const fileName = path.basename(filePath);
+    const tempVideoPath = path.join(os.tmpdir(), fileName);
+    const tempThumbPath = path.join(os.tmpdir(), `${fileName}_thumb.jpg`);
+
+    await bucket.file(filePath).download({destination: tempVideoPath});
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(tempVideoPath)
+        .screenshots({
+          timestamps: ["00:00:01"],
+          filename: path.basename(tempThumbPath),
+          folder: os.tmpdir(),
+          size: "480x?",
+        })
+        .on("end", resolve)
+        .on("error", reject);
+    });
+
+    const thumbPath = filePath.replace(/\.[^/.]+$/, "_thumb.jpg");
+
+    const downloadToken = randomUUID();
+
+    await bucket.upload(tempThumbPath, {
+       destination: thumbPath,
+       metadata: {
+         contentType: "image/jpeg",
+         metadata: {
+           firebaseStorageDownloadTokens: downloadToken,
+         },
+       },
+     });
+
+    fs.unlinkSync(tempVideoPath);
+    fs.unlinkSync(tempThumbPath);
+
+    console.log("Thumbnail created:", thumbPath);
+  }
+);
