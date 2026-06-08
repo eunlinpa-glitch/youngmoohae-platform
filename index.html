@@ -2382,7 +2382,7 @@ function appendLocalMessage(sender,message,roomName, shouldSave=true){
    saveLocalMessage(roomName, data);
  }
 
- box.innerHTML += renderMessageBubble(data, roomName);
+ //box.innerHTML += renderMessageBubble(data, roomName);
  box.scrollTop=box.scrollHeight;
 }
 
@@ -3592,16 +3592,18 @@ window.executeSendMsg = async function(){
          message = `<img src="${uploaded.url}" style="max-width:220px;border-radius:12px;display:block;">`;
 
       }else if(uploaded.type.startsWith("video/")){
-        const posterUrl = uploaded.thumbUrl || uploaded.url;
-
         message = `
-          <a href="${uploaded.url}" target="_blank" style="display:block;position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;text-decoration:none;">
-          <img src="${posterUrl}" style="width:100%;display:block;border-radius:14px;background:#000;">
-          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:900;">
-           ▶
-          </div>
-        </a>
-     `;
+          <div style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;">
+            <video
+              src="${uploaded.url}"
+              ${uploaded.thumbUrl ? `poster="${uploaded.thumbUrl}"` : ""}
+              controls
+              playsinline
+              preload="metadata"
+              style="width:100%;display:block;border-radius:14px;background:#000;">
+            </video>
+         </div>
+       `;
 
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
