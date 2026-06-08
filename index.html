@@ -3585,6 +3585,8 @@ alert("전송 함수 시작");
 
   try{
 
+    alert("files 개수: " + files.length);
+
     for(const file of files){
       const uploaded = await ymhUploadChatFile(roomName, file);
 
