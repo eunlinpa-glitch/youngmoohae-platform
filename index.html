@@ -657,7 +657,7 @@
         </div>
     </div>
 
-    <div class="notice-modal-overlay" id="chat-video-alert-modal" onclick="closeVideoAlertPopup()">
+    <div class="notice-modal-overlay" id="chat-video-alert-modal">
         <div class="notice-modal-card" onclick="event.stopPropagation()" style="max-width:380px; border:2px solid var(--accent-gold);">
             <div class="modal-notice-header" style="background:var(--primary-gradient);">
                 <div style="display:flex; align-items:center; gap:8px; color:white;">
@@ -678,12 +678,26 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-notice-footer" style="background:#F1F5F9; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:11px; color:var(--text-muted);" id="alert-time-stamp">2026.05.24 14:44</span>
-                <div style="display:flex; gap:8px;">
-                    <button class="modal-close-btn" style="background:#64748B;" onclick="closeVideoAlertPopup()">닫기</button>
-                    <button class="modal-close-btn" style="background:var(--gold-gradient); box-shadow:var(--shadow-gold);" onclick="jumpToAlertChatRoom()">방 진입</button>
-                </div>
+            <div style="background:#F8FAFC; padding:16px; border-top:1px solid #E5E7EB;">
+              <button
+                 onclick="jumpToAlertChatRoom()"
+                 style="width:100%; padding:16px; border:none; border-radius:999px; background:linear-gradient(135deg,#F59E0B,#EA580C); color:white; font-size:18px; font-weight:900; margin-bottom:14px;">
+                 새 메시지 보기
+              </button>
+
+              <div style="display:flex; gap:10px;">
+                <button
+                  onclick="closeVideoAlertPopup()"
+                  style="flex:1; padding:14px; border:none; border-radius:14px; background:#64748B; color:white; font-size:16px; font-weight:900;">
+                  닫기
+                </button>
+
+                <button
+                  onclick="const v=document.getElementById('alert-video-obj'); if(v){ v.muted=false; v.currentTime=0; v.play(); }"
+                  style="flex:1; padding:14px; border:none; border-radius:14px; background:#111827; color:white; font-size:16px; font-weight:900;">
+                  🔊 음성 듣기
+                </button>
+               </div>
             </div>
         </div>
     </div>
@@ -704,7 +718,6 @@
                             //<option value="이준호">이준호 대표님 (12회)</option>
                         </select>
                     </div>
-                    <button class="submit-btn" style="background:var(--primary-gradient);" onclick="triggerDemoVideoChatAlert()">⚡ 가상 영상 알림 팝업 즉시 가동</button>
                 </div>
 
                 <div class="form-section" style="margin-bottom:14px; border-color:#3B82F6;">
@@ -776,7 +789,7 @@
     ];
     let currentNoticePageIndex = 0; 
 
-    let demoTargetSenderCache = "정희훈"; 
+    let demoTargetSenderCache = "";
 
     const GCS_BASE_URL = "https://storage.googleapis.com/youngmoo-hae-assets";
 
@@ -818,28 +831,40 @@
               activeChatRooms.push(normalizedRoomName);
           }
           }
+        
+        const safeSenderName =
+          (typeof senderName !== "undefined" && senderName)
+          ? senderName
+          : "동문";
+
+        const safeGisuLabel =
+          (typeof gisuLabel !== "undefined" && gisuLabel)
+          ? gisuLabel
+          : "동문";
 
         if (isVideoAlertEnabled) {
-            document.getElementById('alert-sender-title').innerText = `${senderName} 선배님 (${gisuLabel}) 신규 메시지`;
+            document.getElementById('alert-sender-title').innerText = `${safeSenderName} 선배님 (${safeGisuLabel}) 신규 메시지`;
             
             const now = new Date();
-            document.getElementById('alert-time-stamp').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const alertTimeStamp = document.getElementById('alert-time-stamp');
+
+            if(alertTimeStamp){
+               alertTimeStamp.innerText =
+                 `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            }
             
-            document.getElementById('chat-video-alert-modal').style.display = "flex";
+            //document.getElementById('chat-video-alert-modal').style.display = "flex";
             
-            const speechText = "비즈니스 협의 메시지가 수신되었습니다. 확인하시겠습니까?";
             const videoElement = document.getElementById('alert-video-obj');
-            executeTtsSpeechEngine(speechText, 'ko-KR', 'female', videoElement);
+            if(videoElement){
+               videoElement.muted = false;
+               videoElement.currentTime = 0;
+            }
         } else {
             const bottomBadge = document.getElementById('bottom-nav-chat-badge');
             if(bottomBadge) bottomBadge.style.display = "block";
-            alert(`💬 [백그라운드 알림] ${senderName} 선배님으로부터 신규 메시지가 수신되었습니다. (환경설정에서 영상 팝업 알림이 꺼져 있어 하단 채팅방 배지로 인덱싱 처리되었습니다.)`);
+            alert(`💬 [백그라운드 알림] ${safeSenderName} 선배님으로부터 신규 메시지가 수신되었습니다. (환경설정에서 영상 팝업 알림이 꺼져 있어 하단 채팅방 배지로 인덱싱 처리되었습니다.)`);
         }
-
-    function triggerSecretDemoAlertFromTitle() {
-        let randomSender = (currentLoggedInUser === "정희훈") ? "이준호" : "정희훈";
-        processIncomingMessageNotification(randomSender);
-    }
 
     function navigateTab(panelId, title, elem) {
         activeChatPartner = "";
@@ -1115,11 +1140,11 @@
         alert(`⚡ 최고 임원진 권한 인증 완료! 신규 공지가 배열망에 누적 보존되었으며, 전체 공지 개수는 총 ${globalNoticeArray.length}개로 확장되었습니다.`);
     }
 
-    function triggerDemoVideoChatAlert() {
-        const senderSelect = document.getElementById('demo-alert-sender').value;
-        closeSupervisorConsole(null);
-        processIncomingMessageNotification(senderSelect);
-    }
+    //function triggerDemoVideoChatAlert() {
+        //const senderSelect = document.getElementById('demo-alert-sender').value;
+        //closeSupervisorConsole(null);
+        //processIncomingMessageNotification(senderSelect);
+    //}
 
     function closeVideoAlertPopup() {
         if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
@@ -1128,10 +1153,10 @@
         document.getElementById('chat-video-alert-modal').style.display = "none";
     }
 
-    function jumpToAlertChatRoom() {
-        closeVideoAlertPopup();
-        jumpToDirectChat(demoTargetSenderCache, demoTargetSenderCache[0]);
-    }
+    //function jumpToAlertChatRoom() {
+        //closeVideoAlertPopup();
+        //jumpToDirectChat(demoTargetSenderCache, demoTargetSenderCache[0]);
+    //}
 
     function renderCoreLayout() {
         alumniDb.sort((a, b) => {
@@ -2069,6 +2094,9 @@ function loadLocalMessages(roomName){
 }
 
 function saveLocalMessage(roomName, messageData){
+
+  if(!roomName) return;
+
  const list = loadLocalMessages(roomName);
  list.push({
    ...messageData,
@@ -2776,11 +2804,13 @@ onMessage(
  messaging,
  (payload)=>{
 
- if(window.processIncomingMessageNotification){
-   processIncomingMessageNotification(
-    payload?.data?.sender || "새 메시지"
-   );
- }
+ 
+ //  if(window.processIncomingMessageNotification){
+ //   processIncomingMessageNotification(
+ //    payload?.data?.sender || "새 메시지"
+ //   );
+ // }
+
 
 });
 
@@ -4111,7 +4141,8 @@ function ymhCloseVideoAlert(){
 }
 
 function ymhOpenVideoAlertTargetRoom(){
-  const room = ymhVideoAlertTargetRoom || "영무회 공식 마케팅룸";
+  return;
+
   ymhCloseVideoAlert();
 
   try{
