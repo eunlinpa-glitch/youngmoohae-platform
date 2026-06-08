@@ -3598,23 +3598,8 @@ alert("전송 함수 시작");
          message = `<img src="${uploaded.url}" style="max-width:220px;border-radius:12px;display:block;">`;
 
       }else if(uploaded.type.startsWith("video/")){
-        const posterUrl = uploaded.thumbUrl || "";
-
-        message = `
-          <div
-            onclick="window.open('${uploaded.url}', '_blank')"
-            style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
-            ${
-             posterUrl
-               ? `<img src="${posterUrl}" style="width:100%;display:block;border-radius:14px;background:#000;">`
-               : `<div style="width:220px;height:300px;background:#000;border-radius:14px;"></div>`
-            }
-            <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:900;">
-              ▶
-            </div>
-          </div>
-        `;
-
+        message = `<a href="${uploaded.url}" target="_blank">▶ 동영상 보기</a>`;
+      
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
       }
