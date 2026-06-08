@@ -3318,7 +3318,8 @@ async function ymhUploadChatFile(roomName, file){
 
   const roomId = ymhMakeRoomId(roomName);
   const safeName = file.name.replace(/[^\w가-힣.\-]/g, "_");
-  const path = `chat_uploads/${roomId}/${Date.now()}_${safeName}`;
+  const baseTime = Date.now();
+  const path = `chat_uploads/${roomId}/${baseTime}_${safeName}`;
 
   const fileRef = ref(window.storage, path);
 
