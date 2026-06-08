@@ -3332,12 +3332,18 @@ async function ymhUploadChatFile(roomName, file){
 
   if(file.type && file.type.startsWith("video/")){
     try{
+       alert("3-1. 썸네일 생성 시작");
       const thumbBlob = await ymhCreateVideoThumbnail(file);
+        alert("3-2. 썸네일 생성 완료");
       const thumbRef = ref(window.storage, `chat_uploads/${roomId}/${baseTime}_thumb.jpg`);
+        alert("3-3. 썸네일 업로드 시작");
       await uploadBytes(thumbRef, thumbBlob);
+        alert("3-4. 썸네일 업로드 완료");
       thumbUrl = await getDownloadURL(thumbRef);
+        alert("3-5. 썸네일 URL 완료");
     }catch(e){
       console.warn("[YMH] video thumbnail failed", e);
+        alert("썸네일 생성 실패: " + e.message);
     }
   }
    
