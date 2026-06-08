@@ -3322,10 +3322,12 @@ async function ymhUploadChatFile(roomName, file){
   const path = `chat_uploads/${roomId}/${baseTime}_${safeName}`;
 
   const fileRef = ref(window.storage, path);
-
+  alert("1. 업로드 시작");
   await uploadBytes(fileRef, file);
+  alert("2. 업로드 완료");
 
   const url = await getDownloadURL(fileRef);
+  alert("3. URL 생성 완료");
   let thumbUrl = "";
 
   if(file.type && file.type.startsWith("video/")){
