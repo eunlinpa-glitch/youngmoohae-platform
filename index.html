@@ -818,20 +818,9 @@
               activeChatRooms.push(normalizedRoomName);
           }
           }
-             
-            const safeSenderName =
-               (typeof senderName !== "undefined" && senderName)
-                 ? senderName
-                 : "동문";
-
-            const safeGisuLabel =
-               (typeof gisuLabel !== "undefined" && gisuLabel)
-                 ? gisuLabel
-                 : "동문";     
 
         if (isVideoAlertEnabled) {
-            document.getElementById('alert-sender-title').innerText =
-               `${safeSenderName} 선배님 (${safeGisuLabel}) 신규 메시지`;
+            document.getElementById('alert-sender-title').innerText = `${senderName} 선배님 (${gisuLabel}) 신규 메시지`;
             
             const now = new Date();
             document.getElementById('alert-time-stamp').innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -844,7 +833,7 @@
         } else {
             const bottomBadge = document.getElementById('bottom-nav-chat-badge');
             if(bottomBadge) bottomBadge.style.display = "block";
-            alert(`💬 [백그라운드 알림] ${safeSenderName} 선배님으로부터 신규 메시지가 수신되었습니다.`);
+            alert(`💬 [백그라운드 알림] ${senderName} 선배님으로부터 신규 메시지가 수신되었습니다. (환경설정에서 영상 팝업 알림이 꺼져 있어 하단 채팅방 배지로 인덱싱 처리되었습니다.)`);
         }
 
     function triggerSecretDemoAlertFromTitle() {
@@ -2193,34 +2182,6 @@ return `
 </div>`;
 }
 
-window.openChatVideo = function(url){
-  const old = document.getElementById("chat-video-viewer");
-  if(old) old.remove();
-
-  const modal = document.createElement("div");
-  modal.id = "chat-video-viewer";
-  modal.style.cssText = `
-    position:fixed; inset:0; z-index:99999;
-    background:rgba(0,0,0,0.86);
-    display:flex; align-items:center; justify-content:center;
-    padding:18px;
-  `;
-
-  modal.innerHTML = `
-    <div style="position:relative;width:100%;max-width:420px;">
-      <button onclick="document.getElementById('chat-video-viewer').remove()"
-        style="position:absolute;right:0;top:-48px;width:42px;height:42px;border-radius:50%;border:none;background:#fff;color:#111;font-size:22px;font-weight:900;">
-        ×
-      </button>
-      <video src="${url}" controls playsinline autoplay
-        style="width:100%;max-height:78vh;border-radius:16px;background:#000;">
-      </video>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-};
-
 window.convertChatImages = function(){
 
   document.querySelectorAll(".msg-bubble").forEach(b=>{
@@ -3361,23 +3322,22 @@ async function ymhUploadChatFile(roomName, file){
   const path = `chat_uploads/${roomId}/${baseTime}_${safeName}`;
 
   const fileRef = ref(window.storage, path);
-  await uploadBytes(fileRef, file);
-  const url = await getDownloadURL(fileRef);
- 
-  let thumbUrl = "";
-  
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  if(file.type && file.type.startsWith("video/") && !isMobile){
-     try{
-       const thumbBlob = await ymhCreateVideoThumbnail(file);
-       const thumbRef = ref(window.storage, `chat_uploads/${roomId}/${baseTime}_thumb.jpg`);
-       await uploadBytes(thumbRef, thumbBlob);
-       thumbUrl = await getDownloadURL(thumbRef);
-     }catch(e){
-       console.warn("[YMH] video thumbnail failed", e);
-     }
-   }
+  await uploadBytes(fileRef, file);
+
+  const url = await getDownloadURL(fileRef);
+  let thumbUrl = "";
+
+  if(file.type && file.type.startsWith("video/")){
+    try{
+      const thumbBlob = await ymhCreateVideoThumbnail(file);
+      const thumbRef = ref(window.storage, `chat_uploads/${roomId}/${baseTime}_thumb.jpg`);
+      await uploadBytes(thumbRef, thumbBlob);
+      thumbUrl = await getDownloadURL(thumbRef);
+    }catch(e){
+      console.warn("[YMH] video thumbnail failed", e);
+    }
+  }
    
   return {
     name: file.name,
@@ -3607,7 +3567,7 @@ window.openChatRoom = function(name, letter){
 };
 
 window.executeSendMsg = async function(){
-alert("전송 함수 시작");
+
   const input = document.getElementById("live-chat-input");
   if(!input) return;
 
@@ -3635,27 +3595,26 @@ alert("전송 함수 시작");
 
       }else if(uploaded.type.startsWith("video/")){
         const posterUrl = uploaded.thumbUrl || "";
-        const videoUrl = uploaded.url;
 
         message = `
-          <div onclick="openChatVideo('${videoUrl}')" style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#f3f4f6;cursor:pointer;border:1px solid rgba(0,0,0,0.08);">
+          <div
+            onclick="window.open('${uploaded.url}', '_blank')"
+            style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
             ${
              posterUrl
-               ? `<img src="${posterUrl}" style="width:100%;display:block;border-radius:14px;">`
-               : `<div style="width:220px;height:150px;background:linear-gradient(135deg,#2d3748,#111827);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;">동영상</div>`
-             }
-             <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:900;">
-               ▶
-             </div>
+               ? `<img src="${posterUrl}" style="width:100%;display:block;border-radius:14px;background:#000;">`
+               : `<div style="width:220px;height:300px;background:#000;border-radius:14px;"></div>`
+            }
+            <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:900;">
+              ▶
+            </div>
           </div>
         `;
-      
+
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
       }
-      
       await ymhSaveChatRealtime(roomName, message);
-      
     }
 
     if(text){
