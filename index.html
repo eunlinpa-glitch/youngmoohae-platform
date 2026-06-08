@@ -3618,7 +3618,9 @@ alert("전송 함수 시작");
       }else{
         message = `<a href="${uploaded.url}" target="_blank" style="color:inherit;font-weight:800;">📎 ${uploaded.name}</a>`;
       }
+      alert("4. 메시지 저장 시작");
       await ymhSaveChatRealtime(roomName, message);
+      alert("5. 메시지 저장 완료");
     }
 
     if(text){
