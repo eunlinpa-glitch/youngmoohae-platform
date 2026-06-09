@@ -3722,7 +3722,7 @@ function openVideoViewer(url){
   modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
   modal.innerHTML = `
-    <button onclick="event.stopPropagation(); document.getElementById('video-viewer-modal')?.remove();"
+    <button onclick="event.stopPropagation(); closeVideoViewer();"
       style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
       ×
     </button>
@@ -3731,6 +3731,17 @@ function openVideoViewer(url){
   `;
 
   document.body.appendChild(modal);
+}
+
+function closeVideoViewer(){
+  document.getElementById("video-viewer-modal")?.remove();
+
+  setTimeout(()=>{
+    if(Array.isArray(alumniDb) && alumniDb.length > 0){
+      localStorage.setItem("ymh_alumni_db", JSON.stringify(alumniDb));
+      renderCoreLayout();
+    }
+  }, 100);
 }
 
 </script>
