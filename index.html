@@ -1339,6 +1339,7 @@
 
        /* [채팅방 열기]  */
     function openChatRoom(partnerName, letter) {
+        sessionStorage.setItem("ymh_last_room", partnerName);
         const partner = alumniDb.find(p => p.name === partnerName);
 
         if (partner) {
@@ -4336,6 +4337,15 @@ setTimeout(()=>{
 
 window.addEventListener("focus", ()=>{
    console.log("FOCUS TEST");
+
+   const room = sessionStorage.getItem("ymh_last_room");
+   if(room){
+     setTimeout(()=>{
+       navigateTab('chat', '채팅', document.getElementById('nav-chat'));
+       openChatRoom(room, room[0] || '');
+     }, 500);
+   }
+     
     //ymhRenameOfficialRoomToLounge();
     //ymhStartVideoAlertListener();
 });
