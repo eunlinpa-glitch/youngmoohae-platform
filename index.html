@@ -2931,7 +2931,10 @@ function ymhSaveCurrentProfileLocal(profile){
   }
 
   localStorage.setItem("ymh_alumni_db", JSON.stringify(list));
-  alumniDb = list;
+
+  if (!Array.isArray(alumniDb) || alumniDb.length === 0) {
+    alumniDb = list;
+  }
 }
 
 function ymhLoadCurrentProfileLocal(){
