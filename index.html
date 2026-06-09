@@ -3638,7 +3638,7 @@ window.executeSendMsg = async function(){
 
         message = `
           <div
-            onclick="window.open('${uploaded.url}', '_blank')"
+            onclick="openVideoViewer('${uploaded.url}')"
             style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
             ${
              posterUrl
@@ -3712,6 +3712,27 @@ setTimeout(()=>{
 
   console.log("[YMH] member/chat stability patch ready");
 }, 700);
+
+function openVideoViewer(url){
+  const old = document.getElementById("video-viewer-modal");
+  if(old) old.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "video-viewer-modal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
+
+  modal.innerHTML = `
+    <button onclick="document.getElementById('video-viewer-modal')?.remove();"
+      style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
+      ×
+    </button>
+    <video src="${url}" controls autoplay playsinline
+      style="max-width:94vw;max-height:82vh;border-radius:14px;background:#000;"></video>
+  `;
+
+  document.body.appendChild(modal);
+}
+
 </script>
 <!-- YM Member + Chat Stability Patch END -->
 
