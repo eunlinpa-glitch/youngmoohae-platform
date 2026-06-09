@@ -3547,13 +3547,16 @@ function ymhSubscribeMembers(){
   ymhUnsubscribeMembers = onSnapshot(
     collection(window.db, "users"),
     (snap)=>{
+      const freshList = [];
+
       snap.forEach(d=>{
         const data = d.data();
         if(data?.memberId && data.approved !== false){
-          ymhUpsertAlumni(data);
+          freshList.push(data);
         }
       });
 
+      alumniDb = freshList;
       localStorage.setItem("ymh_alumni_db", JSON.stringify(alumniDb));
       renderCoreLayout();
 
