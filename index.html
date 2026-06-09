@@ -3580,9 +3580,6 @@ window.saveProfileData = async function(){
 
 const ymhOldOpenChatRoom = window.openChatRoom;
 window.openChatRoom = function(name, letter){
-  if(typeof navigateTab === "function"){
-    navigateTab('chat', '채팅', document.getElementById('nav-chat'));
-  }
   
   window.activeChatPartner = name;
 
@@ -3642,7 +3639,7 @@ window.executeSendMsg = async function(){
 
         message = `
           <div
-            onclick="event.stopPropagation(); openVideoViewer('${uploaded.url}', '${roomName}')"
+            onclick="event.stopPropagation(); window.open('${uploaded.url}', '_blank')"
             style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
             ${
              posterUrl
