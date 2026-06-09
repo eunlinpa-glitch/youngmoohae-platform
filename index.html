@@ -3722,7 +3722,7 @@ function openVideoViewer(url, returnRoom){
   modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
   modal.innerHTML = `
-    <button onclick="event.stopPropagation(); document.getElementById('video-viewer-modal')?.remove(); if(window.activeChatPartner){ setTimeout(function(){ openChatRoom(window.activeChatPartner, window.activeChatPartner[0] || ''); }, 80); }"
+    <button onclick="event.stopPropagation(); const room = window.activeChatPartner; document.getElementById('video-viewer-modal')?.remove(); if(room){ setTimeout(function(){ navigateTab('chat', '채팅', document.getElementById('nav-chat')); openChatRoom(room, room[0] || ''); }, 120); }"
       style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
       ×
     </button>
