@@ -3602,7 +3602,12 @@ window.openChatRoom = function(name, letter){
     } 
 
   if(typeof ymhOldOpenChatRoom === "function"){
-    ymhOldOpenChatRoom(name, letter);
+   ymhOldOpenChatRoom(name, letter);
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.getElementById('nav-chat')?.classList.add('active');
+
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-chat')?.classList.add('active');
   }
 
   ymhSubscribeChat(name);
