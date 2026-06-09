@@ -3583,6 +3583,11 @@ window.saveProfileData = async function(){
 
 const ymhOldOpenChatRoom = window.openChatRoom;
 window.openChatRoom = function(name, letter){
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('nav-chat')?.classList.add('active');
+
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-chat')?.classList.add('active');
   
   window.activeChatPartner = name;
 
