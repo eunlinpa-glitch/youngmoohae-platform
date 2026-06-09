@@ -867,11 +867,13 @@
         }
 
     function navigateTab(panelId, title, elem) {
+        if(panelId !== 'chat') {
         activeChatPartner = "";
         document.getElementById('chat-list-view').style.display = 'block';
         document.getElementById('chat-room-view').style.display = 'none';
         document.getElementById('global-back-btn').style.display = 'none';
         document.getElementById('global-nav-bar').style.pointerEvents = "";
+        }
         document.getElementById('global-nav-bar').style.opacity = "";
 
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -3726,11 +3728,12 @@ function openVideoViewer(url, returnRoom){
    <button onclick="
       event.stopPropagation(); 
       document.getElementById('video-viewer-modal')?.remove();"
-      // ★ 영상 닫은 후 원래 챗방으로 복귀
-      if('${returnRoom}') window.openChatRoom('${returnRoom}', '${returnRoom[0]}');
-    " style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">×</button>
-      <video src="${url}" controls playsinline style="max-width:94vw;max-height:82vh;border-radius:14px;background:#000;"></video>
-   `;
+      style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
+      ×
+    </button>
+    <video src="${url}" controls playsinline
+      style="max-width:94vw;max-height:82vh;border-radius:14px;background:#000;"></video>
+  `;
 
   const chatBody = document.getElementById("chat-bg-fixed");
     (chatBody || document.body).appendChild(modal);
@@ -4175,9 +4178,9 @@ function ymhCloseVideoAlert(){
 }
 
 function ymhOpenVideoAlertTargetRoom(){
-  ymhCloseVideoAlert();
+  return;
 
-  const room = ymhVideoAlertTargetRoom;
+  ymhCloseVideoAlert();
 
   try{
     const navChat = document.getElementById("nav-chat");
