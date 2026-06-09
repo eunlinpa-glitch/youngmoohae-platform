@@ -3714,6 +3714,8 @@ setTimeout(()=>{
 }, 700);
 
 function openVideoViewer(url){
+  const returnRoom = window.activeChatPartner || activeChatPartner || ymhGetActiveRoomName();
+
   const old = document.getElementById("video-viewer-modal");
   if(old) old.remove();
 
@@ -3722,8 +3724,16 @@ function openVideoViewer(url){
   modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
   modal.innerHTML = `
-    <button onclick="event.stopPropagation(); document.getElementById('video-viewer-modal')?.remove();"
-      style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
+    <button onclick="
+      event.stopPropagation();
+      document.getElementById('video-viewer-modal')?.remove();
+      if('${returnRoom}'){
+        setTimeout(function(){
+          openChatRoom('${returnRoom}', '${returnRoom ? returnRoom[0] : ""}');
+        }, 80);
+      }
+    "
+    style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
       ×
     </button>
     <video src="${url}" controls autoplay playsinline
