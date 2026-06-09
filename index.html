@@ -3580,6 +3580,10 @@ window.saveProfileData = async function(){
 
 const ymhOldOpenChatRoom = window.openChatRoom;
 window.openChatRoom = function(name, letter){
+  if(typeof navigateTab === "function"){
+    navigateTab('chat', '채팅', document.getElementById('nav-chat'));
+  }
+  
   window.activeChatPartner = name;
 
     if (
