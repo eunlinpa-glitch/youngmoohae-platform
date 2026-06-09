@@ -3638,7 +3638,7 @@ window.executeSendMsg = async function(){
 
         message = `
           <div
-            onclick="event.stopPropagation(); openVideoViewer('${uploaded.url}')"
+            onclick="event.stopPropagation(); openVideoViewer('${uploaded.url}', '${roomName}')"
             style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
             ${
              posterUrl
@@ -3713,7 +3713,7 @@ setTimeout(()=>{
   console.log("[YMH] member/chat stability patch ready");
 }, 700);
 
-function openVideoViewer(url){
+function openVideoViewer(url, returnRoom){
   const old = document.getElementById("video-viewer-modal");
   if(old) old.remove();
 
