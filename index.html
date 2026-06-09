@@ -3653,7 +3653,7 @@ window.executeSendMsg = async function(){
 
         message = `
           <div
-            onclick="event.stopPropagation(); window.open('${uploaded.url}', '_blank')"
+            onclick="event.stopPropagation(); localStorage.setItem('ymh_return_after_video','1'); localStorage.setItem('ymh_return_room','${roomName}'); window.open('${uploaded.url}', '_blank')"
             style="position:relative;max-width:220px;border-radius:14px;overflow:hidden;background:#000;cursor:pointer;">
             ${
              posterUrl
@@ -3751,7 +3751,30 @@ function openVideoViewer(url, returnRoom){
     (chatBody || document.body).appendChild(modal);
 }
 
+function ymhRestoreAfterVideo(){
+  const needReturn = localStorage.getItem("ymh_return_after_video");
+  const room = localStorage.getItem("ymh_return_room");
+
+  if(needReturn === "1" && room){
+    localStorage.removeItem("ymh_return_after_video");
+
+    setTimeout(()=>{
+      navigateTab("chat", "채팅", document.getElementById("nav-chat"));
+      openChatRoom(room, room[0] || "");
+    }, 700);
+  }
+}
+
+window.ymhRestoreAfterVideo = ymhRestoreAfterVideo;
+
+window.addEventListener("pageshow", ymhRestoreAfterVideo);
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden) ymhRestoreAfterVideo();
+});
+window.addEventListener("focus", ymhRestoreAfterVideo);
+
 </script>
+
 <!-- YM Member + Chat Stability Patch END -->
 
 <!-- YM Lounge Name + Video Alert Patch START -->
@@ -4345,7 +4368,7 @@ window.addEventListener("focus", ()=>{
        openChatRoom(room, room[0] || '');
      }, 500);
    }
-     
+
     //ymhRenameOfficialRoomToLounge();
     //ymhStartVideoAlertListener();
 });
