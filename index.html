@@ -2030,6 +2030,10 @@ window.debugFirebaseChatState = debugFirebaseChatState;
 
 function getAlumniNames(){
   try{
+    if(Array.isArray(alumniDb) && alumniDb.length > 0){
+      return alumniDb.map(p => p.name).filter(Boolean);
+    }
+
     const list = JSON.parse(localStorage.getItem("ymh_alumni_db") || "[]");
     return list.map(p => p.name).filter(Boolean);
   }catch(e){
