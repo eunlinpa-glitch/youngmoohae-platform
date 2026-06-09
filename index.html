@@ -3098,7 +3098,7 @@ function ymhGetActiveRoomName(){
   const nonRooms = ["영무회 동문", "채팅", "AI 라운지", "내 정보"];
   if(header && !nonRooms.includes(header)) return header;
 
-  return "";
+  return window.lastActiveChatRoom || "";
 }
 
 function ymhGetRoomMembers(roomName){
@@ -3705,10 +3705,10 @@ window.ymhNormalizePhoneForTest = ymhNormalizePhone;
 setTimeout(()=>{
   ymhSeedLocalMembers();
 
-  ymhSubscribeMembers();
-
   const saved = ymhLoadCurrentProfileLocal();
   if(saved?.memberId) ymhApplyProfileToScreen(saved);
+
+  ymhSubscribeMembers();
 
   console.log("[YMH] member/chat stability patch ready");
 }, 700);
