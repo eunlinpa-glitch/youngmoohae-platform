@@ -3723,13 +3723,14 @@ function openVideoViewer(url, returnRoom){
   modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
   modal.innerHTML = `
-   <button onclick="event.stopPropagation(); document.getElementById('video-viewer-modal')?.remove();"
-      style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">
-      ×
-    </button>
-    <video src="${url}" controls playsinline
-      style="max-width:94vw;max-height:82vh;border-radius:14px;background:#000;"></video>
-  `;
+   <button onclick="
+      event.stopPropagation(); 
+      document.getElementById('video-viewer-modal')?.remove();"
+      // ★ 영상 닫은 후 원래 챗방으로 복귀
+      if('${returnRoom}') window.openChatRoom('${returnRoom}', '${returnRoom[0]}');
+    " style="position:absolute;top:18px;right:18px;z-index:100000;background:#111;color:#fff;border:1px solid #555;border-radius:50%;width:38px;height:38px;font-size:22px;">×</button>
+      <video src="${url}" controls playsinline style="max-width:94vw;max-height:82vh;border-radius:14px;background:#000;"></video>
+   `;
 
   const chatBody = document.getElementById("chat-bg-fixed");
     (chatBody || document.body).appendChild(modal);
