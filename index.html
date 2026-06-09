@@ -4175,9 +4175,9 @@ function ymhCloseVideoAlert(){
 }
 
 function ymhOpenVideoAlertTargetRoom(){
-  return;
-
   ymhCloseVideoAlert();
+
+  const room = ymhVideoAlertTargetRoom;
 
   try{
     const navChat = document.getElementById("nav-chat");
